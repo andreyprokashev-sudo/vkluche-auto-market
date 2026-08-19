@@ -15,7 +15,7 @@
     <div class="container nav">
       <a class="brand" href="#" aria-label="ВКЛЮЧЕ"><span class="brand-mark">В</span><span>ВКЛЮЧЕ</span></a>
       <nav class="nav-links" id="navLinks">
-        <a class="active" href="#catalog">Автомобили</a><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a>
+        <a class="active" href="#catalog">Автомобили</a><a href="#auctions">Аукцион</a><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a>
       </nav>
       <div class="nav-actions">
         <button class="icon-btn favorite-top" aria-label="Избранное">♡ <span id="favCount">0</span></button>
@@ -55,6 +55,17 @@
       <a href="#catalog" data-filter="suv"><span class="quick-icon">▰</span><b>Кроссоверы</b><small>и внедорожники</small></a>
       <a href="#catalog" data-filter="electric"><span class="quick-icon">ϟ</span><b>Электромобили</b><small>и гибриды</small></a>
       <a href="#services"><span class="quick-icon">⌁</span><b>Автокредит</b><small>решение за 5 минут</small></a>
+    </section>
+
+    <section class="auctions-section" id="auctions">
+      <div class="container">
+        <div class="section-head auction-section-head">
+          <div><span class="eyebrow blue">ТОРГИ В РЕАЛЬНОМ ВРЕМЕНИ</span><h2>ВКЛЮЧЕ Аукцион</h2><p>Предлагайте свою цену — продавец выберет лучшее предложение.</p></div>
+          <a class="auction-rules-link" href="#services">Как это работает →</a>
+        </div>
+        <div class="auction-grid" id="auctionGrid"></div>
+        <div class="auction-empty" id="auctionEmpty"><b>Сейчас нет активных торгов</b><span>Разместите автомобиль и выберите продажу через аукцион.</span><button class="primary-btn open-modal" type="button">Запустить аукцион</button></div>
+      </div>
     </section>
 
     <section class="catalog container" id="catalog">
