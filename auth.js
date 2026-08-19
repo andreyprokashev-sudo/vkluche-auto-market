@@ -5,6 +5,7 @@
   const configured = Boolean(config.url && config.anonKey && window.supabase);
   const client = configured ? window.supabase.createClient(config.url, config.anonKey) : null;
   let user = null;
+  let role = 'buyer';
   let pendingAction = null;
   const roleLabels = { buyer: 'Покупатель', seller: 'Продавец', admin: 'Администратор' };
   const triggers = () => document.querySelectorAll('.auth-trigger');
@@ -19,9 +20,10 @@
     if (!user) return;
     document.querySelector('#profileName').textContent = name;
     document.querySelector('#profileEmail').textContent = user.email || '';
-    document.querySelector('#profileRole').textContent = roleLabels[user.user_metadata?.role] || 'Покупатель';
+    document.querySelector('#profileRole').textContent = roleLabels[role] || 'Покупатель';
     document.querySelector('#profileAvatar').textContent = name.trim().charAt(0).toUpperCase() || 'В';
   }
+  async function syncProfile() { if (!client || !user) { role = 'buyer'; return; } const { data } = await client.from('profiles').select('role').eq('id', user.id).maybeSingle(); role = data?.role || user.user_metadata?.role || 'buyer'; updateUi(); window.dispatchEvent(new CustomEvent('vkluche:profile', { detail: { user, role } })); }
   function friendlyError(error) {
     const value = error?.message || 'Не удалось выполнить операцию';
     if (/invalid login credentials/i.test(value)) return 'Неверная почта или пароль.';
@@ -41,7 +43,7 @@
   document.querySelectorAll('[data-auth-switch]').forEach(button => button.addEventListener('click', () => showView(button.dataset.authSwitch)));
   document.querySelector('#loginForm').addEventListener('submit', event => {
     event.preventDefault(); const form = new FormData(event.currentTarget);
-    submit(event.submitter, async () => { const { data, error } = await client.auth.signInWithPassword({ email: form.get('email').trim(), password: form.get('password') }); if (error) throw error; user = data.user; updateUi(); close(); window.dispatchEvent(new CustomEvent('vkluche:auth', { detail: { user } })); if (pendingAction) { const action = pendingAction; pendingAction = null; action(); } });
+    submit(event.submitter, async () => { const { data, error } = await client.auth.signInWithPassword({ email: form.get('email').trim(), password: form.get('password') }); if (error) throw error; user = data.user; await syncProfile(); close(); window.dispatchEvent(new CustomEvent('vkluche:auth', { detail: { user, role } })); if (pendingAction) { const action = pendingAction; pendingAction = null; action(); } });
   });
   document.querySelector('#registerForm').addEventListener('submit', event => {
     event.preventDefault(); const form = new FormData(event.currentTarget);
@@ -57,6 +59,6 @@
   });
   document.querySelector('#logoutButton').addEventListener('click', async () => { const { error } = await client.auth.signOut(); if (error) return showMessage(friendlyError(error), 'error'); user = null; updateUi(); close(); window.dispatchEvent(new CustomEvent('vkluche:auth', { detail: { user: null } })); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('open')) close(); });
-  window.vklucheAuth = { isConfigured: configured, getUser: () => user, getClient: () => client, open, require(action) { if (user) return true; pendingAction = typeof action === 'function' ? action : null; open(configured ? 'login' : 'setup'); return false; } };
-  if (client) { client.auth.getSession().then(({ data }) => { user = data.session?.user || null; updateUi(); }); client.auth.onAuthStateChange((event, session) => { user = session?.user || null; updateUi(); if (event === 'PASSWORD_RECOVERY') open('new-password'); }); } else updateUi();
+  window.vklucheAuth = { isConfigured: configured, getUser: () => user, getRole: () => role, refreshProfile: syncProfile, getClient: () => client, open, require(action) { if (user) return true; pendingAction = typeof action === 'function' ? action : null; open(configured ? 'login' : 'setup'); return false; } };
+  if (client) { client.auth.getSession().then(async ({ data }) => { user = data.session?.user || null; await syncProfile(); updateUi(); }); client.auth.onAuthStateChange((event, session) => { user = session?.user || null; if (!user) role = 'buyer'; updateUi(); if (event === 'PASSWORD_RECOVERY') open('new-password'); }); } else updateUi();
 })();
