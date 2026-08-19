@@ -16,7 +16,7 @@
   function close() { modal.classList.remove('open'); document.body.style.overflow = ''; }
   function updateUi() {
     const name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Пользователь';
-    triggers().forEach(button => { button.textContent = user ? name : 'Войти'; button.classList.toggle('authenticated', Boolean(user)); });
+    triggers().forEach(button => { if (button.classList.contains('profile-trigger')) { button.innerHTML = `<span class="profile-trigger-avatar">${user ? name.trim().charAt(0).toUpperCase() : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>'}</span>`; button.title = user ? name : 'Войти'; button.setAttribute('aria-label', user ? `Профиль: ${name}` : 'Войти'); } else button.textContent = user ? name : 'Войти'; button.classList.toggle('authenticated', Boolean(user)); });
     if (!user) return;
     document.querySelector('#profileName').textContent = name;
     document.querySelector('#profileEmail').textContent = user.email || '';

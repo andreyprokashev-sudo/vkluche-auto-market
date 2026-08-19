@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
   <link rel="stylesheet" href="brand.css" />
   <link rel="stylesheet" href="mobile.css" />
   <link rel="stylesheet" href="auth.css" />
@@ -23,15 +23,14 @@
     <div class="container nav">
       <a class="brand" href="#" aria-label="ВКЛЮЧЕ"><span class="brand-mark">В</span><span class="brand-word">КЛЮЧЕ</span></a>
       <nav class="nav-links" id="navLinks">
-        <a class="active" href="#catalog">Автомобили</a><a href="#auctions">Аукцион</a><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a>
-        <div class="mobile-nav-actions"><button class="auth-trigger" type="button">Войти</button><button class="open-modal" type="button">Разместить объявление</button><button class="open-feed" type="button">Загрузить фид</button></div>
+        <a class="active" href="#catalog">Автомобили</a><a href="#auctions">Аукцион</a><details class="more-nav"><summary>Ещё <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary><div><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a><button class="open-feed" type="button">Загрузить фид</button></div></details>
+        <div class="mobile-nav-actions"><button class="open-modal" type="button">Продать автомобиль</button><button class="open-feed" type="button">Загрузить фид</button></div>
       </nav>
       <div class="nav-actions">
-        <button class="icon-btn favorite-top" aria-label="Избранное">♡ <span id="favCount">0</span></button>
-        <button class="login-btn auth-trigger" type="button">Войти</button>
-        <button class="login-btn open-feed" type="button">Загрузить фид</button>
-        <button class="primary-btn open-modal">Разместить объявление</button>
-        <button class="menu-btn" id="menuBtn" aria-label="Меню">☰</button>
+        <button class="header-icon favorite-top" aria-label="Избранное" title="Избранное"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg><span class="header-badge" id="favCount">0</span></button>
+        <button class="profile-trigger auth-trigger" type="button" aria-label="Профиль" title="Профиль"><span class="profile-trigger-avatar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg></span></button>
+        <button class="primary-btn header-sell open-modal">Продать</button>
+        <button class="menu-btn header-icon" id="menuBtn" aria-label="Меню"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       </div>
     </div>
   </header>
@@ -213,7 +212,7 @@
   <div class="toast" id="toast">Готово</div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="auth.js?v=2"></script>
-  <script src="app.js?v=5"></script>
+  <script src="auth.js?v=3"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
