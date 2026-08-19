@@ -39,7 +39,7 @@ document.querySelectorAll('.quick a[data-filter]').forEach(a=>a.addEventListener
 grid.addEventListener('click',e=>{const b=e.target.closest('.fav-btn');if(b){e.stopPropagation();const rawId=b.dataset.id,id=/^\d+$/.test(rawId)?+rawId:rawId;saved.has(id)?saved.delete(id):saved.add(id);localStorage.setItem('vkluche-favs',JSON.stringify([...saved]));render();toast(saved.has(id)?'Добавлено в избранное':'Удалено из избранного');return}const card=e.target.closest('.car-card');if(card){const visible=filtered(),index=[...grid.children].indexOf(card);openDetail(visible[index]);renderAuction(visible[index])}});
 document.querySelectorAll('.view-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.view-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');grid.classList.toggle('list-view',b.dataset.view==='list')}));
 document.querySelector('#resetBtn').addEventListener('click',()=>{activeFilter='all';document.querySelector('#searchForm').reset();document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x.dataset.filter==='all'));render()});
-document.querySelector('#loadMore').addEventListener('click',()=>toast('Вы посмотрели все свежие объявления'));
+document.querySelector('#loadMore').addEventListener('click',()=>{});
 const modal=document.querySelector('#modal');let wizardStep=0,uploadedPhotos=[],uploadedDocuments=[];const listingForm=document.querySelector('#listingForm');
 let carModels={
   'Audi':['A3','A4','A5','A6','A7','A8','Q3','Q5','Q7','Q8'],
