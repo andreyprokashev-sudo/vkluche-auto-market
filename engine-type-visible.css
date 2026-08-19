@@ -1,0 +1,2 @@
+.car-meta .engine-type{display:flex;align-items:center;justify-content:space-between;flex-basis:100%;padding:7px 9px;border-radius:8px;background:#edf3ff;color:#315fae}.car-meta .engine-type:before{content:'◆';font-size:7px}.car-meta .engine-type small{margin-right:auto;margin-left:5px;color:#667da5;font-size:8px}.car-meta .engine-type b{font-size:10px}
+@media(max-width:650px){.car-meta .engine-type{display:flex!important}.car-meta .engine-type small{display:inline!important}.car-meta .engine-type b{display:inline!important}}
