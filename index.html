@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="dropdown-filters.css" />
   <link rel="stylesheet" href="listing-details.css" />
   <link rel="stylesheet" href="engine-type-visible.css?v=2" />
+  <link rel="stylesheet" href="trust.css?v=1" />
 </head>
 <body>
   <header class="topbar">
@@ -39,14 +40,14 @@
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-copy">
-          <span class="eyebrow">Более 48 000 проверенных автомобилей</span>
+          <span class="eyebrow" id="catalogTrustLabel">Автомобили от владельцев и дилеров</span>
           <h1>Ваш автомобиль<br><em>уже рядом</em></h1>
           <p>Находите, сравнивайте и покупайте автомобили у владельцев и проверенных дилеров.</p>
         </div>
         <div class="hero-art" aria-hidden="true">
           <div class="hero-orbit"></div>
           <img src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1100&q=85" alt="" />
-          <div class="trust-pill"><b>4.9</b><span>★ рейтинг продавцов</span></div>
+          <div class="trust-pill"><b id="liveListingCount">—</b><span>объявлений в каталоге</span></div>
         </div>
         <form class="search-panel" id="searchForm">
           <label class="search-main"><span>Что ищете?</span><input id="searchInput" type="search" placeholder="Марка, модель или ключевое слово"></label>
@@ -213,6 +214,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="auth.js?v=3"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
