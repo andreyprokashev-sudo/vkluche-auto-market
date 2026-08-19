@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="brand.css" />
   <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="auth.css" />
 </head>
 <body>
   <header class="topbar">
@@ -18,11 +19,11 @@
       <a class="brand" href="#" aria-label="ВКЛЮЧЕ"><span class="brand-mark">В</span><span class="brand-word">КЛЮЧЕ</span></a>
       <nav class="nav-links" id="navLinks">
         <a class="active" href="#catalog">Автомобили</a><a href="#auctions">Аукцион</a><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a>
-        <div class="mobile-nav-actions"><button class="open-modal" type="button">Разместить объявление</button><button class="open-feed" type="button">Загрузить фид</button></div>
+        <div class="mobile-nav-actions"><button class="auth-trigger" type="button">Войти</button><button class="open-modal" type="button">Разместить объявление</button><button class="open-feed" type="button">Загрузить фид</button></div>
       </nav>
       <div class="nav-actions">
         <button class="icon-btn favorite-top" aria-label="Избранное">♡ <span id="favCount">0</span></button>
-        <button class="login-btn">Войти</button>
+        <button class="login-btn auth-trigger" type="button">Войти</button>
         <button class="login-btn open-feed" type="button">Загрузить фид</button>
         <button class="primary-btn open-modal">Разместить объявление</button>
         <button class="menu-btn" id="menuBtn" aria-label="Меню">☰</button>
@@ -140,7 +141,40 @@
       </div>
     </section>
   </div>
+  <div class="modal auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="modal-backdrop" data-auth-close></div>
+    <div class="modal-card auth-card">
+      <button class="modal-close" type="button" aria-label="Закрыть" data-auth-close>×</button>
+      <div class="auth-brand"><span class="brand-mark">В</span><span><b>Личный кабинет</b><small>ВКЛЮЧЕ</small></span></div>
+      <section class="auth-view active" data-auth-view="login">
+        <span class="eyebrow blue">ДОБРО ПОЖАЛОВАТЬ</span><h2 id="authTitle">Войти</h2><p>Войдите, чтобы размещать объявления и участвовать в аукционах.</p>
+        <form id="loginForm" class="auth-form"><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Не менее 6 символов"></label><button class="primary-btn" type="submit">Войти</button></form>
+        <div class="auth-links"><button type="button" data-auth-switch="reset">Забыли пароль?</button><button type="button" data-auth-switch="register">Создать аккаунт</button></div>
+      </section>
+      <section class="auth-view" data-auth-view="register">
+        <span class="eyebrow blue">РЕГИСТРАЦИЯ</span><h2>Создать аккаунт</h2><p>Один аккаунт подходит для покупки и продажи автомобилей.</p>
+        <form id="registerForm" class="auth-form"><label>Имя<input name="name" autocomplete="name" required maxlength="60" placeholder="Александр"></label><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><label>Тип аккаунта<select name="role"><option value="buyer">Покупатель</option><option value="seller">Продавец</option></select></label><label class="auth-consent"><input type="checkbox" required><span>Соглашаюсь с правилами сервиса и обработкой персональных данных</span></label><button class="primary-btn" type="submit">Зарегистрироваться</button></form>
+        <div class="auth-links"><button type="button" data-auth-switch="login">Уже есть аккаунт — войти</button></div>
+      </section>
+      <section class="auth-view" data-auth-view="reset">
+        <span class="eyebrow blue">ВОССТАНОВЛЕНИЕ</span><h2>Сбросить пароль</h2><p>Отправим на почту безопасную ссылку для создания нового пароля.</p>
+        <form id="resetForm" class="auth-form"><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><button class="primary-btn" type="submit">Отправить ссылку</button></form><div class="auth-links"><button type="button" data-auth-switch="login">← Вернуться ко входу</button></div>
+      </section>
+      <section class="auth-view" data-auth-view="new-password">
+        <span class="eyebrow blue">НОВЫЙ ПАРОЛЬ</span><h2>Придумайте пароль</h2><p>После сохранения вы останетесь в своем аккаунте.</p>
+        <form id="newPasswordForm" class="auth-form"><label>Новый пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><button class="primary-btn" type="submit">Сохранить пароль</button></form>
+      </section>
+      <section class="auth-view" data-auth-view="profile">
+        <span class="eyebrow blue">ЛИЧНЫЙ КАБИНЕТ</span><h2 id="profileName">Пользователь</h2><div class="profile-summary"><span class="profile-avatar" id="profileAvatar">В</span><div><b id="profileEmail"></b><small id="profileRole"></small></div></div><button class="auth-logout" id="logoutButton" type="button">Выйти из аккаунта</button>
+      </section>
+      <section class="auth-view auth-setup" data-auth-view="setup"><span class="eyebrow blue">НУЖНА НАСТРОЙКА</span><h2>Подключите Supabase</h2><p>Интерфейс авторизации готов. Укажите URL проекта и публичный anon key в файле <code>supabase-config.js</code>.</p></section>
+      <div class="auth-message" id="authMessage" role="status" aria-live="polite"></div>
+    </div>
+  </div>
   <div class="toast" id="toast">Готово</div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
