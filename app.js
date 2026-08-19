@@ -202,7 +202,7 @@ async function loadRemoteListings(){
   const client=window.vklucheAuth?.getClient();if(!client)return;
   const{data,error}=await client.from('listings').select('id,owner_id,data,status,verification_status,vin,registration_plate').eq('active',true).eq('status','published').order('updated_at',{ascending:false});
   if(error){console.warn(`Каталог Supabase пока недоступен: ${error.message}`);return}
-  for(let i=cars.length-1;i>=0;i--)if(cars[i].source==='automatic-feed'||cars[i].listingId)cars.splice(i,1);
+  for(let i=cars.length-1;i>=0;i--)if(cars[i].source==='automatic-feed'||cars[i].listingId||(Number.isInteger(cars[i].id)&&cars[i].id>=1&&cars[i].id<=8))cars.splice(i,1);
   const remoteCars=data.map(row=>({...row.data,listingId:row.id,ownerId:row.owner_id,listingStatus:row.status,verificationStatus:row.verification_status,details:{...(row.data.details||{}),vin:row.vin||row.data.details?.vin,registrationPlate:row.registration_plate||row.data.details?.registrationPlate}}));
   const{data:auctionRows,error:auctionError}=await client.from('auctions').select('*,auction_bids!auction_bids_auction_id_fkey(*),auction_deals(*),auction_audit_log(*)').in('listing_id',data.map(row=>row.id));
   if(auctionError)console.warn(`Аукционы пока недоступны: ${auctionError.message}`);

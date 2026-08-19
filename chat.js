@@ -111,10 +111,14 @@
   }
   async function openForCar(car) {
     if (!window.vklucheAuth?.require(() => openForCar(car))) return;
-    if (!car?.listingId || !car.ownerId)
-      return toast("Чат доступен для опубликованных объявлений с продавцом");
-    if (car.ownerId === window.vklucheAuth.getUser().id)
-      return toast("Это ваше объявление");
+    if (!car?.listingId)
+      return toast("Это демонстрационная карточка без реального продавца");
+    if (!car.ownerId)
+      return toast("К объявлению не привязан аккаунт продавца");
+    if (car.ownerId === window.vklucheAuth.getUser().id) {
+      toast("Это ваше объявление — открываем входящие диалоги");
+      return openInbox();
+    }
     modal.classList.add("open");
     document.body.style.overflow = "hidden";
     const { data, error } = await window.vklucheAuth
