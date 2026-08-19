@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ВКЛЮЧЕ — объявления о продаже автомобилей" />
+  <title>ВКЛЮЧЕ — автомобили с пробегом и новые</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#" aria-label="ВКЛЮЧЕ"><span class="brand-mark">В</span><span>ВКЛЮЧЕ</span></a>
+      <nav class="nav-links" id="navLinks">
+        <a class="active" href="#catalog">Автомобили</a><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-btn favorite-top" aria-label="Избранное">♡ <span id="favCount">0</span></button>
+        <button class="login-btn">Войти</button>
+        <button class="login-btn open-feed" type="button">Загрузить фид</button>
+        <button class="primary-btn open-modal">Разместить объявление</button>
+        <button class="menu-btn" id="menuBtn" aria-label="Меню">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">Более 48 000 проверенных автомобилей</span>
+          <h1>Ваш автомобиль<br><em>уже рядом</em></h1>
+          <p>Находите, сравнивайте и покупайте автомобили у владельцев и проверенных дилеров.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-orbit"></div>
+          <img src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1100&q=85" alt="" />
+          <div class="trust-pill"><b>4.9</b><span>★ рейтинг продавцов</span></div>
+        </div>
+        <form class="search-panel" id="searchForm">
+          <label class="search-main"><span>Что ищете?</span><input id="searchInput" type="search" placeholder="Марка, модель или ключевое слово"></label>
+          <label><span>Цена до</span><input id="priceInput" type="number" placeholder="Любая"></label>
+          <label><span>Город</span><select id="cityInput"><option value="">Вся Россия</option><option>Москва</option><option>Санкт-Петербург</option><option>Казань</option><option>Самара</option></select></label>
+          <button class="search-btn" type="submit">Найти <span>→</span></button>
+        </form>
+      </div>
+    </section>
+
+    <section class="quick container">
+      <a href="#catalog" data-filter="new"><span class="quick-icon">✦</span><b>Новые авто</b><small>от дилеров</small></a>
+      <a href="#catalog" data-filter="used"><span class="quick-icon">↻</span><b>С пробегом</b><small>от владельцев</small></a>
+      <a href="#catalog" data-filter="suv"><span class="quick-icon">▰</span><b>Кроссоверы</b><small>и внедорожники</small></a>
+      <a href="#catalog" data-filter="electric"><span class="quick-icon">ϟ</span><b>Электромобили</b><small>и гибриды</small></a>
+      <a href="#services"><span class="quick-icon">⌁</span><b>Автокредит</b><small>решение за 5 минут</small></a>
+    </section>
+
+    <section class="catalog container" id="catalog">
+      <div class="section-head">
+        <div><span class="eyebrow blue">СВЕЖИЕ ПРЕДЛОЖЕНИЯ</span><h2>Автомобили в продаже</h2><p id="resultCount">Подобрали 8 отличных вариантов</p></div>
+        <div class="catalog-controls"><select id="sortSelect" aria-label="Сортировка"><option value="popular">Сначала популярные</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option><option value="year">Сначала новее</option></select><button class="view-btn active" data-view="grid">▦</button><button class="view-btn" data-view="list">☷</button></div>
+      </div>
+      <div class="filter-chips"><button class="chip active" data-filter="all">Все</button><button class="chip" data-filter="new">Новые</button><button class="chip" data-filter="used">С пробегом</button><button class="chip" data-filter="suv">Кроссоверы</button><button class="chip" data-filter="electric">Электро</button></div>
+      <div class="cars-grid" id="carsGrid"></div>
+      <div class="empty" id="emptyState"><b>Ничего не нашли</b><span>Попробуйте изменить параметры поиска</span><button id="resetBtn">Сбросить фильтры</button></div>
+      <button class="load-more" id="loadMore">Показать ещё автомобили</button>
+    </section>
+
+    <section class="sell-section" id="services">
+      <div class="container sell-card">
+        <div><span class="eyebrow light">ПРОДАВАЙТЕ ЛЕГКО</span><h2>Ваш автомобиль достоин<br>лучшего покупателя</h2><p>Бесплатная публикация, умная оценка стоимости<br>и тысячи просмотров каждый день.</p><button class="white-btn open-modal">Разместить объявление →</button></div>
+        <div class="sell-stats"><div><b>12 мин</b><span>до первого отклика</span></div><div><b>7 дней</b><span>средний срок продажи</span></div><div><b>0 ₽</b><span>базовое размещение</span></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container footer-inner"><a class="brand" href="#"><span class="brand-mark">В</span><span>ВКЛЮЧЕ</span></a><p>Ваш ключ к хорошему автомобилю.</p><span>© 2026 ВКЛЮЧЕ</span></div></footer>
+
+  <div class="modal listing-modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-backdrop"></div><div class="modal-card listing-card"><button class="modal-close" aria-label="Закрыть">×</button>
+      <div class="wizard-head"><div><span class="eyebrow blue">НОВОЕ ОБЪЯВЛЕНИЕ</span><h2 id="modalTitle">Продать автомобиль</h2></div><span class="draft-status">Черновик сохраняется</span></div>
+      <div class="wizard-progress"><i></i><i></i><i></i><i></i></div>
+      <form id="listingForm">
+        <section class="wizard-step active" data-step="0"><h3>Какой автомобиль продаёте?</h3><p>Заполните основные данные — это займёт пару минут.</p><div class="form-grid"><label>Марка *<select id="carBrand" required><option value="">Загрузка марок…</option></select></label><label>Модель *<select id="carModel" required disabled><option value="">Сначала выберите марку</option></select></label><label id="customBrandField" hidden>Другая марка *<input name="customBrand" id="customBrand" placeholder="Введите марку"></label><label id="customModelField" hidden>Другая модель *<input name="customModel" id="customModel" placeholder="Введите модель"></label><label>Год выпуска *<input name="year" required type="number" min="1950" max="2026" placeholder="2022"></label><label>Пробег, км *<input name="km" required type="number" min="0" placeholder="45000"></label><label>Состояние<select name="condition"><option value="used">С пробегом</option><option value="new">Новый</option></select></label><label>Тип кузова<select name="body"><option>Седан</option><option>Кроссовер</option><option>Хэтчбек</option><option>Универсал</option><option>Купе</option><option>Минивэн</option></select></label></div></section>
+        <section class="wizard-step" data-step="1"><h3>Характеристики</h3><p>Чем подробнее объявление, тем больше откликов.</p><div class="form-grid"><label>Объём двигателя, л<input name="volume" type="number" step="0.1" min="0" placeholder="2.0"></label><label>Мощность, л.с.<input name="power" type="number" min="0" placeholder="249"></label><label>Коробка передач<select name="gearbox"><option>Автомат</option><option>Механика</option><option>Робот</option><option>Вариатор</option></select></label><label>Привод<select name="drive"><option>Передний</option><option>Полный</option><option>Задний</option></select></label><label>Цвет<input name="color" placeholder="Чёрный"></label><label>Количество владельцев<select name="owners"><option>1 владелец</option><option>2 владельца</option><option>3 владельца</option><option>4 и более</option></select></label><label class="wide">Описание<textarea name="description" rows="4" placeholder="Расскажите о состоянии, обслуживании и комплектации автомобиля"></textarea></label></div></section>
+        <section class="wizard-step" data-step="2"><h3>Добавьте фотографии</h3><p>Объявления с хорошими фотографиями получают больше внимания.</p><label class="photo-upload" id="photoUpload"><input id="photoInput" type="file" accept="image/*" multiple><span class="upload-icon">＋</span><b>Выберите фотографии</b><small>или перетащите их сюда · до 10 файлов</small></label><div class="upload-preview" id="uploadPreview"></div><div class="photo-tip"><b>Совет</b><span>Сфотографируйте автомобиль со всех сторон, салон и приборную панель при дневном свете.</span></div></section>
+        <section class="wizard-step" data-step="3"><h3>Цена и контакты</h3><p>Последний шаг перед публикацией.</p><div class="form-grid"><label class="wide price-field">Цена, ₽ *<input name="price" required type="number" min="1" placeholder="3 500 000"><span id="priceHint">Укажите стоимость автомобиля</span></label><label>Город *<select name="city" required><option value="">Выберите город</option><option>Абакан</option><option>Анадырь</option><option>Архангельск</option><option>Астрахань</option><option>Барнаул</option><option>Белгород</option><option>Биробиджан</option><option>Благовещенск</option><option>Брянск</option><option>Великий Новгород</option><option>Владивосток</option><option>Владикавказ</option><option>Владимир</option><option>Волгоград</option><option>Вологда</option><option>Воронеж</option><option>Горно-Алтайск</option><option>Грозный</option><option>Екатеринбург</option><option>Иваново</option><option>Ижевск</option><option>Иркутск</option><option>Йошкар-Ола</option><option>Казань</option><option>Калининград</option><option>Калуга</option><option>Кемерово</option><option>Киров</option><option>Кострома</option><option>Краснодар</option><option>Красноярск</option><option>Курган</option><option>Курск</option><option>Кызыл</option><option>Липецк</option><option>Магадан</option><option>Магас</option><option>Майкоп</option><option>Махачкала</option><option>Москва</option><option>Мурманск</option><option>Нальчик</option><option>Нижний Новгород</option><option>Новосибирск</option><option>Омск</option><option>Орёл</option><option>Оренбург</option><option>Пенза</option><option>Пермь</option><option>Петрозаводск</option><option>Петропавловск-Камчатский</option><option>Псков</option><option>Ростов-на-Дону</option><option>Рязань</option><option>Салехард</option><option>Самара</option><option>Санкт-Петербург</option><option>Саранск</option><option>Саратов</option><option>Севастополь</option><option>Симферополь</option><option>Смоленск</option><option>Ставрополь</option><option>Сыктывкар</option><option>Тамбов</option><option>Тверь</option><option>Томск</option><option>Тула</option><option>Тюмень</option><option>Улан-Удэ</option><option>Ульяновск</option><option>Уфа</option><option>Хабаровск</option><option>Ханты-Мансийск</option><option>Чебоксары</option><option>Челябинск</option><option>Черкесск</option><option>Чита</option><option>Элиста</option><option>Южно-Сахалинск</option><option>Якутск</option><option>Ярославль</option></select></label><label>Ваше имя *<input name="seller" required placeholder="Александр"></label><label class="wide">Номер телефона *<input name="phone" required type="tel" placeholder="+7 999 000-00-00"></label></div><label class="consent"><input type="checkbox" required> <span>Я согласен с правилами размещения объявлений</span></label></section>
+        <div class="wizard-actions"><button class="wizard-back" id="wizardBack" type="button">Назад</button><span id="stepLabel">Шаг 1 из 4</span><button class="primary-btn" id="wizardNext" type="button">Продолжить →</button></div>
+      </form>
+      <div class="publish-success" id="publishSuccess"><span>✓</span><h3>Объявление опубликовано!</h3><p>Оно уже появилось в каталоге. Покупатели смогут связаться с вами по указанному номеру.</p><button class="primary-btn" id="viewPublished">Посмотреть объявление</button></div>
+    </div>
+  </div>
+  <div class="modal feed-modal" id="feedModal" role="dialog" aria-modal="true" aria-labelledby="feedTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card feed-card">
+      <button class="modal-close" type="button" aria-label="Закрыть">×</button>
+      <span class="eyebrow blue">АВТОЗАГРУЗКА</span>
+      <h2 id="feedTitle">Загрузить Avito XML-фид</h2>
+      <p>Поддерживается структура <b>Ads → Ad</b>. Поле <b>Id</b> сохраняется: повторная загрузка обновит объявление с таким же ID.</p>
+      <form id="feedForm">
+        <label class="feed-upload" id="feedUpload">XML-файл<input id="feedFile" type="file" accept=".xml,text/xml,application/xml"><span id="feedFileName">Выберите файл с объявлениями</span></label>
+        <div class="feed-divider"><span>или</span></div>
+        <label>Ссылка на XML-фид<input id="feedUrl" type="url" placeholder="https://example.ru/avito-feed.xml"></label>
+        <small class="feed-note">Загрузка по ссылке работает, если сервер фида разрешает CORS-запросы.</small>
+        <div class="feed-actions"><button class="wizard-back feed-cancel" type="button">Отмена</button><button class="primary-btn" id="importFeed" type="submit">Загрузить объявления</button></div>
+      </form>
+      <div class="feed-report" id="feedReport" role="status"></div>
+    </div>
+  </div>
+  <div class="detail" id="carDetail" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="detail-backdrop" data-detail-close></div>
+    <section class="detail-sheet">
+      <div class="detail-top"><button class="detail-back" data-detail-close>← <span>К объявлениям</span></button><div><button class="detail-share" id="shareCar">↗ Поделиться</button><button class="detail-x" data-detail-close aria-label="Закрыть">×</button></div></div>
+      <div class="detail-body">
+        <div class="detail-main">
+          <div class="gallery"><div class="gallery-main"><img id="detailImage" alt=""><button class="gallery-arrow prev" id="prevPhoto">‹</button><button class="gallery-arrow next" id="nextPhoto">›</button><span class="photo-count" id="photoCount"></span></div><div class="gallery-thumbs" id="galleryThumbs"></div></div>
+          <div class="mobile-price" id="mobilePrice"></div>
+          <div class="detail-section"><h2>Характеристики</h2><div class="spec-grid" id="detailSpecs"></div></div>
+          <div class="detail-section"><h2>Описание</h2><p class="description" id="detailDescription"></p></div>
+          <div class="detail-section"><h2>Место осмотра</h2><div class="map-placeholder"><span>⌖</span><div><b id="mapCity"></b><small>Точное место уточняйте у продавца</small></div></div></div>
+        </div>
+        <aside class="detail-aside"><div class="sticky-card"><span class="detail-date" id="detailDate"></span><h1 id="detailTitle"></h1><div class="detail-price" id="detailPrice"></div><div class="finance-note">от <b id="monthlyPrice"></b> в месяц</div><button class="contact-btn" id="showPhone">Показать телефон</button><button class="message-btn" id="sendMessage">Написать продавцу</button><button class="aside-fav" id="detailFav">♡ Добавить в избранное</button><div class="seller"><div class="seller-avatar">А</div><div><b>Авто Эксперт</b><span>Проверенный продавец · 4.9 ★</span></div></div><div class="safe-note"><b>Безопасная сделка</b><span>Не переводите предоплату до осмотра автомобиля.</span></div></div></aside>
+      </div>
+    </section>
+  </div>
+  <div class="toast" id="toast">Готово</div>
+  <script src="app.js"></script>
+</body>
+</html>
