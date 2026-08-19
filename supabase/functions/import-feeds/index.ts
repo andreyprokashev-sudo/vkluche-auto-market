@@ -28,7 +28,7 @@ function mapAd(ad: Record<string, any>) {
   const price = number(ad.Price), year = number(ad.Year)
   if (!externalId || !brand || !model || !price || !year) throw new Error(`Объявление ${externalId || 'без Id'}: обязательны Id, Make, Model, Year и Price`)
   const mileage = number(ad.Kilometrage || ad.Mileage), power = text(ad.Power), volume = text(ad.EngineSize)
-  const body = text(ad.BodyType), condition = text(ad.Condition).toLowerCase(), images = imageUrls(ad)
+  const body = text(ad.BodyType), condition = text(ad.Condition).toLowerCase(), engineType = text(ad.EngineType || ad.FuelType), images = imageUrls(ad)
   const city = text(ad.City || ad.Address || ad.Region) || 'Город не указан'
   return {
     externalId,
@@ -36,9 +36,9 @@ function mapAd(ad: Record<string, any>) {
       id: `feed:${externalId}`, externalId, source: 'automatic-feed', name: `${brand} ${model}`, price, year,
       km: mileage ? `${new Intl.NumberFormat('ru-RU').format(mileage)} км` : 'Новый',
       engine: volume ? `${volume} л / ${power || '—'} л.с.` : power ? `${power} л.с.` : 'Двигатель не указан',
-      city, date: 'из фида', type: [condition.includes('нов') ? 'new' : 'used', /внедорож|кроссов/i.test(body) ? 'suv' : ''].filter(Boolean),
+      city, date: 'из фида', type: [condition.includes('нов') ? 'new' : 'used', /внедорож|кроссов/i.test(body) ? 'suv' : '', /элект|electric|ev/i.test(engineType) ? 'electric' : ''].filter(Boolean),
       badge: 'Автозагрузка', img: images[0] || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1000&q=85',
-      details: { brand, model, body, condition, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), images }
+      details: { brand, model, body, condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), images }
     }
   }
 }

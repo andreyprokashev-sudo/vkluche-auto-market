@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="auth.css" />
   <link rel="stylesheet" href="filters.css" />
   <link rel="stylesheet" href="feed-admin.css" />
+  <link rel="stylesheet" href="multi-filters.css" />
 </head>
 <body>
   <header class="topbar">
@@ -88,7 +89,8 @@
             <fieldset><legend>Цена, ₽</legend><div class="range-fields"><input id="filterPriceFrom" type="number" min="0" placeholder="от"><input id="filterPriceTo" type="number" min="0" placeholder="до"></div></fieldset>
             <fieldset><legend>Год выпуска</legend><div class="range-fields"><input id="filterYearFrom" type="number" min="1950" max="2026" placeholder="от"><input id="filterYearTo" type="number" min="1950" max="2026" placeholder="до"></div></fieldset>
             <label>Пробег до, км<input id="filterMileage" type="number" min="0" placeholder="Любой"></label>
-            <label>Коробка передач<select id="filterGearbox"><option value="">Любая</option><option>Автомат</option><option>Механика</option><option>Робот</option><option>Вариатор</option></select></label>
+            <fieldset class="filter-multiple"><legend>Коробка передач</legend><div class="filter-checkboxes"><label><input type="checkbox" name="filterGearbox" value="Автомат"><span>Автомат</span></label><label><input type="checkbox" name="filterGearbox" value="Механика"><span>Механика</span></label><label><input type="checkbox" name="filterGearbox" value="Робот"><span>Робот</span></label><label><input type="checkbox" name="filterGearbox" value="Вариатор"><span>Вариатор</span></label></div></fieldset>
+            <fieldset class="filter-multiple"><legend>Тип двигателя</legend><div class="filter-checkboxes"><label><input type="checkbox" name="filterEngine" value="petrol"><span>Бензин</span></label><label><input type="checkbox" name="filterEngine" value="diesel"><span>Дизель</span></label><label><input type="checkbox" name="filterEngine" value="hybrid"><span>Гибрид</span></label><label><input type="checkbox" name="filterEngine" value="electric"><span>Электромотор</span></label><label><input type="checkbox" name="filterEngine" value="gas"><span>Газ</span></label></div></fieldset>
             <label>Тип кузова<select id="filterBody"><option value="">Любой</option><option>Седан</option><option>Кроссовер</option><option>Хэтчбек</option><option>Универсал</option><option>Купе</option><option>Минивэн</option></select></label>
             <label>Привод<select id="filterDrive"><option value="">Любой</option><option>Передний</option><option>Полный</option><option>Задний</option></select></label>
             <label>Состояние<select id="filterCondition"><option value="">Любое</option><option value="new">Новый</option><option value="used">С пробегом</option></select></label>
