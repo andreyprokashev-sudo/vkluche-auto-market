@@ -25,7 +25,7 @@
 ## Автоматическая загрузка фидов
 
 1. Повторно выполните актуальный `supabase-schema.sql` в SQL Editor.
-2. Назначьте своему профилю роль `admin` через SQL Editor.
+2. После регистрации администратора замените `YOUR_ADMIN_EMAIL` в локальной копии `supabase-admin.sql` и выполните её, не публикуя личный адрес в GitHub.
 3. Опубликуйте функцию: `npx supabase functions deploy import-feeds --project-ref whlszhqkmvfwynwgiqnq --no-verify-jwt`.
 4. Добавьте функции секрет `CRON_SECRET` со случайным длинным значением.
 5. Укажите то же значение вместо `CHANGE_ME` и выполните `supabase-cron.sql`.

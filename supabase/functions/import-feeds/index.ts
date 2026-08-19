@@ -16,7 +16,7 @@ function safeFeedUrl(value: string) {
   const parsed = new URL(value)
   if (!['http:', 'https:'].includes(parsed.protocol)) return false
   const host = parsed.hostname.toLowerCase()
-  return !^(localhost|127\.|0\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|::1$)/.test(host)
+  return !/^(localhost|127\.|0\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|::1$)/.test(host)
 }
 
 function imageUrls(ad: Record<string, any>) {
