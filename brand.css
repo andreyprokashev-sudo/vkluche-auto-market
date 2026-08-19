@@ -27,14 +27,20 @@
 .brand-inline i {
   display: inline-grid;
   place-items: center;
-  width: 0.95em;
-  height: 0.95em;
+  width: 1.06em;
+  height: 1.06em;
   border-radius: 0.24em;
   background: var(--blue);
   color: #fff;
-  font: inherit;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 800;
   font-size: 0.82em;
+  line-height: 1;
   letter-spacing: 0;
+  padding-bottom: 0.04em;
+  overflow: visible;
+  vertical-align: middle;
   box-shadow: 0 0.15em 0.35em rgb(37 99 235 / 18%);
 }
 
