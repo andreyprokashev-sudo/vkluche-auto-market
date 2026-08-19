@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="brand.css" />
   <link rel="stylesheet" href="mobile.css" />
   <link rel="stylesheet" href="auth.css" />
+  <link rel="stylesheet" href="filters.css" />
 </head>
 <body>
   <header class="topbar">
@@ -75,8 +76,27 @@
     <section class="catalog container" id="catalog">
       <div class="section-head">
         <div><span class="eyebrow blue">СВЕЖИЕ ПРЕДЛОЖЕНИЯ</span><h2>Автомобили в продаже</h2><p id="resultCount">Подобрали 8 отличных вариантов</p></div>
-        <div class="catalog-controls"><select id="sortSelect" aria-label="Сортировка"><option value="popular">Сначала популярные</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option><option value="year">Сначала новее</option></select><button class="view-btn active" data-view="grid">▦</button><button class="view-btn" data-view="list">☷</button></div>
+        <div class="catalog-controls"><button class="filter-toggle" id="filterToggle" type="button">☷ Фильтры <span id="filterCount"></span></button><select id="sortSelect" aria-label="Сортировка"><option value="popular">Сначала популярные</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option><option value="year">Сначала новее</option><option value="mileage">С меньшим пробегом</option></select><button class="view-btn active" data-view="grid">▦</button><button class="view-btn" data-view="list">☷</button></div>
       </div>
+      <aside class="filter-panel" id="filterPanel" aria-label="Фильтры автомобилей">
+        <div class="filter-panel-head"><div><b>Фильтры</b><span>Подберите автомобиль по параметрам</span></div><button class="filter-panel-close" id="filterClose" type="button" aria-label="Закрыть">×</button></div>
+        <form id="advancedFilters">
+          <div class="filter-grid">
+            <label>Марка<select id="filterBrand"><option value="">Любая марка</option></select></label>
+            <label>Модель<select id="filterModel" disabled><option value="">Любая модель</option></select></label>
+            <fieldset><legend>Цена, ₽</legend><div class="range-fields"><input id="filterPriceFrom" type="number" min="0" placeholder="от"><input id="filterPriceTo" type="number" min="0" placeholder="до"></div></fieldset>
+            <fieldset><legend>Год выпуска</legend><div class="range-fields"><input id="filterYearFrom" type="number" min="1950" max="2026" placeholder="от"><input id="filterYearTo" type="number" min="1950" max="2026" placeholder="до"></div></fieldset>
+            <label>Пробег до, км<input id="filterMileage" type="number" min="0" placeholder="Любой"></label>
+            <label>Коробка передач<select id="filterGearbox"><option value="">Любая</option><option>Автомат</option><option>Механика</option><option>Робот</option><option>Вариатор</option></select></label>
+            <label>Тип кузова<select id="filterBody"><option value="">Любой</option><option>Седан</option><option>Кроссовер</option><option>Хэтчбек</option><option>Универсал</option><option>Купе</option><option>Минивэн</option></select></label>
+            <label>Привод<select id="filterDrive"><option value="">Любой</option><option>Передний</option><option>Полный</option><option>Задний</option></select></label>
+            <label>Состояние<select id="filterCondition"><option value="">Любое</option><option value="new">Новый</option><option value="used">С пробегом</option></select></label>
+            <label>Город<select id="filterCity"><option value="">Вся Россия</option><option>Москва</option><option>Санкт-Петербург</option><option>Казань</option><option>Самара</option></select></label>
+          </div>
+          <div class="filter-actions"><button class="filter-reset" id="filterReset" type="button">Сбросить</button><button class="primary-btn" type="submit">Показать <span id="filterPreviewCount">автомобили</span></button></div>
+        </form>
+      </aside>
+      <div class="filter-mobile-backdrop" id="filterBackdrop"></div>
       <div class="filter-chips"><button class="chip active" data-filter="all">Все</button><button class="chip" data-filter="new">Новые</button><button class="chip" data-filter="used">С пробегом</button><button class="chip" data-filter="suv">Кроссоверы</button><button class="chip" data-filter="electric">Электро</button></div>
       <div class="cars-grid" id="carsGrid"></div>
       <div class="empty" id="emptyState"><b>Ничего не нашли</b><span>Попробуйте изменить параметры поиска</span><button id="resetBtn">Сбросить фильтры</button></div>
