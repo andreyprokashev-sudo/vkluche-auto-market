@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="brand.css" />
+  <link rel="stylesheet" href="mobile.css" />
 </head>
 <body>
   <header class="topbar">
@@ -17,6 +18,7 @@
       <a class="brand" href="#" aria-label="ВКЛЮЧЕ"><span class="brand-mark">В</span><span class="brand-word">КЛЮЧЕ</span></a>
       <nav class="nav-links" id="navLinks">
         <a class="active" href="#catalog">Автомобили</a><a href="#auctions">Аукцион</a><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a>
+        <div class="mobile-nav-actions"><button class="open-modal" type="button">Разместить объявление</button><button class="open-feed" type="button">Загрузить фид</button></div>
       </nav>
       <div class="nav-actions">
         <button class="icon-btn favorite-top" aria-label="Избранное">♡ <span id="favCount">0</span></button>
@@ -134,6 +136,7 @@
           <div class="detail-section"><h2>Место осмотра</h2><div class="map-placeholder"><span>⌖</span><div><b id="mapCity"></b><small>Точное место уточняйте у продавца</small></div></div></div>
         </div>
         <aside class="detail-aside"><div class="sticky-card"><span class="detail-date" id="detailDate"></span><h1 id="detailTitle"></h1><div class="detail-price" id="detailPrice"></div><div class="finance-note">от <b id="monthlyPrice"></b> в месяц</div><button class="contact-btn" id="showPhone">Показать телефон</button><button class="message-btn" id="sendMessage">Написать продавцу</button><button class="aside-fav" id="detailFav">♡ Добавить в избранное</button><div class="seller"><div class="seller-avatar">А</div><div><b>Авто Эксперт</b><span>Проверенный продавец · 4.9 ★</span></div></div><div class="safe-note"><b>Безопасная сделка</b><span>Не переводите предоплату до осмотра автомобиля.</span></div></div></aside>
+        <div class="mobile-detail-actions"><button id="mobilePrimaryAction" type="button">Позвонить продавцу</button><button id="mobileFavorite" type="button" aria-label="Добавить в избранное">♡</button></div>
       </div>
     </section>
   </div>

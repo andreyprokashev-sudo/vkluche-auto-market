@@ -1,0 +1,179 @@
+.mobile-nav-actions,
+.mobile-detail-actions {
+  display: none;
+}
+
+@media (max-width: 950px) {
+  .nav-links.open {
+    max-height: calc(100vh - 76px);
+    overflow-y: auto;
+  }
+
+  .mobile-nav-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+
+  .mobile-nav-actions button {
+    min-height: 46px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--ink);
+    font-weight: 800;
+  }
+
+  .mobile-nav-actions .open-modal {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+  }
+}
+
+@media (max-width: 650px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .nav-links {
+    top: 66px;
+  }
+
+  .nav-links a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .brand-word {
+    font-size: 16px;
+  }
+
+  .search-panel input,
+  .search-panel select,
+  .listing-card input:not([type="checkbox"]),
+  .listing-card select,
+  .listing-card textarea {
+    font-size: 16px;
+  }
+
+  .sale-mode {
+    grid-template-columns: 1fr;
+  }
+
+  .sale-mode-btn,
+  .wizard-back,
+  .wizard-actions .primary-btn {
+    min-height: 46px;
+  }
+
+  .wizard-actions {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  .auction-box input,
+  .feed-card input {
+    font-size: 16px;
+  }
+
+  .detail-body:after,
+  .detail-sheet:after {
+    display: none;
+  }
+
+  .detail-body {
+    padding-bottom: 78px;
+  }
+
+  .detail.auction-active .detail-aside {
+    order: -1;
+    padding: 10px;
+  }
+
+  .detail.auction-active .sticky-card > :not(.auction-box) {
+    display: none;
+  }
+
+  .detail.auction-active .auction-box {
+    margin: 0;
+  }
+
+  .mobile-detail-actions {
+    position: fixed;
+    display: grid;
+    grid-template-columns: 1fr 52px;
+    gap: 8px;
+    left: 12px;
+    right: 12px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 8;
+    padding: 7px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: rgb(255 255 255 / 94%);
+    box-shadow: 0 8px 30px rgb(16 24 40 / 22%);
+    backdrop-filter: blur(10px);
+  }
+
+  .mobile-detail-actions button {
+    min-height: 48px;
+    border: 0;
+    border-radius: 11px;
+    font-weight: 800;
+  }
+
+  #mobilePrimaryAction {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  #mobileFavorite {
+    background: #edf3ff;
+    color: var(--blue);
+    font-size: 24px;
+  }
+
+  #mobileFavorite.saved {
+    color: #e5484d;
+  }
+
+  .auction-card-body button,
+  .auction-box .contact-btn,
+  .feed-actions button {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 420px) {
+  .cars-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .car-image {
+    height: 205px;
+  }
+
+  .car-meta span:nth-child(n) {
+    display: inline;
+  }
+
+  .quick {
+    grid-template-columns: 1fr;
+  }
+
+  .quick a:last-child {
+    grid-column: auto;
+  }
+
+  .sell-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .sell-stats div:last-child {
+    grid-column: auto;
+  }
+}
