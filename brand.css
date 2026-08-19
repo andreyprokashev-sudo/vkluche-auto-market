@@ -1,0 +1,14 @@
+.brand {
+  gap: 3px;
+  letter-spacing: 0;
+}
+
+.brand-mark {
+  border-radius: 9px;
+  box-shadow: 0 6px 14px rgb(37 99 235 / 17%);
+}
+
+.brand-word {
+  margin-left: 1px;
+  letter-spacing: 0.4px;
+}
