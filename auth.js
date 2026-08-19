@@ -11,7 +11,7 @@
   const triggers = () => document.querySelectorAll('.auth-trigger');
 
   function showMessage(text = '', type = '') { message.textContent = text; message.className = `auth-message${type ? ` ${type}` : ''}`; }
-  function showView(name) { document.querySelectorAll('.auth-view').forEach(view => view.classList.toggle('active', view.dataset.authView === name)); showMessage(); }
+  function showView(name) { document.querySelectorAll('.auth-view').forEach(view => view.classList.toggle('active', view.dataset.authView === name)); modal.querySelector('.auth-card').classList.toggle('dashboard-open',name==='profile');if(name==='profile')window.dispatchEvent(new CustomEvent('vkluche:dashboard-open'));showMessage(); }
   function open(view) { showView(view || (user ? 'profile' : configured ? 'login' : 'setup')); modal.classList.add('open'); document.body.style.overflow = 'hidden'; setTimeout(() => modal.querySelector('.auth-view.active input')?.focus(), 50); }
   function close() { modal.classList.remove('open'); document.body.style.overflow = ''; }
   function updateUi() {

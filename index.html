@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="engine-type-visible.css?v=2" />
   <link rel="stylesheet" href="trust.css?v=1" />
   <link rel="stylesheet" href="auction-deal.css?v=1" />
+  <link rel="stylesheet" href="dashboard.css?v=1" />
 </head>
 <body>
   <header class="topbar">
@@ -204,8 +205,11 @@
         <span class="eyebrow blue">НОВЫЙ ПАРОЛЬ</span><h2>Придумайте пароль</h2><p>После сохранения вы останетесь в своем аккаунте.</p>
         <form id="newPasswordForm" class="auth-form"><label>Новый пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><button class="primary-btn" type="submit">Сохранить пароль</button></form>
       </section>
-      <section class="auth-view" data-auth-view="profile">
-        <span class="eyebrow blue">ЛИЧНЫЙ КАБИНЕТ</span><h2 id="profileName">Пользователь</h2><div class="profile-summary"><span class="profile-avatar" id="profileAvatar">В</span><div><b id="profileEmail"></b><small id="profileRole"></small></div></div><button class="auth-logout" id="logoutButton" type="button">Выйти из аккаунта</button>
+      <section class="auth-view dashboard-view" data-auth-view="profile">
+        <div class="dashboard-user"><div><span class="eyebrow blue">ЛИЧНЫЙ КАБИНЕТ</span><h2 id="profileName">Пользователь</h2></div><div class="profile-summary"><span class="profile-avatar" id="profileAvatar">В</span><div><b id="profileEmail"></b><small id="profileRole"></small></div></div></div>
+        <nav class="dashboard-tabs" id="dashboardTabs" aria-label="Разделы кабинета"></nav>
+        <div class="dashboard-content" id="dashboardContent"><div class="dashboard-loading">Загружаем данные кабинета…</div></div>
+        <button class="auth-logout" id="logoutButton" type="button">Выйти из аккаунта</button>
       </section>
       <section class="auth-view auth-setup" data-auth-view="setup"><span class="eyebrow blue">НУЖНА НАСТРОЙКА</span><h2>Подключите Supabase</h2><p>Интерфейс авторизации готов. Укажите URL проекта и публичный anon key в файле <code>supabase-config.js</code>.</p></section>
       <div class="auth-message" id="authMessage" role="status" aria-live="polite"></div>
@@ -214,7 +218,8 @@
   <div class="toast" id="toast">Готово</div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="auth.js?v=3"></script>
-  <script src="app.js?v=9"></script>
+  <script src="auth.js?v=4"></script>
+  <script src="app.js?v=10"></script>
+  <script src="dashboard.js?v=1"></script>
 </body>
 </html>
