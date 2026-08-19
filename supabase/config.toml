@@ -1,0 +1,2 @@
+[functions.import-feeds]
+verify_jwt = false

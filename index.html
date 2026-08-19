@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="mobile.css" />
   <link rel="stylesheet" href="auth.css" />
   <link rel="stylesheet" href="filters.css" />
+  <link rel="stylesheet" href="feed-admin.css" />
 </head>
 <body>
   <header class="topbar">
@@ -142,6 +143,18 @@
         <div class="feed-actions"><button class="wizard-back feed-cancel" type="button">Отмена</button><button class="primary-btn" id="importFeed" type="submit">Загрузить объявления</button></div>
       </form>
       <div class="feed-report" id="feedReport" role="status"></div>
+      <section class="auto-feed-section">
+        <div class="auto-feed-head"><div><span class="eyebrow blue">ПО РАСПИСАНИЮ</span><h3>Автоматические фиды</h3></div><span class="auto-feed-badge">Supabase</span></div>
+        <p>Добавьте постоянную ссылку — система будет проверять её и обновлять каталог автоматически.</p>
+        <form id="autoFeedForm" class="auto-feed-form">
+          <label>Название источника<input name="name" required maxlength="80" placeholder="Дилер АвтоПрайм"></label>
+          <label>Ссылка на XML-фид<input name="url" type="url" required placeholder="https://dealer.ru/avito-feed.xml"></label>
+          <div class="auto-feed-row"><label>Проверять<select name="interval"><option value="30">каждые 30 минут</option><option value="60" selected>каждый час</option><option value="180">каждые 3 часа</option><option value="360">каждые 6 часов</option><option value="1440">раз в сутки</option></select></label><label>Скрывать после<select name="threshold"><option value="1">1 пропуска</option><option value="2" selected>2 пропусков</option><option value="3">3 пропусков</option></select></label></div>
+          <button class="primary-btn" type="submit">Добавить автоматический фид</button>
+        </form>
+        <div class="auto-feed-login" id="autoFeedNotice">Войдите как администратор, чтобы управлять источниками.</div>
+        <div class="feed-sources" id="feedSources"></div>
+      </section>
     </div>
   </div>
   <div class="detail" id="carDetail" role="dialog" aria-modal="true" aria-labelledby="detailTitle">

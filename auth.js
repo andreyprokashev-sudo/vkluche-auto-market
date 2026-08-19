@@ -57,6 +57,6 @@
   });
   document.querySelector('#logoutButton').addEventListener('click', async () => { const { error } = await client.auth.signOut(); if (error) return showMessage(friendlyError(error), 'error'); user = null; updateUi(); close(); window.dispatchEvent(new CustomEvent('vkluche:auth', { detail: { user: null } })); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('open')) close(); });
-  window.vklucheAuth = { isConfigured: configured, getUser: () => user, open, require(action) { if (user) return true; pendingAction = typeof action === 'function' ? action : null; open(configured ? 'login' : 'setup'); return false; } };
+  window.vklucheAuth = { isConfigured: configured, getUser: () => user, getClient: () => client, open, require(action) { if (user) return true; pendingAction = typeof action === 'function' ? action : null; open(configured ? 'login' : 'setup'); return false; } };
   if (client) { client.auth.getSession().then(({ data }) => { user = data.session?.user || null; updateUi(); }); client.auth.onAuthStateChange((event, session) => { user = session?.user || null; updateUi(); if (event === 'PASSWORD_RECOVERY') open('new-password'); }); } else updateUi();
 })();
