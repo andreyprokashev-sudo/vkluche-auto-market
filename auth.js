@@ -5,9 +5,10 @@
   const configured = Boolean(config.url && config.anonKey && window.supabase);
   const client = configured ? window.supabase.createClient(config.url, config.anonKey) : null;
   let user = null;
-  let role = 'buyer';
+  let role = 'user';
+  let accountType = 'private';
   let pendingAction = null;
-  const roleLabels = { buyer: 'Покупатель', seller: 'Продавец', admin: 'Администратор' };
+  const accountTypeLabels = { private: 'Частное лицо', professional: 'Профессиональный участник' };
   const triggers = () => document.querySelectorAll('.auth-trigger');
 
   function showMessage(text = '', type = '') { message.textContent = text; message.className = `auth-message${type ? ` ${type}` : ''}`; }
@@ -20,10 +21,10 @@
     if (!user) return;
     document.querySelector('#profileName').textContent = name;
     document.querySelector('#profileEmail').textContent = user.email || '';
-    document.querySelector('#profileRole').textContent = roleLabels[role] || 'Покупатель';
+    document.querySelector('#profileRole').textContent = role === 'admin' ? `Администратор · ${accountTypeLabels[accountType] || 'Частное лицо'}` : accountTypeLabels[accountType] || 'Частное лицо';
     document.querySelector('#profileAvatar').textContent = name.trim().charAt(0).toUpperCase() || 'В';
   }
-  async function syncProfile() { if (!client || !user) { role = 'buyer'; return; } const { data } = await client.from('profiles').select('role').eq('id', user.id).maybeSingle(); role = data?.role || user.user_metadata?.role || 'buyer'; updateUi(); window.dispatchEvent(new CustomEvent('vkluche:profile', { detail: { user, role } })); }
+  async function syncProfile() { if (!client || !user) { role = 'user'; accountType = 'private'; return; } const { data } = await client.from('profiles').select('role,account_type').eq('id', user.id).maybeSingle(); role = data?.role || (user.user_metadata?.role === 'admin' ? 'admin' : 'user'); accountType = data?.account_type || user.user_metadata?.account_type || 'private'; updateUi(); window.dispatchEvent(new CustomEvent('vkluche:profile', { detail: { user, role, accountType } })); }
   function friendlyError(error) {
     const value = error?.message || 'Не удалось выполнить операцию';
     if (/invalid login credentials/i.test(value)) return 'Неверная почта или пароль.';
@@ -47,7 +48,7 @@
   });
   document.querySelector('#registerForm').addEventListener('submit', event => {
     event.preventDefault(); const form = new FormData(event.currentTarget);
-    submit(event.submitter, async () => { const { data, error } = await client.auth.signUp({ email: form.get('email').trim(), password: form.get('password'), options: { data: { name: form.get('name').trim(), role: form.get('role') }, emailRedirectTo: `${location.origin}${location.pathname}` } }); if (error) throw error; if (data.session) { user = data.user; updateUi(); close(); } else { showView('login'); showMessage('Регистрация завершена. Подтвердите почту по ссылке из письма.', 'success'); } });
+    submit(event.submitter, async () => { const { data, error } = await client.auth.signUp({ email: form.get('email').trim(), password: form.get('password'), options: { data: { name: form.get('name').trim(), account_type: form.get('accountType') }, emailRedirectTo: `${location.origin}${location.pathname}` } }); if (error) throw error; if (data.session) { user = data.user; await syncProfile(); close(); } else { showView('login'); showMessage('Регистрация завершена. Подтвердите почту по ссылке из письма.', 'success'); } });
   });
   document.querySelector('#resetForm').addEventListener('submit', event => {
     event.preventDefault(); const email = new FormData(event.currentTarget).get('email').trim();
@@ -59,6 +60,6 @@
   });
   document.querySelector('#logoutButton').addEventListener('click', async () => { const { error } = await client.auth.signOut(); if (error) return showMessage(friendlyError(error), 'error'); user = null; updateUi(); close(); window.dispatchEvent(new CustomEvent('vkluche:auth', { detail: { user: null } })); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('open')) close(); });
-  window.vklucheAuth = { isConfigured: configured, getUser: () => user, getRole: () => role, refreshProfile: syncProfile, getClient: () => client, open, require(action) { if (user) return true; pendingAction = typeof action === 'function' ? action : null; open(configured ? 'login' : 'setup'); return false; } };
-  if (client) { client.auth.getSession().then(async ({ data }) => { user = data.session?.user || null; await syncProfile(); updateUi(); }); client.auth.onAuthStateChange((event, session) => { user = session?.user || null; if (!user) role = 'buyer'; updateUi(); if (event === 'PASSWORD_RECOVERY') open('new-password'); }); } else updateUi();
+  window.vklucheAuth = { isConfigured: configured, getUser: () => user, getRole: () => role, getAccountType: () => accountType, refreshProfile: syncProfile, getClient: () => client, open, require(action) { if (user) return true; pendingAction = typeof action === 'function' ? action : null; open(configured ? 'login' : 'setup'); return false; } };
+  if (client) { client.auth.getSession().then(async ({ data }) => { user = data.session?.user || null; await syncProfile(); updateUi(); }); client.auth.onAuthStateChange((event, session) => { user = session?.user || null; if (!user) { role = 'user'; accountType = 'private'; } updateUi(); if (event === 'PASSWORD_RECOVERY') open('new-password'); }); } else updateUi();
 })();

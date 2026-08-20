@@ -2,7 +2,7 @@
   const tabs = document.querySelector("#dashboardTabs"),
     content = document.querySelector("#dashboardContent");
   if (!tabs || !content) return;
-  let state = { role: "buyer", active: "overview", data: {} };
+  let state = { role: "user", accountType: "private", active: "overview", data: {} };
   const esc = (value) =>
     String(value ?? "").replace(
       /[&<>'"]/g,
@@ -57,8 +57,7 @@
       ["buyer", "Покупки"],
       ["favorites", "Избранное"],
     ];
-    if (["seller", "admin"].includes(state.role))
-      result.push(["seller", "Продажи"]);
+    result.push(["seller", "Продажи"]);
     if (state.role === "admin")
       result.push(["moderation", "Модерация"], ["admin", "Управление"]);
     return result;
@@ -87,20 +86,19 @@
           .length || 0;
     let stats =
       stat(bids.length, "моих ставок") + stat(favorites.length, "в избранном");
-    if (["seller", "admin"].includes(state.role))
-      stats +=
-        stat(listings.filter((x) => x.active).length, "активных объявлений") +
-        stat(
-          auctions.filter((x) =>
-            [
-              "scheduled",
-              "active",
-              "awaiting_seller",
-              "awaiting_buyer",
-            ].includes(x.status),
-          ).length,
-          "аукционов в работе",
-        );
+    stats +=
+      stat(listings.filter((x) => x.active).length, "активных объявлений") +
+      stat(
+        auctions.filter((x) =>
+          [
+            "scheduled",
+            "active",
+            "awaiting_seller",
+            "awaiting_buyer",
+          ].includes(x.status),
+        ).length,
+        "аукционов в работе",
+      );
     if (state.role === "admin")
       stats +=
         stat(pending, "ждут проверки") +
@@ -141,15 +139,15 @@
   }
   function renderAdmin() {
     const d = state.data,
-      roles = (d.profiles || []).reduce(
-        (acc, item) => ((acc[item.role] = (acc[item.role] || 0) + 1), acc),
+      types = (d.profiles || []).reduce(
+        (acc, item) => ((acc[item.account_type || "private"] = (acc[item.account_type || "private"] || 0) + 1), acc),
         {},
       ),
       statuses = (d.adminAuctions || []).reduce(
         (acc, item) => ((acc[item.status] = (acc[item.status] || 0) + 1), acc),
         {},
       );
-    content.innerHTML = `<div class="dashboard-stats">${stat(roles.buyer || 0, "покупателей")}${stat(roles.seller || 0, "продавцов")}${stat(roles.admin || 0, "администраторов")}${stat(d.adminListings?.length || 0, "объявлений")}</div><section class="dashboard-block"><div class="dashboard-block-head"><h3>Состояние аукционов</h3></div>${
+    content.innerHTML = `<div class="dashboard-stats">${stat(types.private || 0, "частных лиц")}${stat(types.professional || 0, "профессиональных участников")}${stat((d.profiles || []).filter((item) => item.role === "admin").length, "администраторов")}${stat(d.adminListings?.length || 0, "объявлений")}</div><section class="dashboard-block"><div class="dashboard-block-head"><h3>Состояние аукционов</h3></div>${
       Object.entries(statuses)
         .map(
           ([key, value]) =>
@@ -177,7 +175,8 @@
       user = auth?.getUser(),
       client = auth?.getClient();
     if (!user || !client) return;
-    state.role = auth.getRole() || "buyer";
+    state.role = auth.getRole() || "user";
+    state.accountType = auth.getAccountType?.() || "private";
     content.innerHTML =
       '<div class="dashboard-loading">Загружаем данные кабинета…</div>';
     const [bids, deals, searches, favorites] = await Promise.all([
@@ -208,7 +207,7 @@
       searches: searches.data || [],
       favorites: favorites.data || [],
     };
-    if (["seller", "admin"].includes(state.role)) {
+    {
       const [listings, auctions] = await Promise.all([
         client
           .from("listings")
@@ -232,7 +231,7 @@
             "id,data,status,verification_status,vin,active,updated_at,owner_id",
           )
           .order("updated_at", { ascending: false }),
-        client.from("profiles").select("id,role,created_at"),
+        client.from("profiles").select("id,role,account_type,created_at"),
         client.from("auctions").select("id,status"),
       ]);
       state.data.adminListings = listings.data || [];

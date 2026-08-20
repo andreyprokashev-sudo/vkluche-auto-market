@@ -196,7 +196,7 @@
       </section>
       <section class="auth-view" data-auth-view="register">
         <span class="eyebrow blue">РЕГИСТРАЦИЯ</span><h2>Создать аккаунт</h2><p>Один аккаунт подходит для покупки и продажи автомобилей.</p>
-        <form id="registerForm" class="auth-form"><label>Имя<input name="name" autocomplete="name" required maxlength="60" placeholder="Александр"></label><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><label>Тип аккаунта<select name="role"><option value="buyer">Покупатель</option><option value="seller">Продавец</option></select></label><label class="auth-consent"><input type="checkbox" required><span>Соглашаюсь с правилами сервиса и обработкой персональных данных</span></label><button class="primary-btn" type="submit">Зарегистрироваться</button></form>
+        <form id="registerForm" class="auth-form"><label>Имя<input name="name" autocomplete="name" required maxlength="60" placeholder="Александр"></label><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><label>Тип участника<select name="accountType"><option value="private">Частное лицо</option><option value="professional">Профессиональный участник</option></select></label><label class="auth-consent"><input type="checkbox" required><span>Соглашаюсь с правилами сервиса и обработкой персональных данных</span></label><button class="primary-btn" type="submit">Зарегистрироваться</button></form>
         <div class="auth-links"><button type="button" data-auth-switch="login">Уже есть аккаунт — войти</button></div>
       </section>
       <section class="auth-view" data-auth-view="reset">
@@ -220,9 +220,9 @@
   <div class="toast" id="toast">Готово</div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="auth.js?v=4"></script>
-  <script src="app.js?v=13"></script>
-  <script src="dashboard.js?v=2"></script>
+  <script src="auth.js?v=5"></script>
+  <script src="app.js?v=14"></script>
+  <script src="dashboard.js?v=3"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=1"></script>
   <script src="search-server.js?v=1"></script>
