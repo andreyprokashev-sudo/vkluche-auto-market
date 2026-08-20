@@ -228,7 +228,7 @@
         client
           .from("listings")
           .select(
-            "id,data,status,verification_status,vin,active,updated_at,owner_id",
+            "id,data,status,verification_status,verification_checks,vin,active,updated_at,owner_id",
           )
           .order("updated_at", { ascending: false }),
         client.from("profiles").select("id,role,account_type,created_at"),
