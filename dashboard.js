@@ -280,10 +280,14 @@
     const toggle = event.target.closest("[data-listing-toggle]");
     if (toggle) {
       const active = toggle.dataset.active === "true";
-      const { error } = await client
-        .from("listings")
-        .update({ active: !active, status: active ? "archived" : "published" })
-        .eq("id", toggle.dataset.listingToggle);
+      const { error } = active
+        ? await client.rpc("archive_listing", {
+            p_listing_id: toggle.dataset.listingToggle,
+          })
+        : await client
+            .from("listings")
+            .update({ active: true, status: "published" })
+            .eq("id", toggle.dataset.listingToggle);
       if (error) return window.toast?.(error.message);
       return load();
     }
