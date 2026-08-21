@@ -56,6 +56,7 @@
       ["overview", "Обзор"],
       ["buyer", "Покупки"],
       ["favorites", "Избранное"],
+      ["searches", "Поиски"],
     ];
     result.push(["seller", "Продажи"]);
     if (state.role === "admin")
@@ -118,7 +119,25 @@
             })
             .join("")
         : empty("Сделайте ставку на интересующий автомобиль.")
-    }</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Результаты</h3></div>${deals.length ? deals.map((deal) => `<article class="dashboard-row"><span><b>${rub(deal.amount)}</b><small>Ответ до ${new Date(deal.response_deadline).toLocaleString("ru-RU")}</small></span><em class="status ${deal.status}">${esc(deal.status === "awaiting_buyer" ? "Нужен ответ" : deal.status === "confirmed" ? "Подтверждено" : deal.status === "declined" ? "Отказ" : "Завершено")}</em></article>`).join("") : empty("Здесь появятся выбранные продавцами предложения.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Сохранённые поиски</h3></div>${(state.data.searches || []).length ? state.data.searches.map((search) => `<article class="dashboard-row"><span><b>${esc(search.name)}</b><small>Уведомления о новых автомобилях включены</small></span><button type="button" data-delete-search="${search.id}">Удалить</button></article>`).join("") : empty("Настройте фильтры в каталоге и нажмите «Сохранить поиск».")}</section>`;
+    }</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Результаты</h3></div>${deals.length ? deals.map((deal) => `<article class="dashboard-row"><span><b>${rub(deal.amount)}</b><small>Ответ до ${new Date(deal.response_deadline).toLocaleString("ru-RU")}</small></span><em class="status ${deal.status}">${esc(deal.status === "awaiting_buyer" ? "Нужен ответ" : deal.status === "confirmed" ? "Подтверждено" : deal.status === "declined" ? "Отказ" : "Завершено")}</em></article>`).join("") : empty("Здесь появятся выбранные продавцами предложения.")}</section>`;
+  }
+  function searchDescription(search) {
+    const f = search.filters || {}, parts = [];
+    if (f.query) parts.push(f.query);
+    const brands = Array.isArray(f.filterBrand) ? f.filterBrand : f.filterBrand ? [f.filterBrand] : [];
+    if (brands.length) parts.push(brands.join(", "));
+    if (f.city) parts.push(f.city);
+    if (f.priceFrom || f.priceTo) parts.push(`цена ${f.priceFrom ? `от ${rub(f.priceFrom)}` : ""}${f.priceFrom && f.priceTo ? " " : ""}${f.priceTo ? `до ${rub(f.priceTo)}` : ""}`);
+    if (f.yearFrom || f.yearTo) parts.push(`год ${f.yearFrom ? `от ${f.yearFrom}` : ""}${f.yearFrom && f.yearTo ? " " : ""}${f.yearTo ? `до ${f.yearTo}` : ""}`);
+    return parts.join(" · ") || "Все автомобили";
+  }
+  function searchNotifications(search) {
+    const channels = [search.notify_in_app && "В кабинете", search.notify_email && "По электронной почте"].filter(Boolean);
+    return channels.join(" · ") || "Без уведомлений";
+  }
+  function renderSearches() {
+    const rows = state.data.searches || [];
+    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Сохранённые поиски</h3><small>Здесь находятся ваши подборки и настройки уведомлений</small></div><span>${rows.length}</span></div>${rows.length ? rows.map((search) => `<article class="dashboard-row"><span><b>${esc(search.name)}</b><small class="saved-search-description">${esc(searchDescription(search))}</small><small>${esc(searchNotifications(search))}</small></span><div class="saved-search-actions"><button type="button" data-apply-search="${search.id}">Показать</button><button type="button" data-delete-search="${search.id}">Удалить</button></div></article>`).join("") : empty("Настройте параметры в каталоге и нажмите «Сохранить поиск».")}</section>`;
   }
   function renderFavorites() {
     const rows = state.data.favorites || [];
@@ -163,6 +182,7 @@
         overview: renderOverview,
         buyer: renderBuyer,
         favorites: renderFavorites,
+        searches: renderSearches,
         seller: renderSeller,
         moderation: renderModeration,
         admin: renderAdmin,
@@ -268,6 +288,14 @@
         .eq("id", search.dataset.deleteSearch);
       return load();
     }
+    const applySearch = event.target.closest("[data-apply-search]");
+    if (applySearch) {
+      const row = (state.data.searches || []).find((item) => item.id === applySearch.dataset.applySearch);
+      if (!row) return;
+      document.querySelector("#authModal [data-auth-close]")?.click();
+      window.dispatchEvent(new CustomEvent("vkluche:apply-saved-search", { detail: row.filters || {} }));
+      return;
+    }
     const favorite = event.target.closest("[data-remove-favorite]");
     if (favorite) {
       await client
@@ -334,6 +362,7 @@
     button.disabled=false;button.textContent="Сохранить результат";if(error)return alert(error.message);window.toast?.("Результаты проверки опубликованы");return load();
   });
   window.addEventListener("vkluche:profile", load);
+  window.addEventListener("vkluche:saved-searches-changed", load);
   window.addEventListener("vkluche:dashboard-open", load);
   window.addEventListener("vkluche:dashboard-tab", (event) => {
     state.active = event.detail?.tab || "overview";

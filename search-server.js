@@ -1,15 +1,7 @@
 (function () {
-  let matchedIds = null,
-    offset = 0,
+  let offset = 0,
     total = 0;
-  const pageSize = 24,
-    localFiltered = filtered;
-  filtered = function () {
-    const rows = localFiltered();
-    return matchedIds
-      ? rows.filter((car) => !car.listingId || matchedIds.has(car.listingId))
-      : rows;
-  };
+  const pageSize = 24;
   const values = (name) =>
     [...document.querySelectorAll(`[name="${name}"]:checked`)].map(
       (input) => input.value,
@@ -23,7 +15,6 @@
     if (!client) return;
     if (reset) {
       offset = 0;
-      matchedIds = new Set();
     }
     const models = values("filterModel").map((value) => value.split("|||")[1]);
     const cities = values("filterCity");
@@ -58,16 +49,16 @@
       button.textContent = "Повторить";
       return toast(error.message);
     }
-    (data || []).forEach((row) => matchedIds.add(row.id));
     total = data?.[0]?.total_count || 0;
     offset += data?.length || 0;
     button.textContent =
       offset < total ? "Показать ещё автомобили" : "Все объявления показаны";
     render();
-    button.style.display = offset < total ? "block" : "none";
+    button.style.display = "none";
     const visible = filtered().length;
+    document.querySelector("#searchResultCount").textContent = total;
     document.querySelector("#resultCount").textContent =
-      `Показано ${visible} ${visible === 1 ? "объявление" : "объявлений"}`;
+      `Найдено ${total}, показано ${visible}`;
   }
   document
     .querySelector("#searchForm")
