@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Современный автомобиль</title>
+  <desc id="desc">Стилизованный премиальный автомобиль на светлом фоне</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dce9fb"/><stop offset="1" stop-color="#9eb9df"/></linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#314763"/><stop offset="0.45" stop-color="#152438"/><stop offset="1" stop-color="#08111f"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b9d7ed"/><stop offset="1" stop-color="#365b78"/></linearGradient>
+    <radialGradient id="wheel"><stop offset="0.35" stop-color="#aeb8c5"/><stop offset="0.38" stop-color="#273342"/><stop offset="0.72" stop-color="#111924"/><stop offset="0.76" stop-color="#03070d"/></radialGradient>
+    <filter id="shadow" x="-20%" y="-50%" width="140%" height="220%"><feGaussianBlur stdDeviation="22"/></filter>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+  <circle cx="975" cy="125" r="210" fill="#fff" opacity=".14"/>
+  <path d="M0 510C270 450 915 448 1200 518V700H0Z" fill="#d6e0eb"/>
+  <ellipse cx="670" cy="548" rx="475" ry="58" fill="#12233a" opacity=".28" filter="url(#shadow)"/>
+  <path d="M160 471c18-61 56-101 117-121l137-43c77-107 155-150 289-150h135c90 0 167 43 226 122l53 72c43 13 72 32 86 68l13 47c7 27-9 50-38 51l-90 3c-10-100-155-109-190-14H466c-19-105-171-110-204-10l-75-1c-29 0-38-24-27-54Z" fill="url(#body)"/>
+  <path d="M440 306c70-92 134-118 250-118h139c73 0 134 33 184 101l16 22H440Z" fill="url(#glass)"/>
+  <path d="M702 188v123M438 311h593" stroke="#d8e8f5" stroke-width="8" opacity=".55"/>
+  <path d="M164 467h101c34-85 171-78 204 6h429c37-88 173-84 205 0h99" fill="none" stroke="#50657d" stroke-width="12"/>
+  <circle cx="365" cy="501" r="88" fill="url(#wheel)"/><circle cx="999" cy="501" r="88" fill="url(#wheel)"/>
+  <circle cx="365" cy="501" r="29" fill="#d6dee8"/><circle cx="999" cy="501" r="29" fill="#d6dee8"/>
+  <path d="M1120 361l65 19 13 37-91-3Z" fill="#ffede0"/><path d="M170 391l65-25-17 55-61 4Z" fill="#d6f0ff"/>
+  <path d="M502 361h116M803 361h109" stroke="#70839a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M275 344c188 35 566 45 828 2" fill="none" stroke="#71849b" stroke-width="5" opacity=".55"/>
+</svg>
