@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="listing-details.css" />
   <link rel="stylesheet" href="engine-type-visible.css?v=2" />
   <link rel="stylesheet" href="card-redesign.css?v=1" />
+  <link rel="stylesheet" href="listing-withdrawal.css?v=1" />
   <link rel="stylesheet" href="trust.css?v=2" />
   <link rel="stylesheet" href="auction-deal.css?v=1" />
   <link rel="stylesheet" href="dashboard.css?v=1" />
@@ -219,11 +220,12 @@
     </div>
   </div>
   <div class="toast" id="toast">Готово</div>
+  <div class="modal withdrawal-modal" id="withdrawalModal" role="dialog" aria-modal="true" aria-labelledby="withdrawalTitle"><div class="modal-backdrop" data-withdrawal-close></div><div class="modal-card withdrawal-card"><button class="modal-close" type="button" aria-label="Закрыть" data-withdrawal-close>×</button><span class="eyebrow blue">УПРАВЛЕНИЕ ОБЪЯВЛЕНИЕМ</span><h2 id="withdrawalTitle">Снять с публикации?</h2><p id="withdrawalCar"></p><form id="withdrawalForm"><fieldset><legend>Почему вы снимаете объявление?</legend><label><input type="radio" name="reason" value="sold_on_platform" required><span><b>Продано через ВКЛЮЧЕ</b><small>Отметим автомобиль проданным</small></span></label><label><input type="radio" name="reason" value="sold_elsewhere"><span><b>Продано в другом месте</b><small>Отметим автомобиль проданным</small></span></label><label><input type="radio" name="reason" value="temporarily_unavailable"><span><b>Временно не продаю</b><small>Объявление можно будет восстановить</small></span></label><label><input type="radio" name="reason" value="changed_mind"><span><b>Передумал продавать</b><small>Перенесём объявление в архив</small></span></label><label><input type="radio" name="reason" value="duplicate_or_error"><span><b>Ошибка или дубликат</b><small>Перенесём объявление в архив</small></span></label><label><input type="radio" name="reason" value="other"><span><b>Другая причина</b><small>Расскажите подробнее ниже</small></span></label></fieldset><label class="withdrawal-comment">Комментарий<textarea name="comment" maxlength="500" placeholder="Необязательно"></textarea></label><div class="withdrawal-warning" id="withdrawalWarning">Объявление исчезнет из поиска, но сохранится в личном кабинете.</div><label class="withdrawal-confirm"><input type="checkbox" required><span>Да, я уверен, что хочу снять объявление</span></label><div class="withdrawal-actions"><button class="wizard-back" type="button" data-withdrawal-close>Отмена</button><button class="primary-btn" type="submit" id="withdrawalSubmit">Снять с публикации</button></div></form></div></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="auth.js?v=5"></script>
-  <script src="app.js?v=18"></script>
-  <script src="dashboard.js?v=5"></script>
+  <script src="app.js?v=19"></script>
+  <script src="dashboard.js?v=6"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=1"></script>
   <script src="search-server.js?v=1"></script>

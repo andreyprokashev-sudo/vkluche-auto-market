@@ -127,7 +127,7 @@
   function renderSeller() {
     const listings = state.data.listings || [],
       auctions = state.data.sellerAuctions || [];
-    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => `<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}</small></span><button type="button" data-listing-toggle="${row.id}" data-active="${row.active}">${row.active ? "В архив" : "Вернуть"}</button></article>`).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои аукционы</h3><span>${auctions.length}</span></div>${auctions.length ? auctions.map((row) => `<article class="dashboard-row"><span><b>${esc(carName(row.listings))}</b><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`).join("") : empty("Запустить аукцион можно из карточки своего автомобиля.")}</section>`;
+    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => `<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}</small></span>${row.active?`<button type="button" data-listing-withdraw="${row.id}">Снять</button>`:row.status==='archived'?`<button type="button" data-listing-restore="${row.id}">Вернуть</button>`:`<em>${esc(listingLabels[row.status]||row.status)}</em>`}</article>`).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои аукционы</h3><span>${auctions.length}</span></div>${auctions.length ? auctions.map((row) => `<article class="dashboard-row"><span><b>${esc(carName(row.listings))}</b><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`).join("") : empty("Запустить аукцион можно из карточки своего автомобиля.")}</section>`;
   }
   function renderModeration() {
     const rows = (state.data.adminListings || []).filter(
@@ -276,17 +276,17 @@
         .eq("listing_id", favorite.dataset.removeFavorite);
       return load();
     }
-    const toggle = event.target.closest("[data-listing-toggle]");
-    if (toggle) {
-      const active = toggle.dataset.active === "true";
-      const { error } = active
-        ? await client.rpc("archive_listing", {
-            p_listing_id: toggle.dataset.listingToggle,
-          })
-        : await client
-            .from("listings")
-            .update({ active: true, status: "published" })
-            .eq("id", toggle.dataset.listingToggle);
+    const withdraw = event.target.closest("[data-listing-withdraw]");
+    if (withdraw) {
+      const row=(state.data.listings||[]).find(item=>item.id===withdraw.dataset.listingWithdraw);
+      window.openListingWithdrawal?.({listingId:row.id,name:carName(row)},load);
+      return;
+    }
+    const restore = event.target.closest("[data-listing-restore]");
+    if (restore) {
+      restore.disabled=true;
+      const { error } = await client.rpc("restore_listing",{p_listing_id:restore.dataset.listingRestore});
+      restore.disabled=false;
       if (error) return window.toast?.(error.message);
       return load();
     }
