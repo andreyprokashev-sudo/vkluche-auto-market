@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="auction-deal.css?v=1" />
   <link rel="stylesheet" href="dashboard.css?v=1" />
   <link rel="stylesheet" href="market-tools.css?v=1" />
-  <link rel="stylesheet" href="archive-listing.css?v=1" />
+  <link rel="stylesheet" href="archive-listing.css?v=2" />
 </head>
 <body>
   <header class="topbar">
@@ -175,6 +175,7 @@
         <div class="detail-main">
           <div class="gallery"><div class="gallery-main"><img id="detailImage" alt=""><button class="gallery-arrow prev" id="prevPhoto">‹</button><button class="gallery-arrow next" id="nextPhoto">›</button><span class="photo-count" id="photoCount"></span></div><div class="gallery-thumbs" id="galleryThumbs"></div></div>
           <div class="mobile-price" id="mobilePrice"></div>
+          <div class="listing-owner-tools" id="listingOwnerTools"><span><b>Управление объявлением</b><small>Доступно владельцу и администратору</small></span><button type="button" id="withdrawListingFromCard">Снять с публикации</button></div>
           <div class="detail-section"><h2>Характеристики</h2><div class="spec-grid" id="detailSpecs"></div></div>
           <div class="detail-section"><h2>Описание</h2><p class="description" id="detailDescription"></p></div>
           <div class="detail-section vehicle-documents" id="documentsSection"><h2>Документы автомобиля</h2><div id="detailDocuments"></div></div>
@@ -224,7 +225,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="auth.js?v=5"></script>
-  <script src="app.js?v=19"></script>
+  <script src="app.js?v=20"></script>
   <script src="dashboard.js?v=6"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=1"></script>
