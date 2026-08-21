@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="brand.css" />
   <link rel="stylesheet" href="mobile.css?v=2" />
   <link rel="stylesheet" href="auth.css" />
-  <link rel="stylesheet" href="filters.css?v=2" />
+  <link rel="stylesheet" href="filters.css?v=3" />
   <link rel="stylesheet" href="feed-admin.css" />
   <link rel="stylesheet" href="dropdown-filters.css" />
   <link rel="stylesheet" href="listing-details.css" />
@@ -55,11 +55,13 @@
           <img src="assets/hero-car-v2.jpg" alt="Стильный современный кроссовер" fetchpriority="high" />
           <div class="trust-pill"><b id="liveListingCount">—</b><span>объявлений в каталоге</span></div>
         </div>
-        <form class="search-panel" id="searchForm">
+        <form class="search-panel unified-search-panel" id="searchForm">
           <label class="search-main"><span>Что ищете?</span><input id="searchInput" type="search" placeholder="Марка, модель или ключевое слово"></label>
-          <label><span>Цена до</span><input id="priceInput" type="number" placeholder="Любая"></label>
+          <label class="search-price"><span>Цена, ₽</span><span class="search-range"><input id="priceInputFrom" type="number" min="0" placeholder="от"><i>—</i><input id="priceInput" type="number" min="0" placeholder="до"></span></label>
           <label><span>Город</span><select id="cityInput"><option value="">Вся Россия</option><option>Москва</option><option>Санкт-Петербург</option><option>Казань</option><option>Самара</option></select></label>
-          <button class="search-btn" type="submit">Найти <span>→</span></button>
+          <button class="filter-toggle search-filter-toggle" id="filterToggle" type="button">Все фильтры <span id="filterCount"></span></button>
+          <button class="search-btn" type="submit">Показать <b id="searchResultCount"></b><span>→</span></button>
+          <div class="selected-filter-tags" id="selectedFilterTags" aria-live="polite"></div>
         </form>
       </div>
     </section>
@@ -86,15 +88,15 @@
     <section class="catalog container" id="catalog">
       <div class="section-head">
         <div><span class="eyebrow blue">СВЕЖИЕ ПРЕДЛОЖЕНИЯ</span><h2>Автомобили в продаже</h2><p id="resultCount">Подобрали 8 отличных вариантов</p></div>
-        <div class="catalog-controls"><button class="filter-toggle" id="filterToggle" type="button">☷ Фильтры <span id="filterCount"></span></button><select id="sortSelect" aria-label="Сортировка"><option value="popular">Сначала популярные</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option><option value="year">Сначала новее</option><option value="mileage">С меньшим пробегом</option></select><button class="view-btn active" data-view="grid">▦</button><button class="view-btn" data-view="list">☷</button></div>
+        <div class="catalog-controls"><select id="sortSelect" aria-label="Сортировка"><option value="popular">Сначала популярные</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option><option value="year">Сначала новее</option><option value="mileage">С меньшим пробегом</option></select><button class="view-btn active" data-view="grid">▦</button><button class="view-btn" data-view="list">☷</button></div>
       </div>
       <aside class="filter-panel" id="filterPanel" aria-label="Фильтры автомобилей">
-        <div class="filter-panel-head"><div><b>Фильтры</b><span>Подберите автомобиль по параметрам</span></div><button class="filter-panel-close" id="filterClose" type="button" aria-label="Закрыть">×</button></div>
+        <div class="filter-panel-head"><div><b>Все фильтры</b><span>Уточните параметры единого поиска</span></div><button class="filter-panel-close" id="filterClose" type="button" aria-label="Закрыть">×</button></div>
         <form id="advancedFilters">
           <div class="filter-grid dropdown-filter-grid">
             <div class="multi-dropdown"><span>Марка</span><button type="button" data-dropdown-button data-placeholder="Любая марка">Любая марка</button><div class="multi-dropdown-menu" id="filterBrandOptions"></div></div>
             <div class="multi-dropdown"><span>Модель</span><button type="button" data-dropdown-button data-placeholder="Любая модель" disabled>Сначала выберите марку</button><div class="multi-dropdown-menu" id="filterModelOptions"></div></div>
-            <div class="multi-dropdown"><span>Цена, ₽</span><button type="button" data-dropdown-button data-placeholder="Любая цена" data-range-label="price">Любая цена</button><div class="multi-dropdown-menu"><div class="dropdown-range"><input id="filterPriceFrom" type="number" min="0" placeholder="от, ₽"><span>—</span><input id="filterPriceTo" type="number" min="0" placeholder="до, ₽"></div><label><input type="checkbox" name="filterPrice" value="0-1000000"><span>До 1 млн</span></label><label><input type="checkbox" name="filterPrice" value="1000000-3000000"><span>1–3 млн</span></label><label><input type="checkbox" name="filterPrice" value="3000000-5000000"><span>3–5 млн</span></label><label><input type="checkbox" name="filterPrice" value="5000000-8000000"><span>5–8 млн</span></label><label><input type="checkbox" name="filterPrice" value="8000000-Infinity"><span>От 8 млн</span></label></div></div>
+            <div class="multi-dropdown unified-duplicate-filter"><span>Цена, ₽</span><button type="button" data-dropdown-button data-placeholder="Любая цена" data-range-label="price">Любая цена</button><div class="multi-dropdown-menu"><div class="dropdown-range"><input id="filterPriceFrom" type="number" min="0" placeholder="от, ₽"><span>—</span><input id="filterPriceTo" type="number" min="0" placeholder="до, ₽"></div><label><input type="checkbox" name="filterPrice" value="0-1000000"><span>До 1 млн</span></label><label><input type="checkbox" name="filterPrice" value="1000000-3000000"><span>1–3 млн</span></label><label><input type="checkbox" name="filterPrice" value="3000000-5000000"><span>3–5 млн</span></label><label><input type="checkbox" name="filterPrice" value="5000000-8000000"><span>5–8 млн</span></label><label><input type="checkbox" name="filterPrice" value="8000000-Infinity"><span>От 8 млн</span></label></div></div>
             <div class="multi-dropdown"><span>Год выпуска</span><button type="button" data-dropdown-button data-placeholder="Любой год" data-range-label="year">Любой год</button><div class="multi-dropdown-menu"><div class="dropdown-range"><input id="filterYearFrom" type="number" min="1950" max="2026" placeholder="от"><span>—</span><input id="filterYearTo" type="number" min="1950" max="2026" placeholder="до"></div><label><input type="checkbox" name="filterYear" value="0-2015"><span>До 2015</span></label><label><input type="checkbox" name="filterYear" value="2016-2020"><span>2016–2020</span></label><label><input type="checkbox" name="filterYear" value="2021-2023"><span>2021–2023</span></label><label><input type="checkbox" name="filterYear" value="2024-Infinity"><span>2024 и новее</span></label></div></div>
             <div class="multi-dropdown"><span>Пробег</span><button type="button" data-dropdown-button data-placeholder="Любой пробег" data-range-label="mileage">Любой пробег</button><div class="multi-dropdown-menu"><div class="dropdown-range"><input id="filterMileageFrom" type="number" min="0" placeholder="от, км"><span>—</span><input id="filterMileageTo" type="number" min="0" placeholder="до, км"></div><label><input type="checkbox" name="filterMileage" value="0-0"><span>Новый</span></label><label><input type="checkbox" name="filterMileage" value="1-30000"><span>До 30 000 км</span></label><label><input type="checkbox" name="filterMileage" value="30001-100000"><span>30–100 тыс. км</span></label><label><input type="checkbox" name="filterMileage" value="100001-200000"><span>100–200 тыс. км</span></label><label><input type="checkbox" name="filterMileage" value="200001-Infinity"><span>Более 200 тыс. км</span></label></div></div>
             <div class="multi-dropdown"><span>Коробка передач</span><button type="button" data-dropdown-button data-placeholder="Любая коробка">Любая коробка</button><div class="multi-dropdown-menu"><label><input type="checkbox" name="filterGearbox" value="Автомат"><span>Автомат</span></label><label><input type="checkbox" name="filterGearbox" value="Механика"><span>Механика</span></label><label><input type="checkbox" name="filterGearbox" value="Робот"><span>Робот</span></label><label><input type="checkbox" name="filterGearbox" value="Вариатор"><span>Вариатор</span></label></div></div>
@@ -102,7 +104,7 @@
             <div class="multi-dropdown"><span>Тип кузова</span><button type="button" data-dropdown-button data-placeholder="Любой кузов">Любой кузов</button><div class="multi-dropdown-menu"><label><input type="checkbox" name="filterBody" value="Седан"><span>Седан</span></label><label><input type="checkbox" name="filterBody" value="Кроссовер"><span>Кроссовер</span></label><label><input type="checkbox" name="filterBody" value="Хэтчбек"><span>Хэтчбек</span></label><label><input type="checkbox" name="filterBody" value="Универсал"><span>Универсал</span></label><label><input type="checkbox" name="filterBody" value="Купе"><span>Купе</span></label><label><input type="checkbox" name="filterBody" value="Минивэн"><span>Минивэн</span></label></div></div>
             <div class="multi-dropdown"><span>Привод</span><button type="button" data-dropdown-button data-placeholder="Любой привод">Любой привод</button><div class="multi-dropdown-menu"><label><input type="checkbox" name="filterDrive" value="Передний"><span>Передний</span></label><label><input type="checkbox" name="filterDrive" value="Полный"><span>Полный</span></label><label><input type="checkbox" name="filterDrive" value="Задний"><span>Задний</span></label></div></div>
             <div class="multi-dropdown"><span>Состояние</span><button type="button" data-dropdown-button data-placeholder="Любое состояние">Любое состояние</button><div class="multi-dropdown-menu"><label><input type="checkbox" name="filterCondition" value="new"><span>Новый</span></label><label><input type="checkbox" name="filterCondition" value="used"><span>С пробегом</span></label></div></div>
-            <div class="multi-dropdown"><span>Город</span><button type="button" data-dropdown-button data-placeholder="Вся Россия">Вся Россия</button><div class="multi-dropdown-menu" id="filterCityOptions"></div></div>
+            <div class="multi-dropdown unified-duplicate-filter"><span>Город</span><button type="button" data-dropdown-button data-placeholder="Вся Россия">Вся Россия</button><div class="multi-dropdown-menu" id="filterCityOptions"></div></div>
           </div>
           <div class="filter-actions"><button class="filter-reset" id="filterReset" type="button">Сбросить</button><button class="save-search-btn" id="saveSearch" type="button">🔔 Сохранить поиск</button><button class="primary-btn" type="submit">Показать <span id="filterPreviewCount">автомобили</span></button></div>
         </form>
@@ -225,10 +227,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="auth.js?v=5"></script>
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=22"></script>
   <script src="dashboard.js?v=6"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=1"></script>
-  <script src="search-server.js?v=1"></script>
+  <script src="search-server.js?v=2"></script>
 </body>
 </html>
