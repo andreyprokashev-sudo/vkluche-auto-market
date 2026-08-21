@@ -135,7 +135,7 @@
         ["submitted", "failed"].includes(row.verification_status) ||
         row.status === "rejected",
     );
-    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Проверка объявлений</h3><span>${rows.length}</span></div>${rows.length ? rows.map((row) => `<article class="moderation-card"><div><b>${esc(carName(row))}</b><small>VIN: ${esc(row.vin || "не указан")} · ${date(row.updated_at)}</small><small>${esc(verifyLabels[row.verification_status] || row.verification_status)}</small></div><div><button class="approve" type="button" data-moderate="${row.id}" data-approve="true">Подтвердить</button><button type="button" data-moderate="${row.id}" data-approve="false">Отклонить</button></div></article>`).join("") : empty("Новых объявлений для проверки нет.")}</section>`;
+    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Проверка автомобилей</h3><small>Отмечайте только сведения, подтверждённые отчётом или специалистом</small></div><span>${rows.length}</span></div>${rows.length ? rows.map((row) => { const checks=row.verification_checks||{};return `<article class="moderation-card verification-card"><div class="verification-card-summary">${carImage(row)?`<img src="${esc(carImage(row))}" alt="">`:""}<span><b>${esc(carName(row))}</b><small>VIN: ${esc(row.vin || "не указан")} · ${date(row.updated_at)}</small><small>${esc(verifyLabels[row.verification_status] || row.verification_status)}</small></span></div><div class="verification-card-actions"><button class="approve" type="button" data-open-verification="${row.id}">Начать проверку</button><button type="button" data-reject-verification="${row.id}">Отклонить</button></div><form class="verification-form" data-verification-form="${row.id}" hidden><div class="verification-guide"><b>1. Сверьте VIN и материалы</b><span>Откройте объявление, изучите приложенные документы или отчёт партнёра.</span></div><fieldset><legend>2. Что подтверждено</legend><label><input type="checkbox" name="body"${checks.body?" checked":""}> Осмотр кузова</label><label><input type="checkbox" name="technical"${checks.technical?" checked":""}> Техническая диагностика</label><label><input type="checkbox" name="legal"${checks.legal?" checked":""}> Проверка документов</label><label><input type="checkbox" name="mileage"${checks.mileage?" checked":""}> Проверка пробега</label></fieldset><label>3. Источник проверки<select name="source" required><option value="">Выберите источник</option><option value="platform_specialist">Специалист ВКЛЮЧЕ</option><option value="partner_report">Отчёт партнёра</option><option value="external_registry">Внешний реестр</option><option value="provided_documents">Предоставленные документы</option></select></label><label>Комментарий администратора<textarea name="note" maxlength="500" placeholder="Номер отчёта, важные замечания или ограничения"></textarea></label><div class="verification-form-actions"><button type="button" data-preview-listing="${row.id}">Открыть карточку</button><button class="approve" type="submit">Сохранить результат</button></div></form></article>`}).join("") : empty("Новых автомобилей для проверки нет.")}</section>`;
   }
   function renderAdmin() {
     const d = state.data,
@@ -295,25 +295,43 @@
       document.querySelector(".open-modal").click();
       return;
     }
-    const moderate = event.target.closest("[data-moderate]");
-    if (moderate) {
-      const approve = moderate.dataset.approve === "true",
-        note = approve
-          ? ""
-          : prompt(
-              "Укажите причину отклонения:",
-              "Проверьте VIN и данные автомобиля",
-            ) || "";
-      moderate.disabled = true;
+    const openVerification = event.target.closest("[data-open-verification]");
+    if (openVerification) {
+      const form=content.querySelector(`[data-verification-form="${openVerification.dataset.openVerification}"]`);
+      form.hidden=!form.hidden;
+      openVerification.textContent=form.hidden?"Начать проверку":"Скрыть форму";
+      return;
+    }
+    const preview = event.target.closest("[data-preview-listing]");
+    if (preview) {
+      window.dispatchEvent(new CustomEvent("vkluche:open-listing",{detail:{listingId:preview.dataset.previewListing}}));
+      return;
+    }
+    const reject = event.target.closest("[data-reject-verification]");
+    if (reject) {
+      const note=prompt("Укажите причину отклонения:","Проверьте VIN и данные автомобиля")||"";
+      if(!note)return;
+      reject.disabled = true;
       const { error } = await client.rpc("moderate_listing", {
-        p_listing_id: moderate.dataset.moderate,
-        p_approve: approve,
+        p_listing_id: reject.dataset.rejectVerification,
+        p_approve: false,
         p_note: note,
+        p_checks: {},
+        p_source: "provided_documents",
       });
-      moderate.disabled = false;
+      reject.disabled = false;
       if (error) return alert(error.message);
       return load();
     }
+  });
+  content.addEventListener("submit",async(event)=>{
+    const form=event.target.closest("[data-verification-form]");if(!form)return;
+    event.preventDefault();const auth=window.vklucheAuth,client=auth?.getClient();if(!client)return;
+    const values=new FormData(form),checks={body:values.has("body"),technical:values.has("technical"),legal:values.has("legal"),mileage:values.has("mileage")};
+    if(!Object.values(checks).some(Boolean)&&!confirm("Ни один пункт не подтверждён. Всё равно завершить проверку?"))return;
+    const button=event.submitter;button.disabled=true;button.textContent="Сохраняем…";
+    const{error}=await client.rpc("moderate_listing",{p_listing_id:form.dataset.verificationForm,p_approve:true,p_note:String(values.get("note")||"").trim(),p_checks:checks,p_source:values.get("source")});
+    button.disabled=false;button.textContent="Сохранить результат";if(error)return alert(error.message);window.toast?.("Результаты проверки опубликованы");return load();
   });
   window.addEventListener("vkluche:profile", load);
   window.addEventListener("vkluche:dashboard-open", load);
