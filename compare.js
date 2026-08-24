@@ -4,14 +4,21 @@
   );
   document.body.insertAdjacentHTML(
     "beforeend",
-    '<div class="compare-bar" id="compareBar"><span><b id="compareCount">0</b> автомобиля для сравнения</span><button type="button" id="openCompare">Сравнить</button><button type="button" id="clearCompare">×</button></div><div class="modal compare-modal" id="compareModal"><div class="modal-backdrop" data-compare-close></div><div class="modal-card compare-card"><button class="modal-close" data-compare-close>×</button><h2>Сравнение автомобилей</h2><div id="compareTable"></div></div></div>',
+    '<div class="compare-bar" id="compareBar"><span><b id="compareCount">0</b> автомобиля для сравнения</span><div class="compare-tray" id="compareTray"></div><button type="button" id="openCompare">Сравнить</button><button type="button" id="clearCompare" aria-label="Очистить сравнение">×</button></div><div class="modal compare-modal" id="compareModal"><div class="modal-backdrop" data-compare-close></div><div class="modal-card compare-card"><button class="modal-close" data-compare-close>×</button><div class="compare-heading"><h2>Сравнение автомобилей</h2><label><input id="compareDifferences" type="checkbox"> Показывать только различия</label></div><div id="compareTable"></div></div></div><div class="modal" id="replaceCompareModal"><div class="modal-backdrop" data-replace-close></div><div class="modal-card replace-compare-card"><button class="modal-close" data-replace-close>×</button><span class="eyebrow blue">В СРАВНЕНИИ УЖЕ 4 АВТОМОБИЛЯ</span><h2>Какой автомобиль заменить?</h2><p id="replaceCompareHint"></p><div id="replaceCompareList"></div></div></div>',
   );
   const bar = document.querySelector("#compareBar"),
-    modal = document.querySelector("#compareModal");
+    modal = document.querySelector("#compareModal"),
+    replaceModal = document.querySelector("#replaceCompareModal");
+  let replacementCar = null;
   function sync() {
     localStorage.setItem("vkluche-compare", JSON.stringify([...selected]));
     document.querySelector("#compareCount").textContent = selected.size;
     bar.classList.toggle("show", selected.size > 0);
+    document.querySelector("#compareTray").innerHTML = [...selected]
+      .map((id) => cars.find((car) => String(car.id) === id))
+      .filter(Boolean)
+      .map((car) => `<span><img src="${car.img}" alt=""><b>${escapeHtml(car.name)}</b><button type="button" data-compare-remove="${escapeHtml(car.id)}" aria-label="Убрать ${escapeHtml(car.name)}">×</button></span>`)
+      .join("");
     document.querySelectorAll("[data-compare-id]").forEach((button) => {
       const id = button.dataset.compareId;
       button.classList.toggle("selected", selected.has(id));
@@ -33,7 +40,8 @@
       : client
           .from("comparison_items")
           .delete()
-          .eq("listing_id", car.listingId);
+          .eq("listing_id", car.listingId)
+          .eq("user_id", user.id);
     const { error } = await query;
     if (error) toast(error.message);
   }
@@ -43,12 +51,24 @@
       selected.delete(id);
       persist(car, false);
     } else {
-      if (selected.size >= 4)
-        return toast("Можно сравнить не более четырёх автомобилей");
+      if (selected.size >= 4) return chooseReplacement(car);
       selected.add(id);
       persist(car, true);
     }
     sync();
+  }
+  function remove(id) {
+    const car = cars.find((item) => String(item.id) === String(id));
+    selected.delete(String(id));
+    if (car) persist(car, false);
+    sync();
+    if (modal.classList.contains("open")) renderComparison();
+  }
+  function chooseReplacement(car) {
+    replacementCar = car;
+    document.querySelector("#replaceCompareHint").textContent = `Чтобы добавить ${car.name}, выберите один из текущих вариантов.`;
+    document.querySelector("#replaceCompareList").innerHTML = [...selected].map((id) => cars.find((item) => String(item.id) === id)).filter(Boolean).map((item) => `<button type="button" data-compare-replace="${escapeHtml(item.id)}"><img src="${item.img}" alt=""><span><b>${escapeHtml(item.name)}</b><small>${money(item.price)} · заменить</small></span></button>`).join("");
+    replaceModal.classList.add("open");
   }
   function enhance() {
     [...document.querySelectorAll("#carsGrid .car-card")].forEach(
@@ -108,11 +128,10 @@
       toggle(currentCar);
       syncDetailButton();
     });
-  function open() {
+  function renderComparison() {
     const rows = [...selected]
       .map((id) => cars.find((car) => String(car.id) === id))
       .filter(Boolean);
-    if (rows.length < 2) return toast("Выберите минимум два автомобиля");
     const specs = [
       ["Цена", (c) => money(c.price)],
       ["Год", (c) => c.year],
@@ -124,15 +143,55 @@
       ["Кузов", (c) => carBody(c)],
       ["Город", (c) => c.city],
     ];
+    const visibleSpecs = document.querySelector("#compareDifferences").checked
+      ? specs.filter(([, get]) => new Set(rows.map((car) => String(get(car)))).size > 1)
+      : specs;
+    const emptyColumn = rows.length < 4 ? '<th class="compare-empty-column"><button type="button" data-compare-add>+<span>Добавить автомобиль</span></button></th>' : '';
     document.querySelector("#compareTable").innerHTML =
-      `<table><thead><tr><th>Параметр</th>${rows.map((c) => `<th><img src="${c.img}" alt=""><b>${escapeHtml(c.name)}</b></th>`).join("")}</tr></thead><tbody>${specs.map(([label, get]) => `<tr><th>${label}</th>${rows.map((c) => `<td>${escapeHtml(get(c))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      `<table><thead><tr><th>Параметр</th>${rows.map((c) => `<th><button class="compare-column-remove" type="button" data-compare-remove="${escapeHtml(c.id)}" aria-label="Убрать из сравнения">×</button><img src="${c.img}" alt=""><b>${escapeHtml(c.name)}</b></th>`).join("")}${emptyColumn}</tr></thead><tbody>${visibleSpecs.map(([label, get]) => `<tr><th>${label}</th>${rows.map((c) => `<td>${escapeHtml(get(c))}</td>`).join("")}${rows.length<4?'<td class="compare-empty-cell">—</td>':''}</tr>`).join("")}</tbody></table>${visibleSpecs.length?'':'<p class="compare-no-differences">По выбранным параметрам различий нет.</p>'}`;
+  }
+  function open() {
+    if (selected.size < 2) return toast("Выберите минимум два автомобиля");
+    renderComparison();
     modal.classList.add("open");
   }
   document.querySelector("#openCompare").addEventListener("click", open);
   document.querySelector("#clearCompare").addEventListener("click", () => {
+    [...selected].forEach((id) => {
+      const car = cars.find((item) => String(item.id) === id);
+      if (car) persist(car, false);
+    });
     selected.clear();
     sync();
+    modal.classList.remove("open");
   });
+  document.querySelector("#compareDifferences").addEventListener("change", renderComparison);
+  document.querySelector("#compareTable").addEventListener("click", (event) => {
+    const removeButton = event.target.closest("[data-compare-remove]");
+    if (removeButton) return remove(removeButton.dataset.compareRemove);
+    if (event.target.closest("[data-compare-add]")) {
+      modal.classList.remove("open");
+      document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth" });
+    }
+  });
+  document.querySelector("#compareTray").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-compare-remove]");
+    if (button) remove(button.dataset.compareRemove);
+  });
+  document.querySelector("#replaceCompareList").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-compare-replace]");
+    if (!button || !replacementCar) return;
+    const oldCar = cars.find((item) => String(item.id) === button.dataset.compareReplace);
+    if (oldCar) persist(oldCar, false);
+    selected.delete(button.dataset.compareReplace);
+    selected.add(String(replacementCar.id));
+    persist(replacementCar, true);
+    replacementCar = null;
+    replaceModal.classList.remove("open");
+    sync();
+    open();
+  });
+  document.querySelectorAll("[data-replace-close]").forEach((button) => button.addEventListener("click", () => { replacementCar = null; replaceModal.classList.remove("open"); }));
   document
     .querySelectorAll("[data-compare-close]")
     .forEach((button) =>
