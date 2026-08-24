@@ -150,11 +150,14 @@
       ["ПТС", (c) => c.details?.ptsType || "Нет данных"],
       ["Второй комплект", (c) => secondSetLabel(c)],
       ["Безопасность", (c) => equipmentGroups(c)["Безопасность"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
+      ["Помощь водителю", (c) => equipmentGroups(c)["Помощь водителю"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
       ["Комфорт", (c) => equipmentGroups(c)["Комфорт"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
       ["Обогревы", (c) => equipmentGroups(c)["Обогревы"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
       ["Мультимедиа", (c) => equipmentGroups(c)["Мультимедиа"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
-      ["Обзор", (c) => equipmentGroups(c)["Обзор"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
-      ["Салон и экстерьер", (c) => equipmentGroups(c)["Салон и экстерьер"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
+      ["Обзор и свет", (c) => equipmentGroups(c)["Обзор и свет"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
+      ["Салон", (c) => equipmentGroups(c)["Салон"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
+      ["Экстерьер", (c) => equipmentGroups(c)["Экстерьер"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
+      ["Защита от угона", (c) => equipmentGroups(c)["Защита от угона"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
       ["Город", (c) => c.city],
     ];
     const visibleSpecs = document.querySelector("#compareDifferences").checked
