@@ -6,7 +6,7 @@ const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const cronSecret = Deno.env.get('CRON_SECRET') || ''
 const admin = createClient(url, serviceKey, { auth: { persistSession: false } })
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_', trimValues: true })
-const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, apikey, content-type, x-cron-secret' }
+const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, apikey, content-type, x-client-info, x-supabase-api-version, x-cron-secret' }
 
 const array = <T>(value: T | T[] | undefined): T[] => value === undefined ? [] : Array.isArray(value) ? value : [value]
 const text = (value: unknown): string => value === undefined || value === null ? '' : String(value).trim()
