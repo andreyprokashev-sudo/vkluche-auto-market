@@ -29,6 +29,7 @@ function mapAd(ad: Record<string, any>) {
   if (!externalId || !brand || !model || !price || !year) throw new Error(`Объявление ${externalId || 'без Id'}: обязательны Id, Make, Model, Year и Price`)
   const mileage = number(ad.Kilometrage || ad.Mileage), power = text(ad.Power), volume = text(ad.EngineSize)
   const body = text(ad.BodyType), condition = text(ad.Condition).toLowerCase(), engineType = text(ad.EngineType || ad.FuelType), images = imageUrls(ad)
+  const vin = text(ad.VIN || ad.Vin).toUpperCase()
   const city = text(ad.City || ad.Region) || 'Город не указан', address = text(ad.Address) || city
   const latitude = number(ad.Latitude), longitude = number(ad.Longitude)
   return {
@@ -39,19 +40,22 @@ function mapAd(ad: Record<string, any>) {
       engine: volume ? `${volume} л / ${power || '—'} л.с.` : power ? `${power} л.с.` : 'Двигатель не указан',
       city, date: 'обновлено сегодня', type: [condition.includes('нов') ? 'new' : 'used', /внедорож|кроссов/i.test(body) ? 'suv' : '', /элект|electric|ev/i.test(engineType) ? 'electric' : ''].filter(Boolean),
       badge: 'В продаже', img: images[0] || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1000&q=85',
-      details: { brand, model, body, condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
+      details: { brand, model, body, condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), vin, images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
     }
   }
 }
 
 async function authorized(req: Request) {
-  if (cronSecret && req.headers.get('x-cron-secret') === cronSecret) return true
+  if (cronSecret && req.headers.get('x-cron-secret') === cronSecret) return { cron: true, admin: true, organizationIds: [] as string[] }
   const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
-  if (!token) return false
+  if (!token) return null
   const { data: { user } } = await admin.auth.getUser(token)
-  if (!user) return false
-  const { data } = await admin.from('profiles').select('role').eq('id', user.id).single()
-  return data?.role === 'admin'
+  if (!user) return null
+  const { data } = await admin.from('profiles').select('role,account_type').eq('id', user.id).single()
+  if (data?.role === 'admin') return { cron: false, admin: true, organizationIds: [] as string[] }
+  if (data?.account_type !== 'professional') return null
+  const { data: memberships = [] } = await admin.from('organization_members').select('organization_id').eq('user_id', user.id).eq('active', true).in('member_role', ['owner', 'administrator', 'manager'])
+  return { cron: false, admin: false, organizationIds: memberships.map((row: any) => row.organization_id) }
 }
 
 async function importSource(source: any) {
@@ -73,7 +77,7 @@ async function importSource(source: any) {
     if (readError) throw readError
     const previous = new Map(existing.map((item: any) => [item.external_id, item]))
     const seen = new Set(mapped.map(item => item.externalId)), now = new Date().toISOString()
-    const rows = mapped.map(item => ({ source_id: source.id, external_id: item.externalId, data: { ...item.car, id: `feed:${source.id}:${item.externalId}` }, active: true, missing_runs: 0, last_seen_at: now, updated_at: now }))
+    const rows = mapped.map(item => ({ source_id: source.id, external_id: item.externalId, organization_id: source.organization_id || null, branch_id: source.branch_id || null, vin: item.car.details.vin || null, data: { ...item.car, id: `feed:${source.id}:${item.externalId}` }, active: true, missing_runs: 0, last_seen_at: now, updated_at: now }))
     for (let i = 0; i < rows.length; i += 200) { const { error } = await admin.from('listings').upsert(rows.slice(i, i + 200), { onConflict: 'source_id,external_id' }); if (error) throw error }
     let hidden = 0
     const missing = existing.filter((item: any) => !seen.has(item.external_id)).map((item: any) => { const misses = item.missing_runs + 1, active = misses < source.missing_threshold; if (!active && item.active) hidden++; return { ...item, missing_runs: misses, active, updated_at: now } })
@@ -92,9 +96,14 @@ async function importSource(source: any) {
 
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
-  if (!await authorized(req)) return Response.json({ error: 'Доступ запрещён' }, { status: 401, headers: cors })
+  const access = await authorized(req)
+  if (!access) return Response.json({ error: 'Доступ запрещён' }, { status: 401, headers: cors })
   const body = await req.json().catch(() => ({})), sourceId = body.sourceId
   let query = admin.from('feed_sources').select('*').eq('active', true)
+  if (!access.admin) {
+    if (!access.organizationIds.length) return Response.json({ error: 'Организация не найдена' }, { status: 403, headers: cors })
+    query = query.in('organization_id', access.organizationIds)
+  }
   if (sourceId) query = query.eq('id', sourceId)
   const { data: sources, error } = await query
   if (error) return Response.json({ error: error.message }, { status: 500, headers: cors })

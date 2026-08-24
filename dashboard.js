@@ -59,6 +59,7 @@
       ["searches", "Поиски"],
     ];
     result.push(["seller", "Продажи"]);
+    if (state.accountType === "professional" || state.role === "admin") result.push(["business", "Компания"]);
     if (state.role === "admin")
       result.push(["moderation", "Модерация"], ["admin", "Управление"]);
     return result;
@@ -148,6 +149,12 @@
       auctions = state.data.sellerAuctions || [];
     content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => `<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}</small></span>${row.active?`<button type="button" data-listing-withdraw="${row.id}">Снять</button>`:row.status==='archived'?`<button type="button" data-listing-restore="${row.id}">Вернуть</button>`:`<em>${esc(listingLabels[row.status]||row.status)}</em>`}</article>`).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои аукционы</h3><span>${auctions.length}</span></div>${auctions.length ? auctions.map((row) => `<article class="dashboard-row"><span><b>${esc(carName(row.listings))}</b><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`).join("") : empty("Запустить аукцион можно из карточки своего автомобиля.")}</section>`;
   }
+  function renderBusiness() {
+    const d=state.data,organization=d.organization;
+    if(!organization){content.innerHTML=`<section class="dashboard-block business-onboarding"><span class="eyebrow blue">ПРОФЕССИОНАЛЬНЫЙ КАБИНЕТ</span><h3>Создайте профиль компании</h3><p>Объедините склад, филиалы, сотрудников, фиды и аукционы в одном кабинете.</p><form data-create-organization><label>Название компании<input name="name" required minlength="2" maxlength="160" placeholder="Например, Автоцентр Самара"></label><label>ИНН<input name="inn" inputmode="numeric" maxlength="12" placeholder="Необязательно"></label><button class="primary-btn" type="submit">Создать компанию</button></form></section>`;return}
+    const analytics=d.organizationAnalytics||{},branches=d.organizationBranches||[],members=d.organizationMembers||[],inventory=d.organizationListings||[],feeds=d.organizationFeeds||[],unassigned=(d.listings||[]).filter(row=>!row.organization_id);
+    content.innerHTML=`<div class="business-heading"><div><span class="eyebrow blue">КОМПАНИЯ</span><h3>${esc(organization.name)}</h3><small>${esc(organization.inn?`ИНН ${organization.inn}`:'Профессиональный профиль')}</small></div><em>${esc(d.organizationRole||'viewer')}</em></div><div class="dashboard-stats">${stat(analytics.inventory||0,'автомобилей на складе')}${stat(analytics.active_listings||0,'опубликовано')}${stat(analytics.active_auctions||0,'аукционов в работе')}${stat(analytics.confirmed_deals||0,'подтверждённых сделок')}${stat(rub(analytics.revenue||0),'сумма сделок')}${stat(analytics.participants||0,'участников')}</div><section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Филиалы</h3><small>Площадки хранения и осмотра автомобилей</small></div><span>${branches.length}</span></div><div class="business-grid">${branches.map(branch=>`<article><b>${esc(branch.name)}</b><small>${esc(branch.city)} · ${esc(branch.address||'адрес не указан')}</small></article>`).join('')||empty('Добавьте первую площадку.')}<form data-create-branch><input name="name" required placeholder="Название филиала"><input name="city" required placeholder="Город"><input name="address" required placeholder="Адрес"><button type="submit">+ Добавить филиал</button></form></div></section>${unassigned.length?`<section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Добавить свои объявления на склад</h3><small>Назначьте автомобилю филиал компании</small></div><span>${unassigned.length}</span></div>${unassigned.map(row=>`<article class="dashboard-row"><span><b>${esc(carName(row))}</b><small>${rub(row.data?.price)}</small></span><select data-assign-branch="${row.id}"><option value="">Выберите филиал</option>${branches.map(branch=>`<option value="${branch.id}">${esc(branch.name)}</option>`).join('')}</select></article>`).join('')}</section>`:''}<section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Сотрудники</h3><small>Владелец, администратор, менеджер или наблюдатель</small></div><span>${members.length}</span></div>${members.map(member=>`<article class="dashboard-row"><span><b>${esc(member.name||member.email||member.user_id)}</b><small>${esc(member.email||'')} · ${esc(member.member_role)}</small></span></article>`).join('')}<form class="business-inline-form" data-add-member><input name="email" type="email" required placeholder="Почта зарегистрированного сотрудника"><select name="role"><option value="manager">Менеджер</option><option value="administrator">Администратор</option><option value="viewer">Наблюдатель</option></select><button type="submit">Добавить</button></form></section><section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Общий склад и массовые торги</h3><small>Выберите автомобили без активного аукциона</small></div><span>${inventory.length}</span></div><form data-bulk-auctions><div class="bulk-inventory">${inventory.map(row=>`<label><input type="checkbox" name="listingIds" value="${row.id}"><img src="${esc(carImage(row))}" alt=""><span><b>${esc(carName(row))}</b><small>${rub(row.data?.price)} · ${esc(row.organization_branches?.name||'Без филиала')}</small></span><select data-assign-branch="${row.id}"><option value="">Филиал</option>${branches.map(branch=>`<option value="${branch.id}"${row.branch_id===branch.id?' selected':''}>${esc(branch.name)}</option>`).join('')}</select></label>`).join('')||empty('Добавьте автомобили компании или назначьте свои объявления филиалу.')}</div><div class="bulk-settings"><select name="duration"><option value="1440">24 часа</option><option value="720">12 часов</option><option value="2880">48 часов</option></select><select name="step"><option value="10000">Шаг 10 000 ₽</option><option value="25000">Шаг 25 000 ₽</option><option value="50000">Шаг 50 000 ₽</option></select><select name="winnerMode"><option value="highest">Максимальная ставка</option><option value="seller_choice">Выбор продавца</option></select><button type="submit">Запустить выбранные</button></div></form></section><section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Автоматические фиды</h3><small>Источники общего склада организации</small></div><span>${feeds.length}</span></div>${feeds.map(feed=>`<article class="dashboard-row"><span><b>${esc(feed.name)}</b><small>${esc(feed.last_status||'Ожидает запуска')} · каждые ${feed.interval_minutes} мин.</small></span></article>`).join('')||empty('Добавление источника доступно через раздел «Загрузить фид».')}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Результаты по филиалам</h3></div>${(analytics.branches||[]).map(branch=>`<article class="dashboard-row"><span><b>${esc(branch.name)}</b><small>${esc(branch.city)} · склад ${branch.inventory} · аукционы ${branch.auctions}</small></span><em>${branch.deals} сделок</em></article>`).join('')||empty('Данные появятся после добавления филиалов.')}</section>`;
+  }
   function renderModeration() {
     const rows = (state.data.adminListings || []).filter(
       (row) =>
@@ -184,6 +191,7 @@
         favorites: renderFavorites,
         searches: renderSearches,
         seller: renderSeller,
+        business: renderBusiness,
         moderation: renderModeration,
         admin: renderAdmin,
       })[state.active] || renderOverview
@@ -231,7 +239,7 @@
       const [listings, auctions] = await Promise.all([
         client
           .from("listings")
-          .select("id,data,status,verification_status,active,updated_at")
+          .select("id,data,status,verification_status,active,updated_at,organization_id,branch_id")
           .eq("owner_id", user.id)
           .order("updated_at", { ascending: false }),
         client
@@ -243,6 +251,9 @@
       state.data.listings = listings.data || [];
       state.data.sellerAuctions = auctions.data || [];
     }
+    if (state.accountType === "professional" || state.role === "admin") {
+      const membership=await client.from("organization_members").select("organization_id,member_role,organizations(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
+      const member=membership.data;if(member?.organizations){state.data.organization=member.organizations;state.data.organizationRole=member.member_role;const orgId=member.organization_id;const[branches,members,inventory,feeds,analytics]=await Promise.all([client.from("organization_branches").select("*").eq("organization_id",orgId).order("name"),client.rpc("organization_member_directory",{p_organization_id:orgId}),client.from("listings").select("id,data,status,active,branch_id,organization_branches(name)").eq("organization_id",orgId).order("updated_at",{ascending:false}),client.from("feed_sources").select("*").eq("organization_id",orgId).order("created_at",{ascending:false}),client.rpc("organization_auction_analytics",{p_organization_id:orgId})]);state.data.organizationBranches=branches.data||[];state.data.organizationMembers=members.data||[];state.data.organizationListings=inventory.data||[];state.data.organizationFeeds=feeds.data||[];state.data.organizationAnalytics=analytics.data||{}}}
     if (state.role === "admin") {
       const [listings, profiles, auctions] = await Promise.all([
         client
@@ -353,14 +364,20 @@
     }
   });
   content.addEventListener("submit",async(event)=>{
+    const client=window.vklucheAuth?.getClient();if(!client)return;
+    const createOrganization=event.target.closest("[data-create-organization]");if(createOrganization){event.preventDefault();const values=new FormData(createOrganization),button=event.submitter;button.disabled=true;const{error}=await client.rpc("create_organization",{p_name:String(values.get("name")||"").trim(),p_inn:String(values.get("inn")||"").trim()});button.disabled=false;if(error)return alert(error.message);window.toast?.("Компания создана");return load()}
+    const createBranch=event.target.closest("[data-create-branch]");if(createBranch){event.preventDefault();const values=new FormData(createBranch),button=event.submitter;button.disabled=true;const{error}=await client.from("organization_branches").insert({organization_id:state.data.organization.id,name:String(values.get("name")||"").trim(),city:String(values.get("city")||"").trim(),address:String(values.get("address")||"").trim()});button.disabled=false;if(error)return alert(error.message);return load()}
+    const addMember=event.target.closest("[data-add-member]");if(addMember){event.preventDefault();const values=new FormData(addMember),button=event.submitter;button.disabled=true;const{error}=await client.rpc("add_organization_member",{p_organization_id:state.data.organization.id,p_email:String(values.get("email")||"").trim(),p_role:values.get("role")});button.disabled=false;if(error)return alert(error.message);window.toast?.("Сотрудник добавлен");return load()}
+    const bulk=event.target.closest("[data-bulk-auctions]");if(bulk){event.preventDefault();const values=new FormData(bulk),listingIds=values.getAll("listingIds");if(!listingIds.length)return alert("Выберите автомобили");const button=event.submitter;button.disabled=true;button.textContent="Запускаем…";const{data,error}=await client.rpc("bulk_start_auctions",{p_listing_ids:listingIds,p_duration_minutes:+values.get("duration"),p_bid_step:+values.get("step"),p_winner_mode:values.get("winnerMode"),p_participant_access:"all_verified"});button.disabled=false;button.textContent="Запустить выбранные";if(error)return alert(error.message);window.toast?.(`Запущено аукционов: ${data}`);return load()}
     const form=event.target.closest("[data-verification-form]");if(!form)return;
-    event.preventDefault();const auth=window.vklucheAuth,client=auth?.getClient();if(!client)return;
+    event.preventDefault();const auth=window.vklucheAuth;
     const values=new FormData(form),checks={body:values.has("body"),technical:values.has("technical"),legal:values.has("legal"),mileage:values.has("mileage")};
     if(!Object.values(checks).some(Boolean)&&!confirm("Ни один пункт не подтверждён. Всё равно завершить проверку?"))return;
     const button=event.submitter;button.disabled=true;button.textContent="Сохраняем…";
     const{error}=await client.rpc("moderate_listing",{p_listing_id:form.dataset.verificationForm,p_approve:true,p_note:String(values.get("note")||"").trim(),p_checks:checks,p_source:values.get("source")});
     button.disabled=false;button.textContent="Сохранить результат";if(error)return alert(error.message);window.toast?.("Результаты проверки опубликованы");return load();
   });
+  content.addEventListener("change",async event=>{const select=event.target.closest("[data-assign-branch]");if(!select||!select.value)return;const{error}=await window.vklucheAuth.getClient().rpc("assign_listing_to_branch",{p_listing_id:select.dataset.assignBranch,p_branch_id:select.value});if(error)return alert(error.message);window.toast?.("Филиал назначен");load()});
   window.addEventListener("vkluche:profile", load);
   window.addEventListener("vkluche:saved-searches-changed", load);
   window.addEventListener("vkluche:dashboard-open", load);
