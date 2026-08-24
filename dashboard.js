@@ -183,6 +183,7 @@
         .join("") || empty("Аукционов пока нет.")
     }</section>`;
     const organizations=d.allOrganizations||[],unassignedFeeds=d.unassignedFeeds||[];content.insertAdjacentHTML('beforeend',`<section class="dashboard-block feed-admin-assignment"><div class="dashboard-block-head"><div><h3>Принадлежность существующих фидов</h3><small>Только системный администратор может передать ранее загруженный источник организации</small></div><span>${unassignedFeeds.length}</span></div>${unassignedFeeds.length&&organizations.length?`<form data-admin-attach-feed><label>Непривязанный фид<select name="feedId">${unassignedFeeds.map(feed=>`<option value="${feed.id}">${esc(feed.name)} · ${feed.listing_count} автомобилей</option>`).join('')}</select></label><label>Организация<select name="organizationId">${organizations.map(org=>`<option value="${org.id}">${esc(org.name)}</option>`).join('')}</select></label><button type="submit">Привязать</button></form>`:empty(unassignedFeeds.length?'Сначала должна быть создана организация.':'Все существующие фиды уже распределены.')}</section>`);
+    const tickets=d.supportTickets||[],events=d.helpEvents||[];content.insertAdjacentHTML('beforeend',`<section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Обращения в поддержку</h3><small>Вопросы пользователей из центра помощи</small></div><span>${tickets.filter(x=>!['closed','answered'].includes(x.status)).length}</span></div>${tickets.map(t=>`<article class="dashboard-row"><span><b>${esc(t.subject)}</b><small>${esc(t.message)} · ${date(t.created_at)}</small></span><select data-support-status="${t.id}"><option value="new"${t.status==='new'?' selected':''}>Новое</option><option value="in_progress"${t.status==='in_progress'?' selected':''}>В работе</option><option value="answered"${t.status==='answered'?' selected':''}>Ответ дан</option><option value="closed"${t.status==='closed'?' selected':''}>Закрыто</option></select></article>`).join('')||empty('Новых обращений нет.')}</section><section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Использование помощи</h3><small>События за последние 30 дней</small></div><span>${events.length}</span></div>${Object.entries(events.reduce((a,x)=>(a[x.event_type]=(a[x.event_type]||0)+1,a),{})).map(([k,v])=>`<article class="dashboard-row"><span><b>${esc(k)}</b></span><em>${v}</em></article>`).join('')||empty('Справкой пока не пользовались.')}</section>`);
   }
   function render() {
     renderTabs();
@@ -257,7 +258,7 @@
       const membership=await client.from("organization_members").select("organization_id,member_role,organizations(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
       const member=membership.data;if(member?.organizations){state.data.organization=member.organizations;state.data.organizationRole=member.member_role;const orgId=member.organization_id;const[branches,members,inventory,feeds,analytics,claimable]=await Promise.all([client.from("organization_branches").select("*").eq("organization_id",orgId).order("name"),client.rpc("organization_member_directory",{p_organization_id:orgId}),client.from("listings").select("id,data,status,active,branch_id,organization_branches(name)").eq("organization_id",orgId).order("updated_at",{ascending:false}),client.from("feed_sources").select("*").eq("organization_id",orgId).order("created_at",{ascending:false}),client.rpc("organization_auction_analytics",{p_organization_id:orgId}),client.rpc("claimable_feed_sources",{p_organization_id:orgId})]);state.data.organizationBranches=branches.data||[];state.data.organizationMembers=members.data||[];state.data.organizationListings=inventory.data||[];state.data.organizationFeeds=feeds.data||[];state.data.organizationAnalytics=analytics.data||{};state.data.claimableFeeds=claimable.data||[]}}
     if (state.role === "admin") {
-      const [listings, profiles, auctions, organizations, unassignedFeeds] = await Promise.all([
+      const [listings, profiles, auctions, organizations, unassignedFeeds, supportTickets, helpEvents] = await Promise.all([
         client
           .from("listings")
           .select(
@@ -268,12 +269,16 @@
         client.from("auctions").select("id,status"),
         client.from("organizations").select("id,name,inn").order("name"),
         client.rpc("admin_unassigned_feed_sources"),
+        client.from("support_tickets").select("*").order("created_at",{ascending:false}).limit(50),
+        client.from("help_events").select("event_type,topic,created_at").gte("created_at",new Date(Date.now()-30*86400000).toISOString()).limit(1000),
       ]);
       state.data.adminListings = listings.data || [];
       state.data.profiles = profiles.data || [];
       state.data.adminAuctions = auctions.data || [];
       state.data.allOrganizations = organizations.data || [];
       state.data.unassignedFeeds = unassignedFeeds.data || [];
+      state.data.supportTickets = supportTickets.data || [];
+      state.data.helpEvents = helpEvents.data || [];
     }
     render();
   }
@@ -386,6 +391,7 @@
     button.disabled=false;button.textContent="Сохранить результат";if(error)return alert(error.message);window.toast?.("Результаты проверки опубликованы");return load();
   });
   content.addEventListener("change",async event=>{const select=event.target.closest("[data-assign-branch]");if(!select||!select.value)return;const{error}=await window.vklucheAuth.getClient().rpc("assign_listing_to_branch",{p_listing_id:select.dataset.assignBranch,p_branch_id:select.value});if(error)return alert(error.message);window.toast?.("Филиал назначен");load()});
+  content.addEventListener("change",async event=>{const select=event.target.closest("[data-support-status]");if(!select)return;select.disabled=true;const{error}=await window.vklucheAuth.getClient().from("support_tickets").update({status:select.value,updated_at:new Date().toISOString()}).eq("id",select.dataset.supportStatus);select.disabled=false;if(error)return alert(error.message);window.toast?.("Статус обращения обновлён")});
   window.addEventListener("vkluche:profile", load);
   window.addEventListener("vkluche:saved-searches-changed", load);
   window.addEventListener("vkluche:dashboard-open", load);
