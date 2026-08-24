@@ -182,6 +182,7 @@
         )
         .join("") || empty("Аукционов пока нет.")
     }</section>`;
+    const organizations=d.allOrganizations||[],unassignedFeeds=d.unassignedFeeds||[];content.insertAdjacentHTML('beforeend',`<section class="dashboard-block feed-admin-assignment"><div class="dashboard-block-head"><div><h3>Принадлежность существующих фидов</h3><small>Только системный администратор может передать ранее загруженный источник организации</small></div><span>${unassignedFeeds.length}</span></div>${unassignedFeeds.length&&organizations.length?`<form data-admin-attach-feed><label>Непривязанный фид<select name="feedId">${unassignedFeeds.map(feed=>`<option value="${feed.id}">${esc(feed.name)} · ${feed.listing_count} автомобилей</option>`).join('')}</select></label><label>Организация<select name="organizationId">${organizations.map(org=>`<option value="${org.id}">${esc(org.name)}</option>`).join('')}</select></label><button type="submit">Привязать</button></form>`:empty(unassignedFeeds.length?'Сначала должна быть создана организация.':'Все существующие фиды уже распределены.')}</section>`);
   }
   function render() {
     renderTabs();
@@ -256,7 +257,7 @@
       const membership=await client.from("organization_members").select("organization_id,member_role,organizations(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
       const member=membership.data;if(member?.organizations){state.data.organization=member.organizations;state.data.organizationRole=member.member_role;const orgId=member.organization_id;const[branches,members,inventory,feeds,analytics,claimable]=await Promise.all([client.from("organization_branches").select("*").eq("organization_id",orgId).order("name"),client.rpc("organization_member_directory",{p_organization_id:orgId}),client.from("listings").select("id,data,status,active,branch_id,organization_branches(name)").eq("organization_id",orgId).order("updated_at",{ascending:false}),client.from("feed_sources").select("*").eq("organization_id",orgId).order("created_at",{ascending:false}),client.rpc("organization_auction_analytics",{p_organization_id:orgId}),client.rpc("claimable_feed_sources",{p_organization_id:orgId})]);state.data.organizationBranches=branches.data||[];state.data.organizationMembers=members.data||[];state.data.organizationListings=inventory.data||[];state.data.organizationFeeds=feeds.data||[];state.data.organizationAnalytics=analytics.data||{};state.data.claimableFeeds=claimable.data||[]}}
     if (state.role === "admin") {
-      const [listings, profiles, auctions] = await Promise.all([
+      const [listings, profiles, auctions, organizations, unassignedFeeds] = await Promise.all([
         client
           .from("listings")
           .select(
@@ -265,10 +266,14 @@
           .order("updated_at", { ascending: false }),
         client.from("profiles").select("id,role,account_type,created_at"),
         client.from("auctions").select("id,status"),
+        client.from("organizations").select("id,name,inn").order("name"),
+        client.rpc("admin_unassigned_feed_sources"),
       ]);
       state.data.adminListings = listings.data || [];
       state.data.profiles = profiles.data || [];
       state.data.adminAuctions = auctions.data || [];
+      state.data.allOrganizations = organizations.data || [];
+      state.data.unassignedFeeds = unassignedFeeds.data || [];
     }
     render();
   }
@@ -370,6 +375,7 @@
     const createBranch=event.target.closest("[data-create-branch]");if(createBranch){event.preventDefault();const values=new FormData(createBranch),button=event.submitter;button.disabled=true;const{error}=await client.from("organization_branches").insert({organization_id:state.data.organization.id,name:String(values.get("name")||"").trim(),city:String(values.get("city")||"").trim(),address:String(values.get("address")||"").trim()});button.disabled=false;if(error)return alert(error.message);return load()}
     const addMember=event.target.closest("[data-add-member]");if(addMember){event.preventDefault();const values=new FormData(addMember),button=event.submitter;button.disabled=true;const{error}=await client.rpc("add_organization_member",{p_organization_id:state.data.organization.id,p_email:String(values.get("email")||"").trim(),p_role:values.get("role")});button.disabled=false;if(error)return alert(error.message);window.toast?.("Сотрудник добавлен");return load()}
     const attachFeed=event.target.closest("[data-attach-feed]");if(attachFeed){event.preventDefault();const values=new FormData(attachFeed);if(!confirm('Привязать фид и все загруженные из него автомобили к этой компании?'))return;const button=event.submitter;button.disabled=true;button.textContent='Привязываем…';const{data,error}=await client.rpc("attach_feed_to_organization",{p_feed_id:values.get("feedId"),p_organization_id:state.data.organization.id,p_branch_id:values.get("branchId")||null});button.disabled=false;button.textContent='Привязать фид и автомобили';if(error)return alert(error.message);window.toast?.(`К компании добавлено автомобилей: ${data}`);return load()}
+    const adminAttach=event.target.closest("[data-admin-attach-feed]");if(adminAttach){event.preventDefault();const values=new FormData(adminAttach),organization=(state.data.allOrganizations||[]).find(item=>item.id===values.get('organizationId'));if(!confirm(`Передать фид и все его автомобили организации «${organization?.name||''}»?`))return;const button=event.submitter;button.disabled=true;const{data,error}=await client.rpc("attach_feed_to_organization",{p_feed_id:values.get("feedId"),p_organization_id:values.get("organizationId"),p_branch_id:null});button.disabled=false;if(error)return alert(error.message);window.toast?.(`Привязано автомобилей: ${data}`);return load()}
     const bulk=event.target.closest("[data-bulk-auctions]");if(bulk){event.preventDefault();const values=new FormData(bulk),listingIds=values.getAll("listingIds");if(!listingIds.length)return alert("Выберите автомобили");const button=event.submitter;button.disabled=true;button.textContent="Запускаем…";const{data,error}=await client.rpc("bulk_start_auctions",{p_listing_ids:listingIds,p_duration_minutes:+values.get("duration"),p_bid_step:+values.get("step"),p_winner_mode:values.get("winnerMode"),p_participant_access:"all_verified"});button.disabled=false;button.textContent="Запустить выбранные";if(error)return alert(error.message);window.toast?.(`Запущено аукционов: ${data}`);return load()}
     const form=event.target.closest("[data-verification-form]");if(!form)return;
     event.preventDefault();const auth=window.vklucheAuth;
