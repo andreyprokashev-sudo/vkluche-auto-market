@@ -9,7 +9,7 @@ Deno.serve(async request => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: cors })
   const { vin: inputVin, year: inputYear } = await request.json().catch(() => ({}))
   const vin = String(inputVin || '').trim().toUpperCase().replace(/\s/g, '')
-  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return Response.json({ error: 'Введите VIN из 17 символов без I, O и Q' }, { status: 400, headers: cors })
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return Response.json({ error: 'Введите VIN из 17 символов без I, O и Q', code: 'invalid_vin' }, { headers: cors })
 
   try {
     const endpoint = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${encodeURIComponent(vin)}?format=json${inputYear ? `&modelyear=${Number(inputYear)}` : ''}`
@@ -18,7 +18,7 @@ Deno.serve(async request => {
     const decoded = (await response.json())?.Results?.[0] || {}
     const errorCode = value(decoded, 'ErrorCode')
     const brand = value(decoded, 'Make'), model = value(decoded, 'Model'), year = number(value(decoded, 'ModelYear'))
-    if (!brand || !model) return Response.json({ error: 'VIN распознан частично. Выберите марку и модель вручную.', partial: true, errorCode }, { status: 422, headers: cors })
+    if (!brand || !model) return Response.json({ error: 'Бесплатный VIN-декодер не смог определить марку и модель. Проверьте VIN и заполните данные вручную.', partial: true, code: 'not_recognized', errorCode }, { headers: cors })
 
     let catalog = admin.from('vehicle_catalog').select('*').ilike('brand', brand).ilike('model', model).limit(50)
     if (year) catalog = catalog.lte('year_from', year).gte('year_to', year)
@@ -43,6 +43,6 @@ Deno.serve(async request => {
     }
     return Response.json({ result }, { headers: cors })
   } catch (error) {
-    return Response.json({ error: (error as Error).message }, { status: 502, headers: cors })
+    return Response.json({ error: `VIN-сервис временно недоступен: ${(error as Error).message}`, code: 'provider_unavailable' }, { headers: cors })
   }
 })
