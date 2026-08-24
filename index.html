@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="dashboard.css?v=4" />
   <link rel="stylesheet" href="market-tools.css?v=1" />
   <link rel="stylesheet" href="archive-listing.css?v=2" />
+  <link rel="stylesheet" href="help.css?v=1" />
 </head>
 <body>
   <header class="topbar">
@@ -37,6 +38,7 @@
         <div class="mobile-nav-actions"><button class="open-modal" type="button">Продать автомобиль</button><button class="open-feed" type="button">Загрузить фид</button></div>
       </nav>
       <div class="nav-actions">
+        <button class="header-icon help-trigger" id="helpTrigger" type="button" aria-label="Помощь" title="Помощь">?</button>
         <button class="header-icon favorite-top" aria-label="Избранное" title="Избранное"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg><span class="header-badge" id="favCount">0</span></button>
         <button class="profile-trigger auth-trigger" type="button" aria-label="Профиль" title="Профиль"><span class="profile-trigger-avatar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg></span></button>
         <button class="primary-btn header-sell open-modal">Продать</button>
@@ -244,5 +246,6 @@
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=1"></script>
   <script src="search-server.js?v=3"></script>
+  <script src="help.js?v=1"></script>
 </body>
 </html>
