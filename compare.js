@@ -15,7 +15,11 @@
     document.querySelectorAll("[data-compare-id]").forEach((button) => {
       const id = button.dataset.compareId;
       button.classList.toggle("selected", selected.has(id));
-      button.textContent = selected.has(id) ? "✓ В сравнении" : "⇄ Сравнить";
+      button.textContent = selected.has(id)
+        ? "✓ В сравнении"
+        : button.id === "detailCompare"
+          ? "⇄ Добавить к сравнению"
+          : "⇄ Сравнить";
     });
   }
   async function persist(car, active) {
@@ -85,9 +89,25 @@
       "afterend",
       '<button class="aside-compare" id="detailCompare" type="button">⇄ Добавить к сравнению</button>',
     );
+  function syncDetailButton() {
+    const button = document.querySelector("#detailCompare");
+    if (!button || !currentCar) return;
+    const id = String(currentCar.id);
+    button.dataset.compareId = id;
+    button.classList.toggle("selected", selected.has(id));
+    button.textContent = selected.has(id)
+      ? "✓ В сравнении"
+      : "⇄ Добавить к сравнению";
+  }
   document
     .querySelector("#detailCompare")
-    .addEventListener("click", () => toggle(currentCar));
+    .addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!currentCar) return toast("Сначала откройте автомобиль");
+      toggle(currentCar);
+      syncDetailButton();
+    });
   function open() {
     const rows = [...selected]
       .map((id) => cars.find((car) => String(car.id) === id))
@@ -153,11 +173,7 @@
   new MutationObserver(() => {
     if (document.querySelector("#carDetail").classList.contains("open")) {
       recommendations();
-      document.querySelector("#detailCompare").textContent = selected.has(
-        String(currentCar?.id),
-      )
-        ? "✓ В сравнении"
-        : "⇄ Добавить к сравнению";
+      syncDetailButton();
     }
   }).observe(document.querySelector("#carDetail"), {
     attributes: true,
@@ -174,6 +190,7 @@
         openDetail(car);
         renderAuction(car);
         recommendations();
+        syncDetailButton();
       }
     });
   async function loadRemoteComparison() {
