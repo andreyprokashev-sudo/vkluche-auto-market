@@ -15,6 +15,7 @@ const normalizeVehicleId = (value: unknown) => {
   const raw = text(value).toUpperCase().replace(/\s+/g, '')
   return { raw, vin: /^[A-HJ-NPR-Z0-9]{17}$/.test(raw) ? raw : '' }
 }
+const catalogKey = (...parts: unknown[]) => parts.map(part => text(part).toLowerCase().replace(/[^a-zа-яё0-9]+/gi, '-').replace(/^-|-$/g, '') || '_').join('|')
 
 function safeFeedUrl(value: string) {
   const parsed = new URL(value)
@@ -101,6 +102,13 @@ async function importSource(source: any) {
     const seen = new Set(mapped.map(item => item.externalId)), now = new Date().toISOString()
     const rows = mapped.map(item => ({ source_id: source.id, external_id: item.externalId, organization_id: source.organization_id || null, branch_id: source.branch_id || null, vin: item.car.details.vin || null, data: { ...item.car, id: `feed:${source.id}:${item.externalId}` }, active: true, missing_runs: 0, last_seen_at: now, updated_at: now }))
     for (let i = 0; i < rows.length; i += 200) { const { error } = await admin.from('listings').upsert(rows.slice(i, i + 200), { onConflict: 'source_id,external_id' }); if (error) throw error }
+    const catalogByKey = new Map<string, Record<string, unknown>>()
+    mapped.forEach(({ car }) => {
+      const d = car.details, key = catalogKey(d.brand, d.model, d.generation, d.modification, d.trimName, car.year)
+      catalogByKey.set(key, { catalog_key: key, brand: d.brand, model: d.model, generation: d.generation || '', year_from: car.year, year_to: car.year, modification: d.modification || '', trim_name: d.trimName || '', body: d.body || null, engine_type: d.engineType || null, engine_volume: number(car.engine.split(' л')[0]) || null, power_hp: number(car.engine.split('/')[1]) || null, gearbox: d.gearbox || null, drive: d.drive || null, doors: number(d.doors) || null, seats: number(d.seats) || null, equipment: d.equipment || [], source: 'feed', confidence: d.trimName ? 0.85 : 0.65, updated_at: now })
+    })
+    const catalogRows = [...catalogByKey.values()]
+    for (let i = 0; i < catalogRows.length; i += 200) { const { error } = await admin.from('vehicle_catalog').upsert(catalogRows.slice(i, i + 200), { onConflict: 'catalog_key' }); if (error) throw error }
     let hidden = 0
     const missing = existing.filter((item: any) => !seen.has(item.external_id)).map((item: any) => { const misses = item.missing_runs + 1, active = misses < source.missing_threshold; if (!active && item.active) hidden++; return { ...item, missing_runs: misses, active, updated_at: now } })
     for (let i = 0; i < missing.length; i += 200) { const { error } = await admin.from('listings').upsert(missing.slice(i, i + 200)); if (error) throw error }
