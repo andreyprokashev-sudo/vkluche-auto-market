@@ -23,12 +23,30 @@ function imageUrls(ad: Record<string, any>) {
   return array(ad.Images?.Image).map(image => text(typeof image === 'object' ? image['@_url'] || image['#text'] : image)).filter(Boolean)
 }
 
+function optionTexts(value: unknown): string[] {
+  const found: string[] = []
+  const walk = (node: any, key = '', parent = '') => {
+    if (node === undefined || node === null) return
+    if (Array.isArray(node)) return node.forEach(item => walk(item, key, parent))
+    if (typeof node === 'object') return Object.entries(node).forEach(([childKey, child]) => walk(child, childKey, key))
+    if (/option|equipment/i.test(key)) {
+      let value = text(node)
+      if (/heating/i.test(parent) && !/подогрев|обогрев/i.test(value)) value = `Подогрев: ${value}`
+      if (/airbags/i.test(parent) && !/подуш/i.test(value)) value = `Подушки безопасности: ${value}`
+      if (value) found.push(value)
+    }
+  }
+  walk(value)
+  return [...new Set(found)]
+}
+
 function mapAd(ad: Record<string, any>) {
   const externalId = text(ad.Id), brand = text(ad.Make), model = text(ad.Model)
   const price = number(ad.Price), year = number(ad.Year)
   if (!externalId || !brand || !model || !price || !year) throw new Error(`Объявление ${externalId || 'без Id'}: обязательны Id, Make, Model, Year и Price`)
   const mileage = number(ad.Kilometrage || ad.Mileage), power = text(ad.Power), volume = text(ad.EngineSize)
   const body = text(ad.BodyType), condition = text(ad.Condition).toLowerCase(), engineType = text(ad.EngineType || ad.FuelType), images = imageUrls(ad)
+  const equipment = [...new Set([...optionTexts(ad), text(ad.ClimateControl), ad.PowerWindows ? `Электростеклоподъёмники: ${text(ad.PowerWindows)}` : '', ad.Interior ? `Салон: ${text(ad.Interior)}` : ''].filter(Boolean))], secondSetOption = equipment.find(option => /комплект.*(шин|кол[её]с)|(шин|кол[её]с).*комплект/i.test(option)) || ''
   const vin = text(ad.VIN || ad.Vin).toUpperCase()
   const city = text(ad.City || ad.Region) || 'Город не указан', address = text(ad.Address) || city
   const latitude = number(ad.Latitude), longitude = number(ad.Longitude)
@@ -40,7 +58,7 @@ function mapAd(ad: Record<string, any>) {
       engine: volume ? `${volume} л / ${power || '—'} л.с.` : power ? `${power} л.с.` : 'Двигатель не указан',
       city, date: 'обновлено сегодня', type: [condition.includes('нов') ? 'new' : 'used', /внедорож|кроссов/i.test(body) ? 'suv' : '', /элект|electric|ev/i.test(engineType) ? 'electric' : ''].filter(Boolean),
       badge: 'В продаже', img: images[0] || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1000&q=85',
-      details: { brand, model, body, condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), vin, images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
+      details: { brand, model, generation: text(ad.Generation || ad.GenerationName || ad.GenerationId), modification: text(ad.Modification || ad.ModificationName || ad.ModificationId), trimName: text(ad.Complectation || ad.ComplectationName || ad.ComplectationId), body, doors: text(ad.Doors), seats: text(ad.Seats), steeringWheel: /прав/i.test(text(ad.SteeringWheel || ad.WheelType)) ? 'right' : text(ad.SteeringWheel || ad.WheelType) ? 'left' : '', condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), owners: text(ad.Owners), ptsType: text(ad.PTS || ad.PTSType || ad.PtsType), keysCount: text(ad.KeysCount), equipment, equipmentDataKnown: equipment.length > 0, equipmentSource: 'feed', secondWheelSet: secondSetOption ? { known: true, included: true, type: /только.*шин|комплект шин/i.test(secondSetOption) ? 'tires' : 'wheels', season: /зим/i.test(secondSetOption) ? 'Зимние' : /лет/i.test(secondSetOption) ? 'Летние' : '', size: '', condition: '' } : { known: false, included: false }, description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), vin, images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
     }
   }
 }
