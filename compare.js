@@ -148,6 +148,8 @@
       ["Руль", (c) => c.details?.steeringWheel === "right" ? "Правый" : c.details?.steeringWheel ? "Левый" : "Нет данных"],
       ["Владельцы", (c) => c.details?.owners || "Нет данных"],
       ["ПТС", (c) => c.details?.ptsType || "Нет данных"],
+      ["Производитель", (c) => c.details?.manufacturer || "Нет данных"],
+      ["Страна производства", (c) => [c.details?.manufactureCountry,c.details?.plantCity].filter(Boolean).join(" · ") || "Нет данных"],
       ["Второй комплект", (c) => secondSetLabel(c)],
       ["Безопасность", (c) => equipmentGroups(c)["Безопасность"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
       ["Помощь водителю", (c) => equipmentGroups(c)["Помощь водителю"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],

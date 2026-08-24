@@ -38,6 +38,10 @@ Deno.serve(async request => {
       drive: /all|4x4|four/i.test(driveRaw) ? 'Полный' : /rear/i.test(driveRaw) ? 'Задний' : /front/i.test(driveRaw) ? 'Передний' : '',
       manufacturer: value(decoded, 'Manufacturer'),
       plantCountry: value(decoded, 'PlantCountry'),
+      plantCity: value(decoded, 'PlantCity'),
+      plantState: value(decoded, 'PlantState'),
+      vehicleType: value(decoded, 'VehicleType'),
+      decoderWarning: value(decoded, 'ErrorText'),
       confidence: candidates.length ? 'catalog_match' : 'vin_only',
       candidates
     }
