@@ -251,7 +251,7 @@
           .eq("seller_id", user.id)
           .order("created_at", { ascending: false }),
       ]);
-      state.data.listings = listings.data || [];
+      state.data.listings = (listings.data || []).map(row=>!row.active&&row.status==='published'?{...row,status:'archived'}:row);
       state.data.sellerAuctions = auctions.data || [];
     }
     if (state.accountType === "professional" || state.role === "admin") {
