@@ -3,3 +3,6 @@ verify_jwt = false
 
 [functions.send-notifications]
 verify_jwt = false
+
+[functions.max-webhook]
+verify_jwt = false
