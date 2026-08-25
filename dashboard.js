@@ -147,7 +147,7 @@
   function renderSeller() {
     const listings = state.data.listings || [],
       auctions = state.data.sellerAuctions || [];
-    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => `<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}</small></span>${row.active?`<button type="button" data-listing-withdraw="${row.id}">Снять</button>`:row.status==='archived'?`<button type="button" data-listing-restore="${row.id}">Вернуть</button>`:`<em>${esc(listingLabels[row.status]||row.status)}</em>`}</article>`).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои аукционы</h3><span>${auctions.length}</span></div>${auctions.length ? auctions.map((row) => `<article class="dashboard-row"><span><b>${esc(carName(row.listings))}</b><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`).join("") : empty("Запустить аукцион можно из карточки своего автомобиля.")}</section>`;
+    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => {const feed=Boolean(row.source_id||['automatic-feed','avito-feed'].includes(row.data?.source)),lockedAuction=auctions.some(a=>a.listing_id===row.id&&['scheduled','active'].includes(a.status));return`<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}${feed?' · управляется фидом':lockedAuction?' · идут торги':''}</small></span><div class="dashboard-listing-actions">${!feed&&!lockedAuction?`<button type="button" data-listing-edit="${row.id}">Редактировать</button>`:''}${row.active?`<button type="button" data-listing-withdraw="${row.id}">Снять</button>`:row.status==='archived'?`<button type="button" data-listing-restore="${row.id}">Вернуть</button>`:`<em>${esc(listingLabels[row.status]||row.status)}</em>`}</div></article>`}).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои аукционы</h3><span>${auctions.length}</span></div>${auctions.length ? auctions.map((row) => `<article class="dashboard-row"><span><b>${esc(carName(row.listings))}</b><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`).join("") : empty("Запустить аукцион можно из карточки своего автомобиля.")}</section>`;
   }
   function renderBusiness() {
     const d=state.data,organization=d.organization;
@@ -333,6 +333,8 @@
       window.openListingWithdrawal?.({listingId:row.id,name:carName(row)},load);
       return;
     }
+    const edit=event.target.closest("[data-listing-edit]");
+    if(edit){document.querySelector("#authModal [data-auth-close]")?.click();window.dispatchEvent(new CustomEvent("vkluche:edit-listing",{detail:{listingId:edit.dataset.listingEdit}}));return}
     const syncFeed=event.target.closest("[data-dashboard-sync-feed]");
     if(syncFeed){syncFeed.disabled=true;syncFeed.textContent="Загружаем…";const{data,error}=await client.functions.invoke("import-feeds",{body:{sourceId:syncFeed.dataset.dashboardSyncFeed}});if(error||data?.results?.[0]?.error){syncFeed.disabled=false;syncFeed.textContent="Повторить сейчас";return window.toast?.(`Ошибка загрузки: ${data?.results?.[0]?.error||error.message}`)}window.toast?.(`Фид обновлён. Обработано автомобилей: ${data?.results?.[0]?.total||0}`);return load()}
     const restore = event.target.closest("[data-listing-restore]");
@@ -397,6 +399,7 @@
   content.addEventListener("change",async event=>{const select=event.target.closest("[data-support-status]");if(!select)return;select.disabled=true;const{error}=await window.vklucheAuth.getClient().from("support_tickets").update({status:select.value,updated_at:new Date().toISOString()}).eq("id",select.dataset.supportStatus);select.disabled=false;if(error)return alert(error.message);window.toast?.("Статус обращения обновлён")});
   window.addEventListener("vkluche:profile", load);
   window.addEventListener("vkluche:saved-searches-changed", load);
+  window.addEventListener("vkluche:listings-changed", load);
   window.addEventListener("vkluche:dashboard-open", load);
   window.addEventListener("vkluche:dashboard-tab", (event) => {
     state.active = event.detail?.tab || "overview";

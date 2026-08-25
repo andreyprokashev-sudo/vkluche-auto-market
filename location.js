@@ -116,6 +116,10 @@
     if (event.detail?.step === 3) ensureListingMap();
   });
   window.vklucheLocation = {
+    setEditLocation(location = {}) {
+      const lat = Number(location.latitude), lon = Number(location.longitude);
+      if (Number.isFinite(lat) && Number.isFinite(lon) && lat && lon) setPoint(lat, lon);
+    },
     valid() {
       if (hasCoordinates()) return true;
       setStatus("Найдите адрес или поставьте точку на карте", true);
