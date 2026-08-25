@@ -1,0 +1,16 @@
+{
+  "name": "ВКЛЮЧЕ — автомобили",
+  "short_name": "ВКЛЮЧЕ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#082b66",
+  "icons": [
+    {
+      "src": "assets/brand/vkluche-logo-wheel.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
