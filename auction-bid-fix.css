@@ -25,6 +25,67 @@
   background: #f2f6ff;
 }
 
+.quick-bid-btn {
+  display: grid;
+  width: 100%;
+  padding: 13px 14px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--blue);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 7px 18px rgb(37 99 235 / 20%);
+}
+
+.quick-bid-btn span,
+.quick-bid-btn small,
+.quick-bid-btn b {
+  display: block;
+}
+
+.quick-bid-btn span {
+  font-size: 9px;
+  font-weight: 700;
+  opacity: .85;
+}
+
+.quick-bid-btn b {
+  margin-top: 2px;
+  font-size: 18px;
+}
+
+.quick-bid-btn small {
+  margin-top: 3px;
+  font-size: 8px;
+  opacity: .78;
+}
+
+.quick-bid-btn:hover {
+  background: var(--blue-dark);
+}
+
+.custom-bid-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8994a5;
+  font-size: 8px;
+}
+
+.custom-bid-divider::before,
+.custom-bid-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e1e7f0;
+}
+
+.custom-bid-submit {
+  background: #eaf1ff;
+  color: var(--blue);
+}
+
 @media (max-width: 650px) {
   .bid-confirm-modal {
     align-items: flex-end;
