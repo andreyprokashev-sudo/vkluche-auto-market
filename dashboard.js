@@ -59,6 +59,7 @@
       ["searches", "Поиски"],
     ];
     result.push(["seller", "Продажи"]);
+    result.push(["questions", `Вопросы${(state.data.sellerQuestions||[]).filter(q=>!q.viewed_at&&!q.answer).length?` · ${(state.data.sellerQuestions||[]).filter(q=>!q.viewed_at&&!q.answer).length}`:""}`]);
     if (state.accountType === "professional" || state.role === "admin") result.push(["business", "Компания"]);
     if (state.role === "admin")
       result.push(["moderation", "Модерация"], ["admin", "Управление"]);
@@ -149,6 +150,10 @@
       auctions = state.data.sellerAuctions || [];
     content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => {const feed=Boolean(row.source_id||['automatic-feed','avito-feed'].includes(row.data?.source)),lockedAuction=auctions.some(a=>a.listing_id===row.id&&['scheduled','active'].includes(a.status));return`<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}${feed?' · управляется фидом':lockedAuction?' · идут торги':''}</small></span><div class="dashboard-listing-actions">${!feed&&!lockedAuction?`<button type="button" data-listing-edit="${row.id}">Редактировать</button>`:''}${row.active?`<button type="button" data-listing-withdraw="${row.id}">Снять</button>`:row.status==='archived'?`<button type="button" data-listing-restore="${row.id}">Вернуть</button>`:`<em>${esc(listingLabels[row.status]||row.status)}</em>`}</div></article>`}).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои аукционы</h3><span>${auctions.length}</span></div>${auctions.length ? auctions.map((row) => `<article class="dashboard-row"><span><b>${esc(carName(row.listings))}</b><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`).join("") : empty("Запустить аукцион можно из карточки своего автомобиля.")}</section>`;
   }
+  function renderQuestions() {
+    const rows=state.data.sellerQuestions||[],pending=rows.filter(q=>!q.answer);
+    content.innerHTML=`<section class="dashboard-block seller-questions"><div class="dashboard-block-head"><div><h3>Вопросы покупателей</h3><small>Вопросы из карточек автомобилей, MAX и Telegram</small></div><span>${pending.length} без ответа</span></div>${rows.length?rows.map(q=>{const listing=q.auctions?.listings,name=carName(listing),status=q.answer?'Получен ответ':q.viewed_at?'Просмотрен продавцом':'Доставлен продавцу';return`<article class="dashboard-row question-row${!q.viewed_at&&!q.answer?' unread':''}" data-question-row="${q.id}"><span><b>${esc(name)}</b><p>${esc(q.question)}</p><small>${date(q.created_at)} · ${status}</small>${q.answer?`<blockquote><b>Ваш ответ</b><br>${esc(q.answer)}</blockquote>`:''}</span><div class="saved-search-actions"><button type="button" data-open-question="${q.id}" data-listing-id="${q.auctions?.listing_id||''}">Открыть автомобиль</button>${!q.answer?`<button type="button" data-answer-dashboard-question="${q.id}">Ответить</button>`:''}</div></article>`}).join(''):empty('Новые вопросы по вашим аукционам появятся здесь.')}</section>`;
+  }
   function renderBusiness() {
     const d=state.data,organization=d.organization;
     if(!organization){content.innerHTML=`<section class="dashboard-block business-onboarding"><span class="eyebrow blue">ПРОФЕССИОНАЛЬНЫЙ КАБИНЕТ</span><h3>Создайте профиль компании</h3><p>Объедините склад, филиалы, сотрудников, фиды и аукционы в одном кабинете.</p><form data-create-organization><label>Название компании<input name="name" required minlength="2" maxlength="160" placeholder="Например, Автоцентр Самара"></label><label>ИНН<input name="inn" inputmode="numeric" maxlength="12" placeholder="Необязательно"></label><button class="primary-btn" type="submit">Создать компанию</button></form></section>`;return}
@@ -195,6 +200,7 @@
         favorites: renderFavorites,
         searches: renderSearches,
         seller: renderSeller,
+        questions: renderQuestions,
         business: renderBusiness,
         moderation: renderModeration,
         admin: renderAdmin,
@@ -240,7 +246,9 @@
       favorites: favorites.data || [],
     };
     {
-      const [listings, auctions] = await Promise.all([
+      const questionQuery=client.from("auction_questions").select("id,auction_id,author_id,question,answer,created_at,viewed_at,answered_at,auctions!inner(id,listing_id,seller_id,listings(data))").order("created_at",{ascending:false});
+      if(state.role!=="admin")questionQuery.eq("auctions.seller_id",user.id);
+      const [listings, auctions, questions] = await Promise.all([
         client
           .from("listings")
           .select("id,data,status,verification_status,active,updated_at,organization_id,branch_id")
@@ -251,9 +259,11 @@
           .select("id,status,start_price,created_at,listing_id,listings(data)")
           .eq("seller_id", user.id)
           .order("created_at", { ascending: false }),
+        questionQuery,
       ]);
       state.data.listings = (listings.data || []).map(row=>!row.active&&row.status==='published'?{...row,status:'archived'}:row);
       state.data.sellerAuctions = auctions.data || [];
+      state.data.sellerQuestions = (questions.data||[]).filter(q=>q.author_id!==user.id);
     }
     if (state.accountType === "professional" || state.role === "admin") {
       const membership=await client.from("organization_members").select("organization_id,member_role,organizations(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
@@ -303,6 +313,10 @@
       );
       return;
     }
+    const openQuestion=event.target.closest("[data-open-question]");
+    if(openQuestion){await client.rpc("mark_auction_question_viewed",{p_question_id:openQuestion.dataset.openQuestion});document.querySelector("#authModal [data-auth-close]")?.click();window.dispatchEvent(new CustomEvent("vkluche:open-listing",{detail:{listingId:openQuestion.dataset.listingId}}));setTimeout(()=>window.dispatchEvent(new CustomEvent("vkluche:focus-auction-question",{detail:{questionId:openQuestion.dataset.openQuestion}})),500);return}
+    const answerQuestion=event.target.closest("[data-answer-dashboard-question]");
+    if(answerQuestion){const answer=prompt("Ответ покупателю");if(!answer?.trim())return;answerQuestion.disabled=true;const{error}=await client.rpc("answer_auction_question",{p_question_id:answerQuestion.dataset.answerDashboardQuestion,p_answer:answer.trim()});if(error){answerQuestion.disabled=false;return window.toast?.(error.message)}window.toast?.("Ответ отправлен покупателю");return load()}
     const search = event.target.closest("[data-delete-search]");
     if (search) {
       await client
