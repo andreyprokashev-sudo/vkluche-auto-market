@@ -14,18 +14,19 @@ async function send(to:string,subject:string,body:string,idempotency:string){
   return result.id
 }
 
-async function sendMax(chatId:string,subject:string,body:string){
+async function sendMax(chatId:string,subject:string,body:string,auctionId?:string,listingId?:string){
   if(!maxToken)throw new Error('MAX_BOT_TOKEN не настроен')
-  const response=await fetch(`https://platform-api2.max.ru/messages?chat_id=${encodeURIComponent(chatId)}`,{method:'POST',headers:{Authorization:maxToken,'Content-Type':'application/json'},body:JSON.stringify({text:`${subject}\n\n${body}\n\nОткрыть ВКЛЮЧЕ: https://andreyprokashev-sudo.github.io/vkluche-auto-market/`}),client:maxClient} as RequestInit)
+  const link=`https://andreyprokashev-sudo.github.io/vkluche-auto-market/?listing=${listingId||''}`,attachments=auctionId?[{type:'inline_keyboard',payload:{buttons:[[{type:'link',text:'Открыть автомобиль',url:link}],[{type:'callback',text:'Сделать ставку',payload:`bid:${auctionId}`}],[{type:'callback',text:'Мне интересно',payload:`interest:${auctionId}`},{type:'callback',text:'Задать вопрос',payload:`question:${auctionId}`}],[{type:'callback',text:'Не уведомлять об этом лоте',payload:`mute:${auctionId}`}]]}}]:undefined
+  const response=await fetch(`https://platform-api2.max.ru/messages?chat_id=${encodeURIComponent(chatId)}`,{method:'POST',headers:{Authorization:maxToken,'Content-Type':'application/json'},body:JSON.stringify({text:`${subject}\n\n${body}`,attachments}),client:maxClient} as RequestInit)
   const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result?.message||`MAX: ${response.status}`);return String(result?.message?.body?.mid||result?.message?.mid||'sent')
 }
 
 async function processQueue(userId?:string){
-  let query=admin.from('notification_delivery_queue').select('id,notification_id,channel,destination,attempts,notifications(title,body)').in('channel',['email','max']).eq('status','pending').lt('attempts',4).order('created_at').limit(50)
+  let query=admin.from('notification_delivery_queue').select('id,notification_id,user_id,channel,destination,attempts,notifications(title,body,auction_id,auctions(listing_id))').in('channel',['email','max']).eq('status','pending').lt('attempts',4).order('created_at').limit(50)
   if(userId)query=query.eq('user_id',userId)
   const{data:rows=[]}=await query;let sent=0,failed=0
   for(const row of rows as any[]){
-    try{const title=row.notifications?.title||'Уведомление ВКЛЮЧЕ',body=row.notifications?.body||'';if(row.channel==='max')await sendMax(row.destination,title,body);else await send(row.destination,title,body,`notification-${row.notification_id}`);await admin.from('notification_delivery_queue').update({status:'sent',attempts:row.attempts+1,sent_at:new Date().toISOString(),last_error:null}).eq('id',row.id);sent++}
+    try{const title=row.notifications?.title||'Уведомление ВКЛЮЧЕ',body=row.notifications?.body||'',auctionId=row.notifications?.auction_id,listingId=row.notifications?.auctions?.listing_id;if(row.channel==='max'){await sendMax(row.destination,title,body,auctionId,listingId);if(auctionId)await admin.from('max_bot_dialogs').upsert({chat_id:row.destination,user_id:row.user_id,current_auction_id:auctionId,current_listing_id:listingId,state:'idle',updated_at:new Date().toISOString()})}else await send(row.destination,title,body,`notification-${row.notification_id}`);await admin.from('notification_delivery_queue').update({status:'sent',attempts:row.attempts+1,sent_at:new Date().toISOString(),last_error:null}).eq('id',row.id);sent++}
     catch(error){const attempts=row.attempts+1;await admin.from('notification_delivery_queue').update({status:attempts>=4?'failed':'pending',attempts,last_error:(error as Error).message}).eq('id',row.id);failed++}
   }
   return{processed:rows.length,sent,failed}
