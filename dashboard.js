@@ -263,7 +263,7 @@
       ]);
       state.data.listings = (listings.data || []).map(row=>!row.active&&row.status==='published'?{...row,status:'archived'}:row);
       state.data.sellerAuctions = auctions.data || [];
-      state.data.sellerQuestions = (questions.data||[]).filter(q=>q.author_id!==user.id);
+      state.data.sellerQuestions = questions.data || [];
     }
     if (state.accountType === "professional" || state.role === "admin") {
       const membership=await client.from("organization_members").select("organization_id,member_role,organizations(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
