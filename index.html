@@ -14,6 +14,10 @@
   <link rel="stylesheet" href="brand.css" />
   <link rel="stylesheet" href="mobile.css?v=2" />
   <link rel="stylesheet" href="auth.css" />
+  <link rel="stylesheet" href="legal.css?v=1" />
+  <link rel="stylesheet" href="privacy-center.css?v=1" />
+  <link rel="stylesheet" href="privacy-center-actions.css?v=1" />
+  <link rel="stylesheet" href="legal-renewal.css?v=1" />
   <link rel="stylesheet" href="filters.css?v=5" />
   <link rel="stylesheet" href="feed-admin.css" />
   <link rel="stylesheet" href="dropdown-filters.css" />
@@ -145,7 +149,7 @@
     </section>
   </main>
 
-  <footer><div class="container footer-inner"><a class="brand" href="#" aria-label="ВКЛЮЧЕ"><span class="brand-mark">В</span><span class="brand-word">КЛЮЧЕ</span></a><p>Ваш ключ к хорошему автомобилю.</p><span class="copyright">© 2026 <span class="brand-inline compact"><i>В</i><span>КЛЮЧЕ</span></span></span></div></footer>
+  <footer><div class="container footer-inner"><a class="brand" href="#" aria-label="ВКЛЮЧЕ"><span class="brand-mark">В</span><span class="brand-word">КЛЮЧЕ</span></a><p>Ваш ключ к хорошему автомобилю.</p><nav class="legal-links" aria-label="Правовая информация"><a href="legal.html#privacy">Персональные данные</a><a href="legal.html#consent">Согласие</a><a href="legal.html#terms">Правила сервиса</a><a href="legal.html#processors">Внешние сервисы</a></nav><span class="copyright">© 2026 <span class="brand-inline compact"><i>В</i><span>КЛЮЧЕ</span></span></span></div></footer>
 
   <div class="modal listing-modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-backdrop"></div><div class="modal-card listing-card"><button class="modal-close" aria-label="Закрыть">×</button>
@@ -229,7 +233,7 @@
       </section>
       <section class="auth-view" data-auth-view="register">
         <span class="eyebrow blue">РЕГИСТРАЦИЯ</span><h2>Создать аккаунт</h2><p>Один аккаунт подходит для покупки и продажи автомобилей.</p>
-        <form id="registerForm" class="auth-form"><label>Имя<input name="name" autocomplete="name" required maxlength="60" placeholder="Александр"></label><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><label>Тип участника<select name="accountType"><option value="private">Частное лицо</option><option value="professional">Профессиональный участник</option></select></label><label class="auth-consent"><input type="checkbox" required><span>Соглашаюсь с правилами сервиса и обработкой персональных данных</span></label><button class="primary-btn" type="submit">Зарегистрироваться</button></form>
+        <form id="registerForm" class="auth-form"><label>Имя<input name="name" autocomplete="name" required maxlength="60" placeholder="Александр"></label><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><label>Тип участника<select name="accountType"><option value="private">Частное лицо</option><option value="professional">Профессиональный участник</option></select></label><fieldset class="auth-legal-consents"><legend>Документы и согласия</legend><label class="auth-consent"><input name="termsConsent" type="checkbox" required><span>Принимаю <a href="legal.html#terms" target="_blank">Пользовательское соглашение</a></span></label><label class="auth-consent"><input name="personalDataConsent" type="checkbox" required><span>Отдельно даю <a href="legal.html#consent" target="_blank">согласие на обработку персональных данных</a></span></label><label class="auth-consent"><input name="privacyAcknowledged" type="checkbox" required><span>Ознакомлен с <a href="legal.html#privacy" target="_blank">Политикой обработки персональных данных</a></span></label><label class="auth-consent optional"><input name="emailConsent" type="checkbox"><span>Получать сервисные уведомления по email (необязательно)</span></label><label class="auth-consent optional"><input name="marketingConsent" type="checkbox"><span>Получать новости и предложения ВКЛЮЧЕ (необязательно)</span></label></fieldset><small class="auth-legal-note">Telegram и MAX подключаются позже отдельным добровольным действием в настройках уведомлений.</small><button class="primary-btn" type="submit">Зарегистрироваться</button></form>
         <div class="auth-links"><button type="button" data-auth-switch="login">Уже есть аккаунт — войти</button></div>
       </section>
       <section class="auth-view" data-auth-view="reset">
@@ -244,7 +248,7 @@
         <div class="dashboard-user"><div><span class="eyebrow blue">ЛИЧНЫЙ КАБИНЕТ</span><h2 id="profileName">Пользователь</h2></div><div class="profile-summary"><span class="profile-avatar" id="profileAvatar">В</span><div><b id="profileEmail"></b><small id="profileRole"></small></div></div></div>
         <nav class="dashboard-tabs" id="dashboardTabs" aria-label="Разделы кабинета"></nav>
         <div class="dashboard-content" id="dashboardContent"><div class="dashboard-loading">Загружаем данные кабинета…</div></div>
-        <button class="auth-logout" id="logoutButton" type="button">Выйти из аккаунта</button>
+        <button class="privacy-center-button" data-open-privacy type="button">Персональные данные и согласия</button><button class="auth-logout" id="logoutButton" type="button">Выйти из аккаунта</button>
       </section>
       <section class="auth-view auth-setup" data-auth-view="setup"><span class="eyebrow blue">НУЖНА НАСТРОЙКА</span><h2>Подключите Supabase</h2><p>Интерфейс авторизации готов. Укажите URL проекта и публичный anon key в файле <code>supabase-config.js</code>.</p></section>
       <div class="auth-message" id="authMessage" role="status" aria-live="polite"></div>
@@ -256,16 +260,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="auth.js?v=6"></script>
-  <script src="app.js?v=46"></script>
+  <script src="auth.js?v=7"></script>
+  <script src="app.js?v=47"></script>
   <script src="location.js?v=2"></script>
   <script src="dashboard.js?v=13"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=6"></script>
   <script src="search-server.js?v=3"></script>
-  <script src="help.js?v=20"></script>
+  <script src="help.js?v=21"></script>
   <script src="help-tours.js?v=5"></script>
-  <script src="help-groups.js?v=2"></script>
+  <script src="help-groups.js?v=3"></script>
+  <script src="privacy-center.js?v=1"></script>
+  <script src="legal-renewal.js?v=1"></script>
   <script src="email-notifications.js?v=2"></script>
 </body>
 </html>

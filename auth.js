@@ -48,7 +48,7 @@
   });
   document.querySelector('#registerForm').addEventListener('submit', event => {
     event.preventDefault(); const form = new FormData(event.currentTarget);
-    submit(event.submitter, async () => { const { data, error } = await client.auth.signUp({ email: form.get('email').trim(), password: form.get('password'), options: { data: { name: form.get('name').trim(), account_type: form.get('accountType') }, emailRedirectTo: `${location.origin}${location.pathname}` } }); if (error) throw error; if (data.session) { user = data.user; await syncProfile(); close(); } else { showView('login'); showMessage('Регистрация завершена. Подтвердите почту по ссылке из письма.', 'success'); } });
+    submit(event.submitter, async () => { const consentedAt=new Date().toISOString(),metadata={name:form.get('name').trim(),account_type:form.get('accountType'),terms_consent:true,terms_version:'2026-08-25',personal_data_consent:true,personal_data_version:'2026-08-25',privacy_acknowledged:true,privacy_version:'2026-08-25',email_notifications_consent:form.get('emailConsent')==='on',marketing_consent:form.get('marketingConsent')==='on',consented_at:consentedAt};const { data, error } = await client.auth.signUp({ email: form.get('email').trim(), password: form.get('password'), options: { data: metadata, emailRedirectTo: `${location.origin}${location.pathname}` } }); if (error) throw error; if (data.session) { user = data.user; await syncProfile(); close(); } else { showView('login'); showMessage('Регистрация завершена. Подтвердите почту по ссылке из письма.', 'success'); } });
   });
   document.querySelector('#resetForm').addEventListener('submit', event => {
     event.preventDefault(); const email = new FormData(event.currentTarget).get('email').trim();
