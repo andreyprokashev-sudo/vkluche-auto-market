@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.max-webhook]
 verify_jwt = false
+
+[functions.telegram-webhook]
+verify_jwt = false
