@@ -14,7 +14,7 @@
   function showMessage(text = '', type = '') { message.textContent = text; message.className = `auth-message${type ? ` ${type}` : ''}`; }
   function showView(name) { document.querySelectorAll('.auth-view').forEach(view => view.classList.toggle('active', view.dataset.authView === name)); modal.querySelector('.auth-card').classList.toggle('dashboard-open',name==='profile');if(name==='profile')window.dispatchEvent(new CustomEvent('vkluche:dashboard-open'));showMessage(); }
   function open(view) { showView(view || (user ? 'profile' : configured ? 'login' : 'setup')); modal.classList.add('open'); document.body.style.overflow = 'hidden'; setTimeout(() => modal.querySelector('.auth-view.active input')?.focus(), 50); }
-  function close() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+  function close() { modal.classList.remove('open'); document.body.style.overflow = document.querySelector('.detail.open') ? 'hidden' : ''; }
   function updateUi() {
     const name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Пользователь';
     triggers().forEach(button => { if (button.classList.contains('profile-trigger')) { button.innerHTML = `<span class="profile-trigger-avatar">${user ? name.trim().charAt(0).toUpperCase() : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg>'}</span>`; button.title = user ? name : 'Войти'; button.setAttribute('aria-label', user ? `Профиль: ${name}` : 'Войти'); } else button.textContent = user ? name : 'Войти'; button.classList.toggle('authenticated', Boolean(user)); });
