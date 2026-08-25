@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="auction-v2.css?v=3" />
   <link rel="stylesheet" href="auction-bid-fix.css?v=3" />
   <link rel="stylesheet" href="location-map.css?v=1" />
-  <link rel="stylesheet" href="dashboard.css?v=5" />
+  <link rel="stylesheet" href="dashboard.css?v=6" />
   <link rel="stylesheet" href="company-feed-status.css?v=1" />
   <link rel="stylesheet" href="market-tools.css?v=1" />
   <link rel="stylesheet" href="compare-management.css?v=1" />
@@ -252,8 +252,8 @@
       </section>
       <section class="auth-view dashboard-view" data-auth-view="profile">
         <div class="dashboard-user"><div><span class="eyebrow blue">ЛИЧНЫЙ КАБИНЕТ</span><h2 id="profileName">Пользователь</h2></div><div class="profile-summary"><span class="profile-avatar" id="profileAvatar">В</span><div><b id="profileEmail"></b><small id="profileRole"></small></div></div></div>
-        <nav class="dashboard-tabs" id="dashboardTabs" aria-label="Разделы кабинета"></nav>
-        <div class="dashboard-content" id="dashboardContent"><div class="dashboard-loading">Загружаем данные кабинета…</div></div>
+        <button class="dashboard-menu-toggle" id="dashboardMenuToggle" type="button" aria-expanded="false">Разделы кабинета</button>
+        <div class="dashboard-layout"><nav class="dashboard-tabs" id="dashboardTabs" aria-label="Разделы кабинета"></nav><div class="dashboard-content" id="dashboardContent"><div class="dashboard-loading">Загружаем данные кабинета…</div></div></div>
         <button class="privacy-center-button" data-open-privacy type="button">Персональные данные и согласия</button><button class="auth-logout" id="logoutButton" type="button">Выйти из аккаунта</button>
       </section>
       <section class="auth-view auth-setup" data-auth-view="setup"><span class="eyebrow blue">НУЖНА НАСТРОЙКА</span><h2>Подключите Supabase</h2><p>Интерфейс авторизации готов. Укажите URL проекта и публичный anon key в файле <code>supabase-config.js</code>.</p></section>
@@ -269,13 +269,13 @@
   <script src="auth.js?v=9"></script>
   <script src="app.js?v=55"></script>
   <script src="location.js?v=2"></script>
-  <script src="dashboard.js?v=16"></script>
+  <script src="dashboard.js?v=17"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=6"></script>
   <script src="search-server.js?v=3"></script>
-  <script src="help.js?v=29"></script>
-  <script src="help-tours.js?v=5"></script>
-  <script src="help-groups.js?v=3"></script>
+  <script src="help.js?v=30"></script>
+  <script src="help-tours.js?v=6"></script>
+  <script src="help-groups.js?v=4"></script>
   <script src="privacy-center.js?v=1"></script>
   <script src="legal-renewal.js?v=1"></script>
   <script src="email-notifications.js?v=2"></script>
