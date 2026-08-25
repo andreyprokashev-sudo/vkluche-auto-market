@@ -14,6 +14,9 @@ async function send(chatId:string,text:string){const response=await fetch(`https
 Deno.serve(async request=>{
   if(request.method==='OPTIONS')return new Response('ok',{headers:cors})
   const body=await request.json().catch(()=>({}))
+  if(body.action==='demo'&&webhookSecret&&request.headers.get('x-setup-secret')===webhookSecret){
+    const email=String(body.email||'').trim().toLowerCase(),{data:users,error:userError}=await admin.auth.admin.listUsers({page:1,perPage:1000}),user=users?.users.find(item=>item.email?.toLowerCase()===email);if(userError||!user)return Response.json({error:'Пользователь не найден'},{status:404});const{data:prefs}=await admin.from('notification_preferences').select('max_enabled,max_chat_id').eq('user_id',user.id).maybeSingle();if(!prefs?.max_enabled||!prefs.max_chat_id)return Response.json({error:'MAX не подключён к этому аккаунту'},{status:400});await send(String(prefs.max_chat_id),String(body.text||'Тестовое уведомление ВКЛЮЧЕ'));return Response.json({sent:true})
+  }
   if(body.action==='setup'&&webhookSecret&&request.headers.get('x-setup-secret')===webhookSecret){
     try{const webhookUrl=`${supabaseUrl}/functions/v1/max-webhook`,response=await fetch('https://platform-api2.max.ru/subscriptions',{method:'POST',headers:maxHeaders,body:JSON.stringify({url:webhookUrl,update_types:['bot_started'],secret:webhookSecret})}),result=await response.json().catch(()=>({}));if(!response.ok)return Response.json({error:result?.message||`MAX: ${response.status}`,code:response.status,details:result},{status:502});const bot=await botInfo();return Response.json({configured:true,bot:{name:bot.name,username:bot.username,user_id:bot.user_id},webhookUrl})}catch(error){return Response.json({error:(error as Error).message},{status:502})}
   }
