@@ -147,8 +147,9 @@
   }
   function renderSeller() {
     const listings = state.data.listings || [],
-      auctions = state.data.sellerAuctions || [];
-    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => {const feed=Boolean(row.source_id||['automatic-feed','avito-feed'].includes(row.data?.source)),lockedAuction=auctions.some(a=>a.listing_id===row.id&&['scheduled','active'].includes(a.status));return`<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}${feed?' · управляется фидом':lockedAuction?' · идут торги':''}</small></span><div class="dashboard-listing-actions">${!feed&&!lockedAuction?`<button type="button" data-listing-edit="${row.id}">Редактировать</button>`:''}${row.active?`<button type="button" data-listing-withdraw="${row.id}">Снять</button>`:row.status==='archived'?`<button type="button" data-listing-restore="${row.id}">Вернуть</button>`:`<em>${esc(listingLabels[row.status]||row.status)}</em>`}</div></article>`}).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои аукционы</h3><span>${auctions.length}</span></div>${auctions.length ? auctions.map((row) => `<article class="dashboard-row"><span><b>${esc(carName(row.listings))}</b><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`).join("") : empty("Запустить аукцион можно из карточки своего автомобиля.")}</section>`;
+      auctions = state.data.sellerAuctions || [],activeAuctions=auctions.filter(a=>['scheduled','active','awaiting_seller','awaiting_buyer'].includes(a.status)),archive=auctions.filter(a=>!activeAuctions.includes(a));
+    const auctionRow=(row,archived=false)=>{const m=row.metrics||{},winner=m.winner_selected?`Победитель определён${m.winner_amount?` · ${rub(m.winner_amount)}`:''}`:'Победитель не определён';return`<article class="dashboard-row auction-stat-row" data-open-listing="${row.listing_id}"><span><b>${esc(carName(row.listings))}</b><small>${m.unique_views||0} уникальных просмотров · ${m.bid_count||0} ставок${archived?` · ${winner}`:''}</small><small>${rub(row.start_price)} · ${date(row.created_at)}</small></span><em>${esc(auctionLabels[row.status] || row.status)}</em></article>`};
+    content.innerHTML = `<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои объявления</h3><button type="button" data-dashboard-sell>+ Разместить</button></div>${listings.length ? listings.map((row) => {const feed=Boolean(row.source_id||['automatic-feed','avito-feed'].includes(row.data?.source)),lockedAuction=auctions.some(a=>a.listing_id===row.id&&['scheduled','active'].includes(a.status));return`<article class="dashboard-car" data-open-listing="${row.id}">${carImage(row) ? `<img src="${esc(carImage(row))}" alt="">` : ""}<span><b>${esc(carName(row))}</b><small>${esc(listingLabels[row.status] || row.status)} · ${esc(verifyLabels[row.verification_status] || "")}${feed?' · управляется фидом':lockedAuction?' · идут торги':''}</small></span><div class="dashboard-listing-actions">${!feed&&!lockedAuction?`<button type="button" data-listing-edit="${row.id}">Редактировать</button>`:''}${row.active?`<button type="button" data-listing-withdraw="${row.id}">Снять</button>`:row.status==='archived'?`<button type="button" data-listing-restore="${row.id}">Вернуть</button>`:`<em>${esc(listingLabels[row.status]||row.status)}</em>`}</div></article>`}).join("") : empty("Разместите первый автомобиль.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Действующие аукционы</h3><span>${activeAuctions.length}</span></div>${activeAuctions.length?activeAuctions.map(row=>auctionRow(row)).join(''):empty("Запустить аукцион можно из карточки своего автомобиля.")}</section><section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Архив аукционов</h3><small>Просмотры, ставки и результат сохраняются после завершения</small></div><span>${archive.length}</span></div>${archive.length?archive.map(row=>auctionRow(row,true)).join(''):empty("Завершённые аукционы появятся здесь.")}</section>`;
   }
   function renderQuestions() {
     const rows=state.data.sellerQuestions||[],pending=rows.filter(q=>!q.answer);
@@ -248,21 +249,20 @@
     {
       const questionQuery=client.from("auction_questions").select("id,auction_id,author_id,question,answer,created_at,viewed_at,answered_at,auctions!inner(id,listing_id,seller_id,listings(data))").order("created_at",{ascending:false});
       if(state.role!=="admin")questionQuery.eq("auctions.seller_id",user.id);
-      const [listings, auctions, questions] = await Promise.all([
+      const auctionQuery=client.from("auctions").select("id,status,start_price,created_at,listing_id,listings(data)").order("created_at",{ascending:false});
+      if(state.role!=="admin")auctionQuery.eq("seller_id",user.id);
+      const [listings, auctions, questions, metrics] = await Promise.all([
         client
           .from("listings")
           .select("id,data,status,verification_status,active,updated_at,organization_id,branch_id")
           .eq("owner_id", user.id)
           .order("updated_at", { ascending: false }),
-        client
-          .from("auctions")
-          .select("id,status,start_price,created_at,listing_id,listings(data)")
-          .eq("seller_id", user.id)
-          .order("created_at", { ascending: false }),
+        auctionQuery,
         questionQuery,
+        client.rpc("auction_private_metrics"),
       ]);
       state.data.listings = (listings.data || []).map(row=>!row.active&&row.status==='published'?{...row,status:'archived'}:row);
-      state.data.sellerAuctions = auctions.data || [];
+      const metricMap=new Map((metrics.data||[]).map(m=>[m.auction_id,m]));state.data.sellerAuctions = (auctions.data||[]).map(a=>({...a,metrics:metricMap.get(a.id)||{}}));
       state.data.sellerQuestions = questions.data || [];
     }
     if (state.accountType === "professional" || state.role === "admin") {
