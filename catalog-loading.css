@@ -1,0 +1,50 @@
+.catalog-skeleton {
+  min-height: 355px;
+  overflow: hidden;
+  padding-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.catalog-skeleton div,
+.catalog-skeleton span,
+.catalog-skeleton b,
+.catalog-skeleton i {
+  display: block;
+  background: linear-gradient(90deg, #eef1f5 25%, #f7f8fa 45%, #eef1f5 65%);
+  background-size: 240% 100%;
+  animation: catalogShimmer 1.25s infinite linear;
+}
+
+.catalog-skeleton div { height: 185px; }
+.catalog-skeleton span { width: 64%; height: 16px; margin: 18px 16px 0; border-radius: 6px; }
+.catalog-skeleton b { width: 46%; height: 21px; margin: 13px 16px 0; border-radius: 6px; }
+.catalog-skeleton i { width: 75%; height: 10px; margin: 12px 16px 0; border-radius: 5px; }
+.catalog-skeleton i:last-child { width: 55%; }
+
+.catalog-load-error {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 48px 20px;
+  border: 1px dashed #cbd6e8;
+  border-radius: 18px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.catalog-load-error b { color: var(--ink); font-size: 18px; }
+.catalog-load-error span { font-size: 12px; }
+.catalog-load-error button { margin-top: 8px; padding: 11px 16px; border: 0; border-radius: 10px; background: var(--blue); color: #fff; font-weight: 800; cursor: pointer; }
+
+@keyframes catalogShimmer { to { background-position: -140% 0; } }
+
+@media (max-width: 650px) {
+  .catalog-skeleton { min-height: 260px; }
+  .catalog-skeleton div { height: auto; aspect-ratio: 4 / 3; }
+  .catalog-skeleton span { width: 72%; height: 14px; margin: 12px 10px 0; }
+  .catalog-skeleton b { width: 58%; height: 18px; margin: 10px 10px 0; }
+  .catalog-skeleton i { margin: 9px 10px 0; }
+}
