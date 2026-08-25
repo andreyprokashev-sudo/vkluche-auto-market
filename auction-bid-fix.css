@@ -1,0 +1,39 @@
+.bid-confirm-modal {
+  z-index: 90;
+}
+
+.auction-participation-note {
+  margin: 0 0 11px;
+  padding: 10px 11px;
+  border-radius: 9px;
+  background: #fff8e8;
+  color: #744d05;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.bid-confirm-error {
+  margin: 12px 0 0 !important;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #fff0f0;
+  color: #a52f2f !important;
+}
+
+.auction-bid.mine {
+  border: 1px solid #8fb0ff;
+  background: #f2f6ff;
+}
+
+@media (max-width: 650px) {
+  .bid-confirm-modal {
+    align-items: flex-end;
+  }
+
+  .bid-confirm-card {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+    border-radius: 20px 20px 0 0;
+  }
+}
