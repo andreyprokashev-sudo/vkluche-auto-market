@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="notification-actions.css?v=4" />
   <link rel="stylesheet" href="brand.css?v=3" />
   <link rel="stylesheet" href="mobile.css?v=2" />
-  <link rel="stylesheet" href="auth.css" />
+  <link rel="stylesheet" href="auth.css?v=2" />
   <link rel="stylesheet" href="legal.css?v=1" />
   <link rel="stylesheet" href="privacy-center.css?v=1" />
   <link rel="stylesheet" href="privacy-center-actions.css?v=1" />
@@ -238,9 +238,10 @@
       </section>
       <section class="auth-view" data-auth-view="register">
         <span class="eyebrow blue">РЕГИСТРАЦИЯ</span><h2>Создать аккаунт</h2><p>Один аккаунт подходит для покупки и продажи автомобилей.</p>
-        <form id="registerForm" class="auth-form"><label>Имя<input name="name" autocomplete="name" required maxlength="60" placeholder="Александр"></label><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><label>Тип участника<select name="accountType"><option value="private">Частное лицо</option><option value="professional">Профессиональный участник</option></select></label><fieldset class="auth-legal-consents"><legend>Документы и согласия</legend><label class="auth-consent"><input name="termsConsent" type="checkbox" required><span>Принимаю <a href="legal.html#terms" target="_blank">Пользовательское соглашение</a></span></label><label class="auth-consent"><input name="personalDataConsent" type="checkbox" required><span>Отдельно даю <a href="legal.html#consent" target="_blank">согласие на обработку персональных данных</a></span></label><label class="auth-consent"><input name="privacyAcknowledged" type="checkbox" required><span>Ознакомлен с <a href="legal.html#privacy" target="_blank">Политикой обработки персональных данных</a></span></label><label class="auth-consent optional"><input name="emailConsent" type="checkbox"><span>Получать сервисные уведомления по email (необязательно)</span></label><label class="auth-consent optional"><input name="marketingConsent" type="checkbox"><span>Получать новости и предложения ВКЛЮЧЕ (необязательно)</span></label></fieldset><small class="auth-legal-note">Telegram и MAX подключаются позже отдельным добровольным действием в настройках уведомлений.</small><button class="primary-btn" type="submit">Зарегистрироваться</button></form>
+        <form id="registerForm" class="auth-form"><label>Имя<input name="name" autocomplete="name" required maxlength="60" placeholder="Александр"></label><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><label>Пароль<input name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Не менее 6 символов"></label><label>Тип участника<select name="accountType"><option value="private">Частное лицо</option><option value="professional">Профессиональный участник</option></select></label><fieldset class="auth-legal-consents"><legend>Документы и согласия</legend><label class="auth-consent"><input name="termsConsent" type="checkbox" required><span>Принимаю <a href="legal.html#terms" target="_blank">Пользовательское соглашение</a></span></label><label class="auth-consent"><input name="personalDataConsent" type="checkbox" required><span>Отдельно даю <a href="legal.html#consent" target="_blank">согласие на обработку персональных данных</a></span></label><label class="auth-consent"><input name="privacyAcknowledged" type="checkbox" required><span>Ознакомлен с <a href="legal.html#privacy" target="_blank">Политикой обработки персональных данных</a></span></label><label class="auth-consent optional"><input name="emailConsent" type="checkbox"><span>Получать сервисные уведомления по email (необязательно)</span></label><label class="auth-consent optional"><input name="marketingConsent" type="checkbox"><span>Получать новости и предложения ВКЛЮЧЕ (необязательно)</span></label></fieldset><small class="auth-legal-note">После регистрации предложим отдельно подключить MAX. Подключение добровольное.</small><button class="primary-btn" type="submit">Зарегистрироваться</button></form>
         <div class="auth-links"><button type="button" data-auth-switch="login">Уже есть аккаунт — войти</button></div>
       </section>
+      <section class="auth-view auth-channels" data-auth-view="channels"><span class="eyebrow blue">ПОЧТИ ГОТОВО</span><h2>Получать важные уведомления?</h2><p id="channelOnboardingText">Подключите мессенджер, чтобы не пропустить начало торгов, перебитую ставку и ответ продавца.</p><div class="auth-channel-list"><article><span class="auth-channel-icon max">MAX</span><div><b>Уведомления в MAX</b><small>Аукционы, ставки, вопросы и результаты</small></div><button class="primary-btn" id="registrationMaxConnect" type="button">Подключить</button></article><article class="disabled"><span class="auth-channel-icon telegram">T</span><div><b>Telegram</b><small>Добавим сюда после запуска Telegram-бота</small></div><em>Скоро</em></article></div><small class="auth-channel-consent">MAX откроется отдельно. Канал подключится только после вашего подтверждения в боте.</small><button class="auth-channel-skip" id="registrationChannelsSkip" type="button">Не сейчас, продолжить без мессенджеров</button></section>
       <section class="auth-view" data-auth-view="reset">
         <span class="eyebrow blue">ВОССТАНОВЛЕНИЕ</span><h2>Сбросить пароль</h2><p>Отправим на почту безопасную ссылку для создания нового пароля.</p>
         <form id="resetForm" class="auth-form"><label>Электронная почта<input name="email" type="email" autocomplete="email" required placeholder="name@example.ru"></label><button class="primary-btn" type="submit">Отправить ссылку</button></form><div class="auth-links"><button type="button" data-auth-switch="login">← Вернуться ко входу</button></div>
@@ -265,14 +266,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="supabase-config.js"></script>
-  <script src="auth.js?v=7"></script>
+  <script src="auth.js?v=8"></script>
   <script src="app.js?v=51"></script>
   <script src="location.js?v=2"></script>
   <script src="dashboard.js?v=13"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=6"></script>
   <script src="search-server.js?v=3"></script>
-  <script src="help.js?v=22"></script>
+  <script src="help.js?v=23"></script>
   <script src="help-tours.js?v=5"></script>
   <script src="help-groups.js?v=3"></script>
   <script src="privacy-center.js?v=1"></script>
