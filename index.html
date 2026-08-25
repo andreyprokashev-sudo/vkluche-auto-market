@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="styles.css?v=15" />
+  <link rel="stylesheet" href="styles.css?v=16" />
   <link rel="stylesheet" href="notification-actions.css?v=4" />
   <link rel="stylesheet" href="brand.css" />
   <link rel="stylesheet" href="mobile.css?v=2" />
@@ -207,6 +207,13 @@
       </div>
     </section>
   </div>
+  <div class="photo-lightbox" id="photoLightbox" role="dialog" aria-modal="true" aria-label="Просмотр фотографий" hidden>
+    <button class="photo-lightbox-close" id="photoLightboxClose" type="button" aria-label="Закрыть">×</button>
+    <button class="photo-lightbox-arrow prev" id="photoLightboxPrev" type="button" aria-label="Предыдущее фото">‹</button>
+    <div class="photo-lightbox-stage" id="photoLightboxStage"><img id="photoLightboxImage" alt=""><span id="photoLightboxCount"></span></div>
+    <button class="photo-lightbox-arrow next" id="photoLightboxNext" type="button" aria-label="Следующее фото">›</button>
+    <div class="photo-lightbox-thumbs" id="photoLightboxThumbs"></div>
+  </div>
   <div class="modal seller-profile-modal" id="sellerProfileModal" role="dialog" aria-modal="true" aria-labelledby="sellerProfileTitle"><div class="modal-backdrop" data-seller-profile-close></div><div class="modal-card seller-profile-card"><button class="modal-close" type="button" data-seller-profile-close aria-label="Закрыть">×</button><span class="seller-profile-avatar" id="sellerProfileAvatar">А</span><h2 id="sellerProfileTitle">Авто Эксперт</h2><p id="sellerProfileMeta">Проверенный продавец</p><div class="seller-profile-stats"><div><b>4.9 ★</b><span>рейтинг</span></div><div><b id="sellerListingCount">1</b><span>объявлений</span></div></div><button class="primary-btn" id="profileMessage" type="button">Написать продавцу</button></div></div>
   <div class="modal auth-modal" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <div class="modal-backdrop" data-auth-close></div>
@@ -248,13 +255,13 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="supabase-config.js"></script>
   <script src="auth.js?v=5"></script>
-  <script src="app.js?v=41"></script>
+  <script src="app.js?v=42"></script>
   <script src="location.js?v=1"></script>
   <script src="dashboard.js?v=12"></script>
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=6"></script>
   <script src="search-server.js?v=3"></script>
-  <script src="help.js?v=15"></script>
+  <script src="help.js?v=16"></script>
   <script src="help-tours.js?v=1"></script>
   <script src="help-groups.js?v=1"></script>
   <script src="email-notifications.js?v=2"></script>
