@@ -53,7 +53,7 @@ const paintPartPatterns: Array<[string, RegExp]> = [
   ['left_pillar', /лев\w*\s+(?:стойк|боковин)/i], ['right_pillar', /прав\w*\s+(?:стойк|боковин)/i],
   ['left_sill', /лев\w*\s+порог/i], ['right_sill', /прав\w*\s+порог/i],
   ['rear_left_fender', /задн\w*\s+лев\w*\s+крыл/i], ['rear_right_fender', /задн\w*\s+прав\w*\s+крыл/i],
-  ['roof', /крыш[аи]/i], ['rear_bumper', /задн\w*\s+бампер/i]
+  ['roof', /крыш[аи](?!\s+багаж)/i], ['trunk_lid', /крышк\w*\s+багажник/i], ['rear_bumper', /задн\w*\s+бампер/i]
 ]
 function bodyPaintData(ad: Record<string, any>) {
   const description = text(ad.Description), structured = array(ad.PaintedParts || ad.PaintedElements || ad.BodyPaint || ad.PaintDetails).map(text).join(', ')
