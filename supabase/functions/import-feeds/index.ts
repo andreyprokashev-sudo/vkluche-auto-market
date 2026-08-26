@@ -45,6 +45,24 @@ function optionTexts(value: unknown): string[] {
   return [...new Set(found)]
 }
 
+const paintPartPatterns: Array<[string, RegExp]> = [
+  ['front_bumper', /передн\w*\s+бампер/i], ['hood', /капот/i],
+  ['front_left_fender', /передн\w*\s+лев\w*\s+крыл/i], ['front_right_fender', /передн\w*\s+прав\w*\s+крыл/i],
+  ['front_left_door', /передн\w*\s+лев\w*\s+двер/i], ['front_right_door', /передн\w*\s+прав\w*\s+двер/i],
+  ['rear_left_door', /задн\w*\s+лев\w*\s+двер/i], ['rear_right_door', /задн\w*\s+прав\w*\s+двер/i],
+  ['left_pillar', /лев\w*\s+(?:стойк|боковин)/i], ['right_pillar', /прав\w*\s+(?:стойк|боковин)/i],
+  ['left_sill', /лев\w*\s+порог/i], ['right_sill', /прав\w*\s+порог/i],
+  ['rear_left_fender', /задн\w*\s+лев\w*\s+крыл/i], ['rear_right_fender', /задн\w*\s+прав\w*\s+крыл/i],
+  ['roof', /крыш[аи]/i], ['rear_bumper', /задн\w*\s+бампер/i]
+]
+function bodyPaintData(ad: Record<string, any>) {
+  const description = text(ad.Description), structured = array(ad.PaintedParts || ad.PaintedElements || ad.BodyPaint || ad.PaintDetails).map(text).join(', ')
+  const paintedParts = paintPartPatterns.filter(([, pattern]) => pattern.test(structured)).map(([key]) => key)
+  const factoryPaint = /(?:полностью|кузов)\s+(?:в\s+)?(?:заводском|родном)\s+(?:лакокрасочном\s+)?покрытии|кузов\s+в\s+родном\s+окрасе|без\s+окрасов/i.test(structured || description)
+  const paintMentioned = paintedParts.length > 0 || /окрашенн|вторичн\w*\s+окрас|косметическ\w*\s+окрас/i.test(structured || description)
+  return { known: factoryPaint || paintMentioned, factoryPaint, paintedParts, source: 'feed', note: paintMentioned && !paintedParts.length ? 'Фид сообщает об окрашенных элементах, но не называет конкретные детали' : '' }
+}
+
 function mapAd(ad: Record<string, any>) {
   const externalId = text(ad.Id), brand = text(ad.Make), model = text(ad.Model)
   const price = number(ad.Price), year = number(ad.Year)
@@ -55,6 +73,7 @@ function mapAd(ad: Record<string, any>) {
   const identification = normalizeVehicleId(ad.VIN || ad.Vin)
   const city = text(ad.City || ad.Region) || 'Город не указан', address = text(ad.Address) || city
   const latitude = number(ad.Latitude), longitude = number(ad.Longitude)
+  const bodyPaint = bodyPaintData(ad)
   return {
     externalId,
     car: {
@@ -63,7 +82,7 @@ function mapAd(ad: Record<string, any>) {
       engine: volume ? `${volume} л / ${power || '—'} л.с.` : power ? `${power} л.с.` : 'Двигатель не указан',
       city, date: 'обновлено сегодня', type: [condition.includes('нов') ? 'new' : 'used', /внедорож|кроссов/i.test(body) ? 'suv' : '', /элект|electric|ev/i.test(engineType) ? 'electric' : ''].filter(Boolean),
       badge: 'В продаже', img: images[0] || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1000&q=85',
-      details: { brand, model, generation: text(ad.Generation || ad.GenerationName || ad.GenerationId), modification: text(ad.Modification || ad.ModificationName || ad.ModificationId), trimName: text(ad.Complectation || ad.ComplectationName || ad.ComplectationId), body, doors: text(ad.Doors), seats: text(ad.Seats), steeringWheel: /прав/i.test(text(ad.SteeringWheel || ad.WheelType)) ? 'right' : text(ad.SteeringWheel || ad.WheelType) ? 'left' : '', condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), owners: text(ad.Owners), ptsType: text(ad.PTS || ad.PTSType || ad.PtsType), keysCount: text(ad.KeysCount), equipment, equipmentDataKnown: equipment.length > 0, equipmentSource: 'feed', secondWheelSet: secondSetOption ? { known: true, included: true, type: /только.*шин|комплект шин/i.test(secondSetOption) ? 'tires' : 'wheels', season: /зим/i.test(secondSetOption) ? 'Зимние' : /лет/i.test(secondSetOption) ? 'Летние' : '', size: '', condition: '' } : { known: false, included: false }, description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), vin: identification.vin, identificationNumber: identification.vin ? '' : identification.raw, identificationType: identification.raw && !identification.vin ? 'body_or_frame' : 'vin', images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
+      details: { brand, model, generation: text(ad.Generation || ad.GenerationName || ad.GenerationId), modification: text(ad.Modification || ad.ModificationName || ad.ModificationId), trimName: text(ad.Complectation || ad.ComplectationName || ad.ComplectationId), body, doors: text(ad.Doors), seats: text(ad.Seats), steeringWheel: /прав/i.test(text(ad.SteeringWheel || ad.WheelType)) ? 'right' : text(ad.SteeringWheel || ad.WheelType) ? 'left' : '', condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), owners: text(ad.Owners), ptsType: text(ad.PTS || ad.PTSType || ad.PtsType), keysCount: text(ad.KeysCount), equipment, equipmentDataKnown: equipment.length > 0, equipmentSource: 'feed', bodyPaint, secondWheelSet: secondSetOption ? { known: true, included: true, type: /только.*шин|комплект шин/i.test(secondSetOption) ? 'tires' : 'wheels', season: /зим/i.test(secondSetOption) ? 'Зимние' : /лет/i.test(secondSetOption) ? 'Летние' : '', size: '', condition: '' } : { known: false, included: false }, description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), vin: identification.vin, identificationNumber: identification.vin ? '' : identification.raw, identificationType: identification.raw && !identification.vin ? 'body_or_frame' : 'vin', images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
     }
   }
 }
