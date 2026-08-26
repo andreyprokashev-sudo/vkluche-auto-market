@@ -9,3 +9,8 @@
 @media(max-width:1050px){.catalog-brand-bar{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:650px){.catalog-brand-bar{grid-template-columns:repeat(2,minmax(0,1fr));margin-inline:0;padding-inline:0}.catalog-brand-bar>span{padding-left:0}}
 @media(min-width:901px){.catalog-layout .multi-dropdown-menu{position:absolute;z-index:30;left:0;right:auto;top:calc(100% + 7px);width:280px;margin:0}.catalog-layout .multi-dropdown:nth-child(n+10) .multi-dropdown-menu{top:auto;bottom:calc(100% + 7px)}}
+
+/* Каталог идёт перед аукционом; прежняя строка поиска и быстрые плитки скрыты. */
+main{display:flex;flex-direction:column}.hero{order:1}.catalog{order:2}.auctions-section{order:3}.sell-section{order:4}.quick{display:none!important}.hero .search-panel{display:none!important}.catalog-results>.filter-chips{display:none}.catalog-layout .unified-duplicate-filter{display:block}.catalog-controls>#filterToggle{display:none}.catalog{padding-top:48px}.catalog-layout .filter-panel-head>div>span{display:none}
+@media(max-width:900px){.catalog-controls>#filterToggle{display:inline-flex;align-items:center;justify-content:center}.catalog-layout .filter-panel:not(.open){display:none}}
+@media(max-width:650px){.catalog{padding-top:34px}.catalog-layout .filter-panel{display:block}.catalog-layout .filter-panel:not(.open){display:block}}

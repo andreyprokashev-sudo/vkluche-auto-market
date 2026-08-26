@@ -19,6 +19,7 @@ const auctionGrid=document.querySelector('#auctionGrid'),auctionEmpty=document.q
 const money=n=>new Intl.NumberFormat('ru-RU').format(n)+' ₽';
 const escapeHtml=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const filterForm=document.querySelector('#advancedFilters'),filterPanel=document.querySelector('#filterPanel'),filterBackdrop=document.querySelector('#filterBackdrop');
+document.querySelector('.catalog-controls')?.prepend(document.querySelector('#filterToggle'));
 const checkedValues=name=>[...filterForm.querySelectorAll(`[name="${name}"]:checked`)].map(input=>input.value);
 function inSelectedRanges(value,name){const ranges=checkedValues(name);return!ranges.length||ranges.some(range=>{const[min,max]=range.split('-').map(Number);return value>=min&&value<=max})}
 function inCustomOrSelectedRange(value,fromSelector,toSelector,name){const fromField=document.querySelector(fromSelector),toField=document.querySelector(toSelector),hasCustom=fromField.value!==''||toField.value!=='';if(!hasCustom)return inSelectedRanges(value,name);const from=fromField.value===''?0:+fromField.value,to=toField.value===''?Infinity:+toField.value;return value>=from&&value<=to}
