@@ -3,3 +3,8 @@
 @media(max-width:900px){.catalog-layout{display:block}.catalog-brand-bar{margin-bottom:16px}.catalog-layout .filter-panel{margin-bottom:16px}}
 @media(max-width:650px){.catalog-brand-bar{margin-inline:-14px;padding-inline:14px}.catalog-brand-bar>span{left:-14px;padding-left:14px}.detail-headline-facts{display:none}}
 @media(min-width:901px){.catalog-layout .filter-panel{position:relative;top:auto;max-height:none}}
+
+/* Марки показываются компактной многострочной сеткой, а не одной прокручиваемой лентой. */
+.catalog-brand-bar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:stretch;overflow:visible;padding-bottom:0}.catalog-brand-bar>span{position:static;grid-column:1/-1;padding:0 0 3px;background:transparent}.catalog-brand-bar button{min-width:0;width:100%;display:flex;align-items:center;justify-content:space-between;gap:5px;text-align:left;overflow:hidden}.catalog-brand-bar button small{flex:0 0 auto}
+@media(max-width:1050px){.catalog-brand-bar{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:650px){.catalog-brand-bar{grid-template-columns:repeat(2,minmax(0,1fr));margin-inline:0;padding-inline:0}.catalog-brand-bar>span{padding-left:0}}
