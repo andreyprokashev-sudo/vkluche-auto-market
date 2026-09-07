@@ -47,6 +47,8 @@
     verified: "Проверено",
     failed: "Проверка не пройдена",
   };
+  const dealStages = ["inspection", "documents", "settlement", "handover", "completed"];
+  const dealStageLabels = { confirmation:"Подтверждение", inspection:"Осмотр", documents:"Документы", settlement:"Расчёт", handover:"Передача", completed:"Завершено", cancelled:"Отменено" };
   const empty = (text) =>
     `<div class="dashboard-empty"><b>Здесь пока пусто</b><span>${esc(text)}</span></div>`;
   const carName = (row) => row?.data?.name || "Автомобиль";
@@ -54,10 +56,11 @@
 
   function availableTabs() {
     const unanswered=(state.data.sellerQuestions||[]).filter(q=>!q.viewed_at&&!q.answer).length,
-      moderation=(state.data.adminListings||[]).filter(x=>x.verification_status==='submitted').length;
+      moderation=(state.data.adminListings||[]).filter(x=>x.verification_status==='submitted').length,
+      dealActions=(state.data.deals||[]).filter(deal=>deal.status==='awaiting_buyer'||(deal.status==='confirmed'&&!['completed','cancelled'].includes(deal.workflow_stage))).length;
     const result = [
       ["main", "Главное", [["overview", "Главная"]]],
-      ["buy", "Покупаю", [["buyer", "Ставки и сделки"],["favorites", "Избранное"],["searches", "Сохранённые поиски"]]],
+      ["buy", "Покупаю", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["favorites", "Избранное"],["searches", "Сохранённые поиски"]]],
       ["sell", "Продаю", [["seller", "Мои автомобили"],["seller-auctions", "Мои аукционы"],["questions", "Вопросы покупателей",unanswered]]],
     ];
     if (state.accountType === "professional" || state.role === "admin") result.push(["company", "Компания", [["business", "Обзор компании"],["business-inventory", "Склад"],["business-auctions", "Массовые торги"],["business-feeds", "Фиды"],["business-team", "Филиалы и сотрудники"],["business-analytics", "Аналитика"]]]);
@@ -118,7 +121,7 @@
   function renderBuyer() {
     const bids = state.data.bids || [],
       deals = state.data.deals || [];
-    content.innerHTML = `${pageHead('Ставки и сделки','Ваше участие в торгах и решения по результатам')}<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои ставки</h3><span>${bids.length}</span></div>${
+    content.innerHTML = `${pageHead('Мои ставки','Ваше участие в торгах и результаты аукционов')}<section class="dashboard-block"><div class="dashboard-block-head"><h3>Мои ставки</h3><span>${bids.length}</span></div>${
       bids.length
         ? bids
             .map((bid) => {
@@ -127,7 +130,12 @@
             })
             .join("")
         : empty("Сделайте ставку на интересующий автомобиль.")
-    }</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Результаты</h3></div>${deals.length ? deals.map((deal) => `<article class="dashboard-row"><span><b>${rub(deal.amount)}</b><small>Ответ до ${new Date(deal.response_deadline).toLocaleString("ru-RU")}</small></span><em class="status ${deal.status}">${esc(deal.status === "awaiting_buyer" ? "Нужен ответ" : deal.status === "confirmed" ? "Подтверждено" : deal.status === "declined" ? "Отказ" : "Завершено")}</em></article>`).join("") : empty("Здесь появятся выбранные продавцами предложения.")}</section>`;
+    }</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Результаты</h3></div>${deals.length ? deals.map((deal) => `<article class="dashboard-row" data-dashboard-jump="deals"><span><b>${rub(deal.amount)}</b><small>${esc(deal.status === "awaiting_buyer" ? "Требуется ваше подтверждение" : dealStageLabels[deal.workflow_stage] || "Результат зафиксирован")}</small></span><em class="status ${deal.status}">${esc(deal.status === "awaiting_buyer" ? "Нужен ответ" : deal.status === "confirmed" ? "В работе" : deal.status === "declined" ? "Отказ" : "Завершено")}</em></article>`).join("") : empty("Здесь появятся выбранные продавцами предложения.")}</section>`;
+  }
+  function renderDeals(){
+    const rows=state.data.deals||[],userId=window.vklucheAuth?.getUser?.()?.id;
+    const card=deal=>{const listing=deal.auction?.listings,stage=deal.workflow_stage||'confirmation',index=dealStages.indexOf(stage),isBuyer=deal.buyer_id===userId,isSeller=deal.seller_id===userId||state.role==='admin',next={inspection:'documents',documents:'settlement',settlement:'handover',handover:'completed'}[stage],responsible=stage==='inspection'||stage==='documents'?'Продавец':stage==='settlement'||stage==='handover'?'Покупатель':'—',canAdvance=next&&((['inspection','documents'].includes(stage)&&isSeller)||(['settlement','handover'].includes(stage)&&isBuyer)||state.role==='admin'),deadline=deal.stage_deadline?new Date(deal.stage_deadline).toLocaleString('ru-RU'):'не установлен',events=[...(deal.auction_deal_events||[])].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));return`<article class="deal-workflow-card" data-deal-card="${deal.id}"><header>${carImage(listing)?`<img src="${esc(carImage(listing))}" alt="">`:''}<span><small>Сделка по результатам аукциона</small><b>${esc(carName(listing))}</b><strong>${rub(deal.amount)}</strong></span><em>${esc(deal.status==='awaiting_buyer'?'Ожидает ответа':dealStageLabels[stage]||'Завершено')}</em></header>${deal.status==='confirmed'?`<ol class="deal-progress">${dealStages.map((item,i)=>`<li class="${i<index?'done':i===index?'current':''}"><i>${i<index?'✓':i+1}</i><span>${dealStageLabels[item]}</span></li>`).join('')}</ol><div class="deal-next"><span><small>Следующее действие</small><b>${next?`Перейти к этапу «${dealStageLabels[next]}»`:'Сделка завершена'}</b></span><span><small>Ответственный</small><b>${responsible}</b></span><span><small>Срок</small><b>${deadline}</b></span></div>`:''}<div class="deal-workflow-actions">${deal.status==='awaiting_buyer'&&isBuyer?`<button class="primary" data-dashboard-deal-response="true" data-deal-id="${deal.id}">Подтвердить покупку</button><button data-dashboard-deal-response="false" data-deal-id="${deal.id}">Отказаться</button>`:''}${canAdvance?`<button class="primary" data-advance-deal="${deal.id}" data-next-stage="${next}">${next==='completed'?'Подтвердить получение автомобиля':`Этап «${dealStageLabels[next]}»`}</button>`:''}${listing?`<button data-deal-open-listing="${deal.auction?.listing_id||''}">Открыть автомобиль</button>`:''}${deal.status==='confirmed'&&!['completed','cancelled'].includes(stage)?`<button class="danger" data-cancel-deal="${deal.id}">Отменить сделку</button>`:''}</div><details><summary>История сделки · ${events.length}</summary>${events.length?`<ol class="deal-event-list">${events.map(item=>`<li><span><b>${esc(item.action==='cancelled'?'Сделка отменена':item.action==='confirmed'?'Покупка подтверждена':`Этап: ${dealStageLabels[item.to_stage]||item.to_stage}`)}</b>${item.note?`<small>${esc(item.note)}</small>`:''}</span><time>${new Date(item.created_at).toLocaleString('ru-RU')}</time></li>`).join('')}</ol>`:empty('История появится после первого действия.')}</details></article>`};
+    content.innerHTML=`${pageHead('Сделки','Все договорённости после завершения аукциона: этап, ответственный, срок и история','<button type="button" data-dashboard-help>Как это работает?</button>')}<section class="deal-workflow-list">${rows.length?rows.map(card).join(''):empty('После выбора победителя сделка появится здесь у покупателя и продавца.')}</section>`;
   }
   function searchDescription(search) {
     const f = search.filters || {}, parts = [];
@@ -213,6 +221,7 @@
       ({
         overview: renderOverview,
         buyer: renderBuyer,
+        deals: renderDeals,
         favorites: renderFavorites,
         searches: renderSearches,
         seller: renderSeller,
@@ -250,8 +259,7 @@
         .order("created_at", { ascending: false }),
       client
         .from("auction_deals")
-        .select("*")
-        .eq("buyer_id", user.id)
+        .select("*,auction:auctions!auction_deals_auction_id_fkey(listing_id,status,listings(data)),auction_deal_events(*)")
         .order("created_at", { ascending: false }),
       client
         .from("saved_searches")
@@ -342,7 +350,7 @@
     if(event.target.closest('[data-profile-cancel]')){content.querySelector('[data-profile-form]').hidden=true;return}
     if(event.target.closest('[data-dashboard-notifications]')){document.querySelector('#authModal [data-auth-close]')?.click();document.querySelector('#notificationBell')?.click();return}
     if(event.target.closest('[data-dashboard-privacy]')){document.querySelector('[data-open-privacy]')?.click();return}
-    if(event.target.closest('[data-dashboard-help]')){document.querySelector('#authModal [data-auth-close]')?.click();window.vklucheHelp?.open?.();return}
+    if(event.target.closest('[data-dashboard-help]')){document.querySelector('#authModal [data-auth-close]')?.click();await window.vklucheHelp?.open?.();window.vklucheHelp?.show?.(state.active==='deals'?'deal':'dashboard');return}
     if(event.target.closest('[data-dashboard-password]')){const input=document.querySelector('#resetForm [name="email"]');if(input)input.value=window.vklucheAuth?.getUser?.()?.email||'';window.vklucheAuth?.open?.('reset');return}
     if(event.target.closest('[data-dashboard-logout]')){document.querySelector('#logoutButton')?.click();return}
     if(event.target.closest('.open-feed')){document.querySelector('#authModal [data-auth-close]')?.click();document.querySelector('.more-nav .open-feed')?.click();return}
@@ -357,8 +365,16 @@
     }
     const openQuestion=event.target.closest("[data-open-question]");
     if(openQuestion){await client.rpc("mark_auction_question_viewed",{p_question_id:openQuestion.dataset.openQuestion});document.querySelector("#authModal [data-auth-close]")?.click();window.dispatchEvent(new CustomEvent("vkluche:open-listing",{detail:{listingId:openQuestion.dataset.listingId}}));setTimeout(()=>window.dispatchEvent(new CustomEvent("vkluche:focus-auction-question",{detail:{questionId:openQuestion.dataset.openQuestion}})),500);return}
+    const dealListing=event.target.closest('[data-deal-open-listing]');
+    if(dealListing){document.querySelector('#authModal [data-auth-close]')?.click();window.dispatchEvent(new CustomEvent('vkluche:open-listing',{detail:{listingId:dealListing.dataset.dealOpenListing}}));return}
     const answerQuestion=event.target.closest("[data-answer-dashboard-question]");
     if(answerQuestion){const answer=prompt("Ответ покупателю");if(!answer?.trim())return;answerQuestion.disabled=true;const{error}=await client.rpc("answer_auction_question",{p_question_id:answerQuestion.dataset.answerDashboardQuestion,p_answer:answer.trim()});if(error){answerQuestion.disabled=false;return window.toast?.(error.message)}window.toast?.("Ответ отправлен покупателю");return load()}
+    const dealResponse=event.target.closest('[data-dashboard-deal-response]');
+    if(dealResponse){dealResponse.disabled=true;const accept=dealResponse.dataset.dashboardDealResponse==='true';const{error}=await client.rpc('respond_to_auction_offer',{p_deal_id:dealResponse.dataset.dealId,p_accept:accept});dealResponse.disabled=false;if(error)return window.toast?.(error.message);window.toast?.(accept?'Покупка подтверждена. Следующий этап — осмотр.':'Отказ зафиксирован');return load()}
+    const advanceDeal=event.target.closest('[data-advance-deal]');
+    if(advanceDeal){const label=dealStageLabels[advanceDeal.dataset.nextStage]||'следующий этап';if(!confirm(`Подтвердить переход на этап «${label}»?`))return;advanceDeal.disabled=true;const{error}=await client.rpc('advance_auction_deal',{p_deal_id:advanceDeal.dataset.advanceDeal,p_next_stage:advanceDeal.dataset.nextStage,p_note:''});advanceDeal.disabled=false;if(error)return window.toast?.(error.message);window.toast?.(`Этап «${label}» подтверждён`);return load()}
+    const cancelDeal=event.target.closest('[data-cancel-deal]');
+    if(cancelDeal){const reason=prompt('Укажите причину отмены сделки. Она сохранится в истории:','Не удалось согласовать условия');if(!reason?.trim())return;cancelDeal.disabled=true;const{error}=await client.rpc('cancel_auction_deal',{p_deal_id:cancelDeal.dataset.cancelDeal,p_reason:reason.trim()});cancelDeal.disabled=false;if(error)return window.toast?.(error.message);window.toast?.('Сделка отменена, причина сохранена');return load()}
     const search = event.target.closest("[data-delete-search]");
     if (search) {
       await client
