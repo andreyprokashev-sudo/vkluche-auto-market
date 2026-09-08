@@ -90,6 +90,26 @@
   color: var(--blue);
 }
 
+.proxy-bid-form {
+  margin-top: 12px;
+  padding: 13px;
+  border: 1px solid #bfd1ff;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 72%);
+}
+
+.proxy-bid-form > div b,
+.proxy-bid-form > div small { display: block; }
+.proxy-bid-form > div b { font-size: 11px; color: #24447d; }
+.proxy-bid-form > div small { margin-top: 4px; color: #667085; font-size: 8px; line-height: 1.45; }
+.proxy-bid-form .proxy-cancel { border: 0; background: transparent; color: #a13737; font-size: 9px; font-weight: 700; cursor: pointer; }
+.proxy-bid-form #proxyBidStatus { margin: 2px 0 0; padding: 9px; border-radius: 8px; background: #ecf8f0; color: #267344; font-size: 8px; line-height: 1.4; }
+
+[data-theme="dark"] .proxy-bid-form { background: rgb(20 31 52 / 80%); border-color: #35558c; }
+[data-theme="dark"] .proxy-bid-form > div b { color: #b9ceff; }
+[data-theme="dark"] .proxy-bid-form > div small { color: #aab4c6; }
+[data-theme="dark"] .proxy-bid-form #proxyBidStatus { background: #173827; color: #8be0aa; }
+
 @media (max-width: 650px) {
   .bid-confirm-modal {
     align-items: flex-end;
