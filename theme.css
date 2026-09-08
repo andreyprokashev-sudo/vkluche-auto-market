@@ -2,6 +2,7 @@
 :root[data-theme="dark"] :is(.auth-card,.help-route,.help-article-link,.context-popover,.settings-line,.settings-action,.settings-profile-form,.business-grid article,.comparison-table,.search-panel){background:#151c28!important;color:var(--ink);border-color:var(--line)!important}
 :root[data-theme="dark"] :is(.help-route:hover,.help-article-link:hover,.settings-action:hover){background:#1b2534!important}
 :root[data-theme="dark"] :is(.help-close,.profile-summary,.dashboard-task,.dashboard-empty){background:#202a39;color:var(--ink)}
+:root[data-theme="dark"] :is(.market-note,.analytics-funnel){background:#172238;border-color:var(--line)}:root[data-theme="dark"] .analytics-funnel article{background:#151c28;border-color:var(--line)}:root[data-theme="dark"] .analytics-bar-row>i{background:#263142}
 :root[data-theme="dark"] :is(.auth-form label,.help-article>p,.help-article ol,.settings-profile-form label){color:#b5c0cf}
 @media(prefers-reduced-motion:no-preference){body,.topbar,.car-card,.auction-card,.filter-panel,.detail-sheet,.modal-card,input,select,textarea{transition:background-color .22s,border-color .22s,color .22s}}
 @media(max-width:650px){.theme-toggle{width:34px;height:34px;flex:0 0 34px}.theme-toggle svg{width:18px;height:18px}}
