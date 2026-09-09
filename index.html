@@ -48,13 +48,14 @@
   <link rel="stylesheet" href="help.css?v=2" />
   <link rel="stylesheet" href="help-extra.css?v=1" />
   <link rel="stylesheet" href="help-groups.css?v=2" />
+  <link rel="stylesheet" href="procurement.css?v=1" />
 </head>
 <body>
   <header class="topbar">
     <div class="container nav">
       <a class="brand" href="#" aria-label="ВКЛЮЧЕ"><img class="brand-logo" src="assets/brand/vkluche-logo-wheel.png" alt=""><span class="brand-name">КЛЮЧЕ</span></a>
       <nav class="nav-links" id="navLinks">
-        <a class="active" href="#catalog">Автомобили</a><a href="#auctions">Аукцион</a><details class="more-nav"><summary>Ещё <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary><div><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a><button class="open-feed" type="button">Загрузить фид</button></div></details>
+        <a class="active" href="#catalog">Автомобили</a><a href="#auctions">Аукцион</a><a href="#procurements">Заявки на покупку</a><details class="more-nav"><summary>Ещё <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></summary><div><a href="#services">Спецтехника</a><a href="#services">Мото</a><a href="#services">Запчасти</a><button class="open-feed" type="button">Загрузить фид</button></div></details>
         <div class="mobile-nav-actions"><button class="open-modal" type="button">Продать автомобиль</button><button class="open-feed" type="button">Загрузить фид</button></div>
       </nav>
       <div class="nav-actions">
@@ -115,6 +116,14 @@
         </div>
         <div class="auction-grid" id="auctionGrid"></div>
         <div class="auction-empty" id="auctionEmpty"><b>В этом разделе пока нет аукционов</b><span>Выберите другую вкладку или выставьте автомобиль на торги.</span><button class="primary-btn open-modal" type="button">Запустить аукцион</button></div>
+      </div>
+    </section>
+
+    <section class="procurement-section" id="procurements">
+      <div class="container">
+        <div class="section-head procurement-head"><div><span class="eyebrow blue">ОБРАТНЫЙ АУКЦИОН</span><h2>Заявки на покупку</h2><p>Покупатель описывает нужный автомобиль, а владельцы подходящих машин предлагают свою цену.</p></div><button class="primary-btn" id="newProcurement" type="button">Создать заявку</button></div>
+        <div class="procurement-tabs" id="procurementTabs"><button class="active" data-procurement-tab="active" type="button">Активные</button><button data-procurement-tab="mine" type="button">Мои заявки</button><button data-procurement-tab="completed" type="button">Завершённые</button></div>
+        <div class="procurement-grid" id="procurementGrid"><div class="procurement-loading">Загружаем заявки…</div></div>
       </div>
     </section>
 
@@ -271,6 +280,8 @@
     </div>
   </div>
   <div class="toast" id="toast">Готово</div>
+  <div class="modal procurement-modal" id="procurementModal"><div class="modal-backdrop" data-procurement-close></div><div class="modal-card"><button class="modal-close" data-procurement-close type="button">×</button><span class="eyebrow blue">ЗАЯВКА НА ПОКУПКУ</span><h2>Какой автомобиль нужен?</h2><form id="procurementForm"><div class="procurement-form-grid"><label>Марка<input name="brand" required maxlength="60" placeholder="Toyota"></label><label>Модель<input name="model" maxlength="80" placeholder="Camry или любая"></label><label>Год от<input name="yearFrom" type="number" min="1950" max="2026" placeholder="2020"></label><label>Год до<input name="yearTo" type="number" min="1950" max="2026" placeholder="2024"></label><label>Пробег до, км<input name="mileageTo" type="number" min="0" placeholder="100000"></label><label>Бюджет до, ₽<input name="budget" type="number" min="1" required placeholder="3000000"></label><label>Шаг снижения цены, ₽<input name="step" type="number" min="1000" value="10000" required></label><label>Принимать предложения<select name="duration"><option value="24">24 часа</option><option value="72" selected>3 дня</option><option value="168">7 дней</option><option value="336">14 дней</option></select></label></div><label>Пожелания<textarea name="notes" maxlength="1000" placeholder="Цвет, комплектация, город осмотра и другие условия"></textarea></label><label class="procurement-consent"><input name="rules" type="checkbox" required> Подтверждаю параметры и понимаю, что заявка не является договором купли-продажи</label><button class="primary-btn" type="submit">Опубликовать заявку</button></form></div></div>
+  <div class="modal procurement-modal" id="procurementOfferModal"><div class="modal-backdrop" data-procurement-offer-close></div><div class="modal-card"><button class="modal-close" data-procurement-offer-close type="button">×</button><span class="eyebrow blue">ПРЕДЛОЖЕНИЕ ПРОДАВЦА</span><h2 id="procurementOfferTitle">Предложить автомобиль</h2><form id="procurementOfferForm"><label>Ваш опубликованный автомобиль<select name="listingId" required><option value="">Выберите автомобиль</option></select></label><label>Цена предложения, ₽<input name="amount" type="number" min="1" required></label><label>Комментарий<textarea name="comment" maxlength="500" placeholder="Где и когда можно осмотреть автомобиль"></textarea></label><small id="procurementOfferHint"></small><button class="primary-btn" type="submit">Отправить предложение</button></form></div></div>
   <div class="modal save-search-modal" id="saveSearchModal" role="dialog" aria-modal="true" aria-labelledby="saveSearchTitle"><div class="modal-backdrop" data-save-search-close></div><div class="modal-card"><button class="modal-close" type="button" aria-label="Закрыть" data-save-search-close>×</button><span class="eyebrow blue">УВЕДОМЛЕНИЯ</span><h2 id="saveSearchTitle">Сохранить поиск</h2><p>Назовите подборку — она появится в личном кабинете.</p><form id="saveSearchForm"><label>Название поиска<input name="name" required maxlength="80" placeholder="Например, кроссовер для семьи"></label><label class="save-search-option"><input name="notifyInApp" type="checkbox" checked><span>Уведомлять в личном кабинете</span></label><label class="save-search-option"><input name="notifyEmail" type="checkbox" checked><span>Присылать уведомления на почту</span></label><button class="primary-btn" type="submit">Сохранить поиск</button></form></div></div>
   <div class="modal withdrawal-modal" id="withdrawalModal" role="dialog" aria-modal="true" aria-labelledby="withdrawalTitle"><div class="modal-backdrop" data-withdrawal-close></div><div class="modal-card withdrawal-card"><button class="modal-close" type="button" aria-label="Закрыть" data-withdrawal-close>×</button><span class="eyebrow blue">УПРАВЛЕНИЕ ОБЪЯВЛЕНИЕМ</span><h2 id="withdrawalTitle">Снять с публикации?</h2><p id="withdrawalCar"></p><form id="withdrawalForm"><fieldset><legend>Почему вы снимаете объявление?</legend><label><input type="radio" name="reason" value="sold_on_platform" required><span><b>Продано через ВКЛЮЧЕ</b><small>Отметим автомобиль проданным</small></span></label><label><input type="radio" name="reason" value="sold_elsewhere"><span><b>Продано в другом месте</b><small>Отметим автомобиль проданным</small></span></label><label><input type="radio" name="reason" value="temporarily_unavailable"><span><b>Временно не продаю</b><small>Объявление можно будет восстановить</small></span></label><label><input type="radio" name="reason" value="changed_mind"><span><b>Передумал продавать</b><small>Перенесём объявление в архив</small></span></label><label><input type="radio" name="reason" value="duplicate_or_error"><span><b>Ошибка или дубликат</b><small>Перенесём объявление в архив</small></span></label><label><input type="radio" name="reason" value="other"><span><b>Другая причина</b><small>Расскажите подробнее ниже</small></span></label></fieldset><label class="withdrawal-comment">Комментарий<textarea name="comment" maxlength="500" placeholder="Необязательно"></textarea></label><div class="withdrawal-warning" id="withdrawalWarning">Объявление исчезнет из поиска, но сохранится в личном кабинете.</div><label class="withdrawal-confirm"><input type="checkbox" required><span>Да, я уверен, что хочу снять объявление</span></label><div class="withdrawal-actions"><button class="wizard-back" type="button" data-withdrawal-close>Отмена</button><button class="primary-btn" type="submit" id="withdrawalSubmit">Снять с публикации</button></div></form></div></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -285,13 +296,14 @@
   <script src="chat.js?v=2"></script>
   <script src="compare.js?v=6"></script>
   <script src="search-server.js?v=3"></script>
-  <script src="help.js?v=43"></script>
-  <script src="help-tours.js?v=19"></script>
-  <script src="help-groups.js?v=5"></script>
+  <script src="help.js?v=44"></script>
+  <script src="help-tours.js?v=20"></script>
+  <script src="help-groups.js?v=6"></script>
   <script src="privacy-center.js?v=1"></script>
   <script src="legal-renewal.js?v=1"></script>
   <script src="email-notifications.js?v=2"></script>
   <script src="telegram-notifications.js?v=1"></script>
   <script src="max-notifications.js?v=2"></script>
+  <script src="procurement.js?v=1"></script>
 </body>
 </html>
