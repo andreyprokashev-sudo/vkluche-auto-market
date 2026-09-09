@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.telegram-webhook]
 verify_jwt = false
+
+[functions.integration-api]
+verify_jwt = false
