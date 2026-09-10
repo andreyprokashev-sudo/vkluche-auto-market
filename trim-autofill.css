@@ -1,0 +1,32 @@
+.trim-autofill {
+  display: grid;
+  align-content: end;
+  gap: 6px;
+}
+
+.trim-autofill button {
+  min-height: 42px;
+  border: 1px solid #bfd0eb;
+  border-radius: 10px;
+  background: #edf4ff;
+  color: var(--blue);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.trim-autofill button:hover {
+  background: #dfeaff;
+}
+
+.trim-autofill small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+@media (max-width: 650px) {
+  .trim-autofill {
+    grid-column: 1 / -1;
+  }
+}
