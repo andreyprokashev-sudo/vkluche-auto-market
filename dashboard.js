@@ -59,7 +59,7 @@
       moderation=(state.data.adminListings||[]).filter(x=>x.verification_status==='submitted').length,
       dealActions=(state.data.deals||[]).filter(deal=>deal.status==='awaiting_buyer'||(deal.status==='confirmed'&&!['completed','cancelled'].includes(deal.workflow_stage))).length;
     const result = [
-      ["main", "Главная", [["overview", "Обзор"],["reports", "Отчёты"]],"⌂"],
+      ["main", "Главная", [["overview", "Обзор"],["messages", "Сообщения"],["reports", "Отчёты"]],"⌂"],
       ["buy", "Покупки", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["favorites", "Избранное"],["searches", "Сохранённые поиски"]],"↓"],
       ["sell", "Продажи", [["seller", "Мои автомобили"],["seller-auctions", "Мои аукционы"],["questions", "Вопросы покупателей",unanswered]],"↑"],
     ];
@@ -174,6 +174,7 @@
     const rows=[...(state.data.sellerQuestions||[])].sort((a,b)=>Number(Boolean(a.answer))-Number(Boolean(b.answer))||new Date(b.created_at)-new Date(a.created_at)),pending=rows.filter(q=>!q.answer);
     content.innerHTML=`${pageHead('Вопросы покупателей','Обращения из сайта, Telegram и MAX')}<section class="dashboard-block seller-questions"><div class="dashboard-block-head"><div><h3>Все вопросы</h3><small>Сначала показаны обращения, ожидающие ответа</small></div><span>${pending.length} без ответа</span></div>${rows.length?rows.map(q=>{const listing=q.auctions?.listings,name=carName(listing),status=q.answer?'Получен ответ':q.viewed_at?'Просмотрен продавцом':'Доставлен продавцу';return`<article class="dashboard-row question-row${!q.viewed_at&&!q.answer?' unread':''}" data-question-row="${q.id}"><span><b>${esc(name)}</b><p>${esc(q.question)}</p><small>${date(q.created_at)} · ${status}</small>${q.answer?`<blockquote><b>Ваш ответ</b><br>${esc(q.answer)}</blockquote>`:''}</span><div class="saved-search-actions"><button type="button" data-open-question="${q.id}" data-listing-id="${q.auctions?.listing_id||''}">Открыть автомобиль</button>${!q.answer?`<button type="button" data-answer-dashboard-question="${q.id}">Ответить</button>`:''}</div></article>`}).join(''):empty('Новые вопросы по вашим аукционам появятся здесь.')}</section>`;
   }
+  function renderMessages(){content.innerHTML=`${pageHead('Сообщения','Переписка с покупателями и продавцами по объявлениям')}<section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Диалоги по автомобилям</h3><small>Все входящие и отправленные сообщения находятся в едином окне</small></div></div><button type="button" class="primary-btn" data-open-chat-inbox>Открыть сообщения</button></section>`}
   function renderBusiness() {
     const d=state.data,organization=d.organization;
     if(!organization){content.innerHTML=`<section class="dashboard-block business-onboarding"><span class="eyebrow blue">ПРОФЕССИОНАЛЬНЫЙ КАБИНЕТ</span><h3>Создайте профиль компании</h3><p>Объедините склад, филиалы, сотрудников, фиды и аукционы в одном кабинете.</p><form data-create-organization><label>Название компании<input name="name" required minlength="2" maxlength="160" placeholder="Например, Автоцентр Самара"></label><label>ИНН<input name="inn" inputmode="numeric" maxlength="12" placeholder="Необязательно"></label><button class="primary-btn" type="submit">Создать компанию</button></form></section>`;return}
@@ -238,6 +239,7 @@
     (
       ({
         overview: renderOverview,
+        messages: renderMessages,
         buyer: renderBuyer,
         deals: renderDeals,
         reports: renderReports,
@@ -380,6 +382,7 @@
     if (!client) return;
     const jump=event.target.closest('[data-dashboard-jump]');
     if(jump){state.active=jump.dataset.dashboardJump;return render()}
+    if(event.target.closest('[data-open-chat-inbox]')){window.vklucheChat?.openInbox?.();return}
     const openAdminUser=event.target.closest('[data-admin-open-user]');
     if(openAdminUser){state.selectedAdminUser=openAdminUser.dataset.adminOpenUser;return renderAdminUsers()}
     if(event.target.closest('[data-admin-close-user]')){state.selectedAdminUser=null;return renderAdminUsers()}

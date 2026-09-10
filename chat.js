@@ -103,11 +103,14 @@
       .neq("sender_id", user.id)
       .is("read_at", null);
   }
-  async function openInbox() {
-    if (!window.vklucheAuth?.require(openInbox)) return;
+  async function openInbox(listingId) {
+    if (!window.vklucheAuth?.require(() => openInbox(listingId))) return;
     modal.classList.add("open");
     document.body.style.overflow = "hidden";
-    await loadConversations();
+    const rows=await loadConversations();
+    const preferred=listingId&&rows?.find(row=>String(row.listing_id)===String(listingId));
+    if(preferred)await openConversation(preferred,preferred.listings?.data?.name);
+    else if(listingId)toast("Диалог по этому автомобилю не найден");
   }
   async function openForCar(car) {
     if (!window.vklucheAuth?.require(() => openForCar(car))) return;
@@ -176,5 +179,11 @@
     );
   document
     .querySelector("#chatInboxButton")
-    .addEventListener("click", openInbox);
+    .addEventListener("click", () => openInbox());
+  window.addEventListener('vkluche:open-chat',event=>openInbox(event.detail?.listingId));
+  let deepLinkHandled=false;
+  function openChatDeepLink(){const params=new URLSearchParams(location.search),listingId=params.get('listing');if(deepLinkHandled||params.get('chat')!=='1'||!listingId||!window.vklucheAuth?.getUser?.())return;deepLinkHandled=true;openInbox(listingId);history.replaceState({},'',`${location.pathname}${location.hash}`)}
+  window.addEventListener('vkluche:profile',()=>setTimeout(openChatDeepLink,0));
+  setTimeout(openChatDeepLink,500);
+  window.vklucheChat={openInbox};
 })();
