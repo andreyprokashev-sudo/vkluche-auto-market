@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.integration-api]
 verify_jwt = false
+
+[functions.admin-users]
+verify_jwt = false
