@@ -59,27 +59,24 @@
       moderation=(state.data.adminListings||[]).filter(x=>x.verification_status==='submitted').length,
       dealActions=(state.data.deals||[]).filter(deal=>deal.status==='awaiting_buyer'||(deal.status==='confirmed'&&!['completed','cancelled'].includes(deal.workflow_stage))).length;
     const result = [
-      ["main", "Главное", [["overview", "Главная"],["reports", "Отчёты"]]],
-      ["buy", "Покупаю", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["favorites", "Избранное"],["searches", "Сохранённые поиски"]]],
-      ["sell", "Продаю", [["seller", "Мои автомобили"],["seller-auctions", "Мои аукционы"],["questions", "Вопросы покупателей",unanswered]]],
+      ["main", "Главная", [["overview", "Обзор"],["reports", "Отчёты"]],"⌂"],
+      ["buy", "Покупки", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["favorites", "Избранное"],["searches", "Сохранённые поиски"]],"↓"],
+      ["sell", "Продажи", [["seller", "Мои автомобили"],["seller-auctions", "Мои аукционы"],["questions", "Вопросы покупателей",unanswered]],"↑"],
     ];
     if (state.accountType === "professional" || state.role === "admin") {
       const companyTabs=[["business", "Обзор компании"],["business-inventory", "Склад"],["inventory-recommendations", "Рекомендации"],["business-auctions", "Массовые торги"],["business-feeds", "Фиды"],["business-team", "Филиалы и сотрудники"],["market-analytics", "Оценка цены"],["participant-funnel", "Воронка участников"]];
       if(state.role==='admin'||['owner','administrator','manager'].includes(state.data.organizationRole))companyTabs.push(["business-analytics", "Аналитика"],["business-integrations", "Интеграции"]);
-      result.push(["company", "Компания", companyTabs]);
+      result.push(["company", "Компания", companyTabs,"▣"]);
     }
-    result.push(["account", "Аккаунт", [["settings", "Настройки"]]]);
-    if (state.role === "admin") result.push(["administration", "Администрирование", [["moderation", "Очередь модерации",moderation],["admin-users", "Пользователи"],["admin", "Управление системой"]]]);
+    result.push(["account", "Настройки", [["settings", "Профиль и аккаунт"]],"⚙"]);
+    if (state.role === "admin") result.push(["administration", "Управление порталом", [["moderation", "Очередь модерации",moderation],["admin-users", "Пользователи"],["admin", "Система"]],"◆"]);
     return result;
   }
   function renderTabs() {
     const allowed = availableTabs();
     if (!allowed.some(([, ,items]) => items.some(([id])=>id===state.active))) state.active = "overview";
     tabs.innerHTML = allowed
-      .map(
-        ([group, label, items]) =>
-          `<div class="dashboard-nav-group" data-dashboard-group="${group}"><span>${label}</span>${items.map(([id,itemLabel,badge])=>`<button type="button" data-dashboard-tab="${id}" class="${state.active === id ? "active" : ""}"><span>${itemLabel}</span>${badge?`<em class="dashboard-nav-badge">${badge}</em>`:''}</button>`).join('')}</div>`,
-      )
+      .map(([group,label,items,icon])=>{const active=items.some(([id])=>id===state.active),badge=items.reduce((sum,item)=>sum+(Number(item[2])||0),0);return`<details class="dashboard-nav-group" data-dashboard-group="${group}"${active?' open':''}><summary><i>${icon}</i><span>${label}</span>${badge?`<em class="dashboard-nav-badge">${badge}</em>`:''}<b>⌄</b></summary><div>${items.map(([id,itemLabel,itemBadge])=>`<button type="button" data-dashboard-tab="${id}" class="${state.active===id?'active':''}"><span>${itemLabel}</span>${itemBadge?`<em class="dashboard-nav-badge">${itemBadge}</em>`:''}</button>`).join('')}</div></details>`})
       .join("");
   }
   const pageHead=(title,description,actions='')=>`<header class="dashboard-page-head"><div><h3>${esc(title)}</h3><p>${esc(description)}</p></div>${actions}</header>`;
@@ -120,7 +117,8 @@
     if(rejected)tasks.push([`Исправить объявления: ${rejected}`,'Есть замечания модерации','seller','']);
     if(feedErrors)tasks.push([`Ошибки фидов: ${feedErrors}`,'Проверьте причину последней загрузки','business-feeds','']);
     if(state.role==='admin'&&pending)tasks.push([`Проверить автомобили: ${pending}`,'Очередь ожидает решения администратора','moderation','urgent']);
-    content.innerHTML = `${pageHead('Главная','Главные показатели и действия, которые требуют внимания')}<section class="dashboard-block"><div class="dashboard-block-head"><h3>Требуют внимания</h3><span>${tasks.length}</span></div>${tasks.length?tasks.map(t=>`<article class="dashboard-row dashboard-task ${t[3]}"><span><b>${esc(t[0])}</b><small>${esc(t[1])}</small></span><button type="button" data-dashboard-jump="${t[2]}">Перейти</button></article>`).join(''):empty('Сейчас обязательных действий нет.')}</section><div class="dashboard-stats">${stats}</div><div class="dashboard-quick-actions"><button type="button" data-dashboard-sell><b>+ Разместить автомобиль</b></button><button type="button" data-dashboard-jump="seller"><b>Управлять объявлениями</b></button><button type="button" data-dashboard-notifications><b>Настроить уведомления</b></button></div><section class="dashboard-block"><div class="dashboard-block-head"><h3>Последние результаты</h3></div>${recent.length ? recent.map((deal) => `<article class="dashboard-row"><span><b>${deal.status === "confirmed" ? "Покупка подтверждена" : "Предложение по аукциону"}</b><small>${rub(deal.amount)} · ${date(deal.created_at)}</small></span><em class="status ${deal.status}">${esc(deal.status === "confirmed" ? "Подтверждено" : deal.status === "awaiting_buyer" ? "Нужен ответ" : "Завершено")}</em></article>`).join("") : empty("Результаты появятся после участия в аукционе.")}</section>`;
+    const firstName=(state.data.profile?.name||window.vklucheAuth?.getUser?.()?.user_metadata?.name||'').split(/\s+/)[0];
+    content.innerHTML = `${pageHead(firstName?`Здравствуйте, ${firstName}`:'Главная','Здесь собраны ближайшие действия и главное по вашему аккаунту')}<section class="dashboard-block attention-block"><div class="dashboard-block-head"><div><h3>Требуют внимания</h3><small>Сначала выполните эти действия</small></div><span>${tasks.length}</span></div>${tasks.length?tasks.map(t=>`<article class="dashboard-row dashboard-task ${t[3]}"><span><b>${esc(t[0])}</b><small>${esc(t[1])}</small></span><button type="button" data-dashboard-jump="${t[2]}">Открыть</button></article>`).join(''):empty('Всё в порядке — обязательных действий сейчас нет.')}</section><div class="dashboard-quick-actions"><button type="button" data-dashboard-sell><i>＋</i><span><b>Разместить автомобиль</b><small>Создать новое объявление</small></span></button><button type="button" data-dashboard-jump="seller"><i>▤</i><span><b>Мои автомобили</b><small>Публикации и управление</small></span></button><button type="button" data-dashboard-jump="seller-auctions"><i>⚡</i><span><b>Мои аукционы</b><small>Торги и результаты</small></span></button>${state.role==='admin'?`<button type="button" data-dashboard-jump="admin-users"><i>♙</i><span><b>Пользователи</b><small>Доступы и компании</small></span></button>`:`<button type="button" data-dashboard-notifications><i>♢</i><span><b>Уведомления</b><small>Почта, Telegram и MAX</small></span></button>`}</div><div class="dashboard-stats">${stats}</div><section class="dashboard-block"><div class="dashboard-block-head"><div><h3>Последние результаты</h3><small>Недавние сделки и решения</small></div></div>${recent.length ? recent.map((deal) => `<article class="dashboard-row"><span><b>${deal.status === "confirmed" ? "Покупка подтверждена" : "Предложение по аукциону"}</b><small>${rub(deal.amount)} · ${date(deal.created_at)}</small></span><em class="status ${deal.status}">${esc(deal.status === "confirmed" ? "Подтверждено" : deal.status === "awaiting_buyer" ? "Нужен ответ" : "Завершено")}</em></article>`).join("") : empty("Результаты появятся после участия в аукционе.")}</section>`;
   }
   function renderBuyer() {
     const bids = state.data.bids || [],
