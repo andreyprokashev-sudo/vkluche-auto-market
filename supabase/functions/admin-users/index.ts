@@ -22,14 +22,15 @@ Deno.serve(async(req)=>{
     const page=Math.max(1,Math.min(1000,Number(body.page)||1)),perPage=Math.max(1,Math.min(100,Number(body.perPage)||100))
     const{data:userPage,error}=await admin.auth.admin.listUsers({page,perPage});if(error)return reply({error:error.message},500)
     const users=userPage.users||[],ids=users.map(user=>user.id)
-    const[profilesResult,membersResult,organizationsResult]=await Promise.all([
+    const[profilesResult,membersResult,organizationsResult,preferencesResult]=await Promise.all([
       ids.length?admin.from('profiles').select('id,name,phone,city,role,account_type,created_at').in('id',ids):Promise.resolve({data:[]}),
       ids.length?admin.from('organization_members').select('user_id,organization_id,member_role,active,organizations(name)').in('user_id',ids).eq('active',true):Promise.resolve({data:[]}),
-      admin.from('organizations').select('id,name,inn').order('name')
+      admin.from('organizations').select('id,name,inn').order('name'),
+      ids.length?admin.from('notification_preferences').select('user_id,max_enabled,max_chat_id,telegram_enabled,telegram_chat_id').in('user_id',ids):Promise.resolve({data:[]})
     ])
-    const profiles=new Map((profilesResult.data||[]).map((row:any)=>[row.id,row])),members=new Map<string,any[]>()
+    const profiles=new Map((profilesResult.data||[]).map((row:any)=>[row.id,row])),preferences=new Map((preferencesResult.data||[]).map((row:any)=>[row.user_id,row])),members=new Map<string,any[]>()
     for(const row of membersResult.data||[]){const list=members.get(row.user_id)||[];list.push(row);members.set(row.user_id,list)}
-    return reply({users:users.map(user=>{const profile=profiles.get(user.id)||{};return{id:user.id,email:user.email||'',name:profile.name||user.user_metadata?.name||'',phone:profile.phone||'',city:profile.city||'',role:profile.role||'user',account_type:profile.account_type||'private',created_at:user.created_at,last_sign_in_at:user.last_sign_in_at,email_confirmed_at:user.email_confirmed_at,banned_until:user.banned_until,organizations:members.get(user.id)||[]}}),organizations:organizationsResult.data||[],page,hasMore:users.length===perPage})
+    return reply({users:users.map(user=>{const profile=profiles.get(user.id)||{},prefs=preferences.get(user.id)||{};return{id:user.id,email:user.email||'',name:profile.name||user.user_metadata?.name||'',phone:profile.phone||'',city:profile.city||'',role:profile.role||'user',account_type:profile.account_type||'private',created_at:user.created_at,last_sign_in_at:user.last_sign_in_at,email_confirmed_at:user.email_confirmed_at,banned_until:user.banned_until,max_connected:Boolean(prefs.max_enabled&&prefs.max_chat_id),telegram_connected:Boolean(prefs.telegram_enabled&&prefs.telegram_chat_id),organizations:members.get(user.id)||[]}}),organizations:organizationsResult.data||[],page,hasMore:users.length===perPage})
   }
 
   const targetId=String(body.userId||'');if(!targetId)return reply({error:'user_required'},400)
