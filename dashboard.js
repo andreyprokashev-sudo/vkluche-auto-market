@@ -3,7 +3,7 @@
     content = document.querySelector("#dashboardContent"),
     menuToggle = document.querySelector("#dashboardMenuToggle");
   if (!tabs || !content) return;
-  let state = { role: "user", accountType: "private", active: "overview", listingFilter: "all", inventorySearch: "", adminUserSearch: "", adminUserFilter: "all", reportPeriod: "30", analyticsPeriod: "90", funnelPeriod: "90", data: {} };
+  let state = { role: "user", accountType: "private", active: "overview", listingFilter: "all", inventorySearch: "", adminUserSearch: "", adminUserFilter: "all", reportPeriod: "30", analyticsPeriod: "90", funnelPeriod: "90", data: {} }, deepLinkHandled=false;
   const esc = (value) =>
     String(value ?? "").replace(
       /[&<>'"]/g,
@@ -349,6 +349,18 @@
       state.data.unassignedFeeds = unassignedFeeds.data || [];
       state.data.supportTickets = supportTickets.data || [];
       state.data.helpEvents = helpEvents.data || [];
+    }
+    const params=new URLSearchParams(location.search),questionId=params.get('question');
+    if(questionId&&!deepLinkHandled){
+      deepLinkHandled=true;
+      state.active='questions';
+      render();
+      auth.open('profile');
+      const row=content.querySelector(`[data-question-row="${CSS.escape(questionId)}"]`);
+      if(row){row.scrollIntoView({behavior:'smooth',block:'center'});row.classList.add('unread');client.rpc('mark_auction_question_viewed',{p_question_id:questionId})}
+      else window.toast?.('Вопрос не найден или у вас нет доступа к нему');
+      history.replaceState({},'',`${location.pathname}${location.hash}`);
+      return;
     }
     render();
   }
