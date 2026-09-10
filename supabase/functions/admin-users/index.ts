@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const url=Deno.env.get('SUPABASE_URL')!,serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,anonKey=Deno.env.get('SUPABASE_ANON_KEY')!
 const admin=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}})
-const cors={'access-control-allow-origin':'*','access-control-allow-headers':'authorization,apikey,content-type','access-control-allow-methods':'POST,OPTIONS'}
+const cors={'access-control-allow-origin':'*','access-control-allow-headers':'authorization, apikey, content-type, x-client-info, x-supabase-api-version','access-control-allow-methods':'POST,OPTIONS'}
 const reply=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...cors,'content-type':'application/json; charset=utf-8'}})
 
 Deno.serve(async(req)=>{
@@ -60,4 +60,3 @@ Deno.serve(async(req)=>{
   }
   return reply({error:'unknown_action'},400)
 })
-
