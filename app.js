@@ -14,6 +14,7 @@ if(demoAuctionCar?.auction){demoAuctionCar.badge='Аукцион';demoAuctionCar
 const auctionOverrides=JSON.parse(localStorage.getItem('vkluche-auction-overrides')||'{}');cars.forEach(car=>{const savedAuction=auctionOverrides[car.id];if(savedAuction)Object.assign(car,savedAuction)});
 const remoteCatalogEnabled=Boolean(window.vklucheAuth?.isConfigured);if(remoteCatalogEnabled)for(let index=cars.length-1;index>=0;index--)if(Number.isInteger(cars[index].id)&&cars[index].id>=1&&cars[index].id<=8&&!cars[index].listingId)cars.splice(index,1);
 let catalogLoading=remoteCatalogEnabled,catalogLoadError='',activeFilter='all',saved=new Set(JSON.parse(localStorage.getItem('vkluche-favs')||'[]')),currentCar=null;
+window.vklucheCurrentCar=()=>currentCar;
 const grid=document.querySelector('#carsGrid'),count=document.querySelector('#resultCount'),empty=document.querySelector('#emptyState');
 const auctionGrid=document.querySelector('#auctionGrid'),auctionEmpty=document.querySelector('#auctionEmpty');
 const money=n=>new Intl.NumberFormat('ru-RU').format(n)+' ₽';
