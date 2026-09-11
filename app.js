@@ -399,7 +399,10 @@ function requestTimeout(ms){const controller=new AbortController();setTimeout(()
 async function loadRemoteListings(){
   const requestId=++remoteListingsRequest;
   const client=window.vklucheAuth?.getClient();if(!client){setTimeout(loadRemoteListings,500);return}
-  const{data,error}=await client.from('listings').select('id,owner_id,source_id,data,status,verification_status,verification_checks,vin,registration_plate,updated_at').eq('active',true).eq('status','published').order('updated_at',{ascending:false}).abortSignal(requestTimeout(15000));
+  // Manual listings may temporarily contain embedded photos/documents until
+  // they are moved to Storage. Do not discard the entire catalog on a slower
+  // connection while that larger payload is being downloaded.
+  const{data,error}=await client.from('listings').select('id,owner_id,source_id,data,status,verification_status,verification_checks,vin,registration_plate,updated_at').eq('active',true).eq('status','published').order('updated_at',{ascending:false}).abortSignal(requestTimeout(60000));
   if(error){if(requestId===remoteListingsRequest){console.warn(`Каталог Supabase пока недоступен: ${error.message}`);catalogLoading=false;catalogLoadError='Проверьте подключение к интернету и попробуйте ещё раз.';render()}return}
   const remoteCars=[...new Map(data.map(row=>[row.id,{...row.data,listingId:row.id,ownerId:row.owner_id,sourceId:row.source_id,updatedAt:row.updated_at,listingStatus:row.status,verificationStatus:row.verification_status,verificationChecks:row.verification_checks||{},details:{...(row.data.details||{}),vin:row.vin||row.data.details?.vin,registrationPlate:row.registration_plate||row.data.details?.registrationPlate}}])).values()];
   remoteCars.forEach(car=>{if(['automatic-feed','avito-feed'].includes(car.source)||car.date==='из фида'){car.date=publicCarDate(car);car.badge=publicCarBadge(car)}});
