@@ -63,6 +63,13 @@ function bodyPaintData(ad: Record<string, any>) {
   return { known: factoryPaint || paintMentioned, factoryPaint, paintedParts, source: 'feed', note: paintMentioned && !paintedParts.length ? 'Фид сообщает об окрашенных элементах, но не называет конкретные детали' : '' }
 }
 
+function vatData(ad: Record<string, any>) {
+  const structured = text(ad.VATIncluded || ad.VatIncluded || ad.PriceIncludesVAT || ad.VAT || ad.VatType || ad.Taxation)
+  const description = text(ad.Description)
+  const full = /^(?:1|true|yes|да|с ндс|ндс|20%|ндс 20%|включен|включено)$/i.test(structured) || /полный\s+ндс|ндс\s*20\s*%|ндс\s+выделяется|цена\s+(?:с|включает)\s+ндс/i.test(description)
+  return { full, rate: full ? 20 : null, included: full, source: 'feed' }
+}
+
 function mapAd(ad: Record<string, any>) {
   const externalId = text(ad.Id), brand = text(ad.Make), model = text(ad.Model)
   const price = number(ad.Price), year = number(ad.Year)
@@ -73,7 +80,7 @@ function mapAd(ad: Record<string, any>) {
   const identification = normalizeVehicleId(ad.VIN || ad.Vin)
   const city = text(ad.City || ad.Region) || 'Город не указан', address = text(ad.Address) || city
   const latitude = number(ad.Latitude), longitude = number(ad.Longitude)
-  const bodyPaint = bodyPaintData(ad)
+  const bodyPaint = bodyPaintData(ad), vat = vatData(ad)
   return {
     externalId,
     car: {
@@ -82,7 +89,7 @@ function mapAd(ad: Record<string, any>) {
       engine: volume ? `${volume} л / ${power || '—'} л.с.` : power ? `${power} л.с.` : 'Двигатель не указан',
       city, date: 'обновлено сегодня', type: [condition.includes('нов') ? 'new' : 'used', /внедорож|кроссов/i.test(body) ? 'suv' : '', /элект|electric|ev/i.test(engineType) ? 'electric' : ''].filter(Boolean),
       badge: 'В продаже', img: images[0] || 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1000&q=85',
-      details: { brand, model, generation: text(ad.Generation || ad.GenerationName || ad.GenerationId), modification: text(ad.Modification || ad.ModificationName || ad.ModificationId), trimName: text(ad.Complectation || ad.ComplectationName || ad.ComplectationId), body, doors: text(ad.Doors), seats: text(ad.Seats), steeringWheel: /прав/i.test(text(ad.SteeringWheel || ad.WheelType)) ? 'right' : text(ad.SteeringWheel || ad.WheelType) ? 'left' : '', condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), owners: text(ad.Owners), ptsType: text(ad.PTS || ad.PTSType || ad.PtsType), keysCount: text(ad.KeysCount), equipment, equipmentDataKnown: equipment.length > 0, equipmentSource: 'feed', bodyPaint, secondWheelSet: secondSetOption ? { known: true, included: true, type: /только.*шин|комплект шин/i.test(secondSetOption) ? 'tires' : 'wheels', season: /зим/i.test(secondSetOption) ? 'Зимние' : /лет/i.test(secondSetOption) ? 'Летние' : '', size: '', condition: '' } : { known: false, included: false }, description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), vin: identification.vin, identificationNumber: identification.vin ? '' : identification.raw, identificationType: identification.raw && !identification.vin ? 'body_or_frame' : 'vin', images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
+      details: { brand, model, generation: text(ad.Generation || ad.GenerationName || ad.GenerationId), modification: text(ad.Modification || ad.ModificationName || ad.ModificationId), trimName: text(ad.Complectation || ad.ComplectationName || ad.ComplectationId), body, doors: text(ad.Doors), seats: text(ad.Seats), steeringWheel: /прав/i.test(text(ad.SteeringWheel || ad.WheelType)) ? 'right' : text(ad.SteeringWheel || ad.WheelType) ? 'left' : '', condition, engineType, gearbox: text(ad.Transmission), drive: text(ad.DriveType), color: text(ad.Color), owners: text(ad.Owners), ptsType: text(ad.PTS || ad.PTSType || ad.PtsType), keysCount: text(ad.KeysCount), equipment, equipmentDataKnown: equipment.length > 0, equipmentSource: 'feed', vat, bodyPaint, secondWheelSet: secondSetOption ? { known: true, included: true, type: /только.*шин|комплект шин/i.test(secondSetOption) ? 'tires' : 'wheels', season: /зим/i.test(secondSetOption) ? 'Зимние' : /лет/i.test(secondSetOption) ? 'Летние' : '', size: '', condition: '' } : { known: false, included: false }, description: text(ad.Description), seller: text(ad.ManagerName || ad.ContactName), phone: text(ad.ContactPhone), vin: identification.vin, identificationNumber: identification.vin ? '' : identification.raw, identificationType: identification.raw && !identification.vin ? 'body_or_frame' : 'vin', images, location: { address, latitude: latitude || null, longitude: longitude || null, precision: 'exact' } }
     }
   }
 }

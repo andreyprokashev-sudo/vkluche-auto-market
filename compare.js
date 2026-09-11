@@ -152,6 +152,7 @@
       ["Страна производства", (c) => [c.details?.manufactureCountry,c.details?.plantCity].filter(Boolean).join(" · ") || "Нет данных"],
       ["Второй комплект", (c) => secondSetLabel(c)],
       ["Финансовый статус", (c) => financialStatusLabel(c)],
+      ["НДС", (c) => c.details?.vat?.full ? "Полный НДС 20% · включён в цену" : "Не указан"],
       ["Безопасность", (c) => equipmentGroups(c)["Безопасность"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
       ["Помощь водителю", (c) => equipmentGroups(c)["Помощь водителю"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
       ["Комфорт", (c) => equipmentGroups(c)["Комфорт"]?.join(", ") || (c.details?.equipmentDataKnown ? "—" : "Нет данных")],
