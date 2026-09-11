@@ -1,5 +1,5 @@
 (function () {
-  if (!window.L) return;
+  const leafletAvailable = Boolean(window.L);
   const addressInput = document.querySelector("#listingAddress"),
     latitudeInput = document.querySelector("#listingLatitude"),
     longitudeInput = document.querySelector("#listingLongitude"),
@@ -20,6 +20,12 @@
     status.style.color = error ? "#b42318" : "";
   };
   function ensureListingMap() {
+    if (!leafletAvailable) {
+      const element=document.querySelector('#listingLocationMap');
+      element.classList.add('map-unavailable');
+      element.textContent='Карта временно недоступна. Введите город и адрес вручную — это не помешает публикации.';
+      return null;
+    }
     if (!listingMap) {
       listingMap = L.map("listingLocationMap", { scrollWheelZoom: false }).setView([55.751244, 37.618423], 9);
       tiles(listingMap);
@@ -29,9 +35,14 @@
     return listingMap;
   }
   function setPoint(lat, lon, reverse = false) {
-    ensureListingMap();
+    const map=ensureListingMap();
     latitudeInput.value = Number(lat).toFixed(6);
     longitudeInput.value = Number(lon).toFixed(6);
+    if (!map) {
+      setStatus("Координаты получены. Адрес можно уточнить вручную");
+      if (reverse) reverseGeocode(lat, lon);
+      return;
+    }
     if (!listingMarker) {
       listingMarker = L.marker([lat, lon], { draggable: true }).addTo(listingMap);
       listingMarker.on("dragend", () => {
@@ -65,7 +76,7 @@
     results.classList.remove("open");
     try {
       const rows = await nominatim("search", { q: [city, value].filter(Boolean).join(", "), addressdetails: "1", limit: "5" });
-      if (!rows.length) return setStatus("Адрес не найден. Уточните улицу и дом или поставьте точку вручную.", true);
+      if (!rows.length) return setStatus("Адрес не найден автоматически. Оставьте введённый адрес — с выбранным городом его можно сохранить без карты.", true);
       results.innerHTML = "";
       rows.forEach((row) => {
         const button = document.createElement("button");
@@ -82,7 +93,7 @@
       results.classList.add("open");
       setStatus("Выберите подходящий адрес из списка");
     } catch (error) {
-      if (error.name !== "AbortError") setStatus(error.message, true);
+      if (error.name !== "AbortError") setStatus("Поиск адреса временно недоступен. Введённый вручную адрес можно сохранить без карты.", true);
     }
   }
   async function reverseGeocode(lat, lon) {
@@ -122,7 +133,11 @@
     },
     valid() {
       if (hasCoordinates()) return true;
-      setStatus("Найдите адрес или поставьте точку на карте", true);
+      if (citySelect.value && addressInput.value.trim().length >= 3) {
+        setStatus("Адрес сохранён без метки на карте");
+        return true;
+      }
+      setStatus("Укажите город и адрес осмотра", true);
       ensureListingMap();
       return false;
     },
@@ -130,7 +145,7 @@
       const location = car?.details?.location || {}, exact = location.precision === "exact";
       document.querySelector("#mapAddress").textContent = location.address ? (exact ? location.address : `Примерный район · ${car.city}`) : "Точное место уточняйте у продавца";
       const element = document.querySelector("#detailLocationMap");
-      if (!location.latitude || !location.longitude) {
+      if (!leafletAvailable || !location.latitude || !location.longitude) {
         element.style.display = "none";
         return;
       }

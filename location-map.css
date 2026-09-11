@@ -12,6 +12,7 @@
 .address-results button{padding:9px;border:0;border-radius:8px;background:#fff;color:#344054;text-align:left;font-size:10px;line-height:1.4;cursor:pointer}
 .address-results button:hover{background:#f1f5fb}
 .listing-location-map,.detail-location-map{height:230px;border:1px solid var(--line);border-radius:13px;background:#e9edf3;overflow:hidden}
+.listing-location-map.map-unavailable{display:grid;place-items:center;padding:24px;color:#667085;font-size:12px;line-height:1.5;text-align:center}
 .location-privacy{margin-top:12px}
 .detail-location-copy{display:grid;gap:4px;margin-bottom:12px}
 .detail-location-copy b{font-size:14px}
