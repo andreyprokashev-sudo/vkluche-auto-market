@@ -60,7 +60,7 @@
       dealActions=(state.data.deals||[]).filter(deal=>deal.status==='awaiting_buyer'||(deal.status==='confirmed'&&!['completed','cancelled'].includes(deal.workflow_stage))).length;
     const result = [
       ["main", "Главная", [["overview", "Обзор"],["messages", "Сообщения"],["reports", "Отчёты"]],"⌂"],
-      ["buy", "Покупки", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["favorites", "Избранное"],["searches", "Сохранённые поиски"]],"↓"],
+      ["buy", "Покупки", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["my-credit", "Кредитные заявки"],["favorites", "Избранное"],["searches", "Сохранённые поиски"]],"↓"],
       ["sell", "Продажи", [["seller", "Мои автомобили"],["seller-auctions", "Мои аукционы"],["questions", "Вопросы покупателей",unanswered]],"↑"],
     ];
     if (state.accountType === "professional" || state.role === "admin") {
@@ -134,6 +134,7 @@
         : empty("Сделайте ставку на интересующий автомобиль.")
     }</section><section class="dashboard-block"><div class="dashboard-block-head"><h3>Результаты</h3></div>${deals.length ? deals.map((deal) => `<article class="dashboard-row" data-dashboard-jump="deals"><span><b>${rub(deal.amount)}</b><small>${esc(deal.status === "awaiting_buyer" ? "Требуется ваше подтверждение" : dealStageLabels[deal.workflow_stage] || "Результат зафиксирован")}</small></span><em class="status ${deal.status}">${esc(deal.status === "awaiting_buyer" ? "Нужен ответ" : deal.status === "confirmed" ? "В работе" : deal.status === "declined" ? "Отказ" : "Завершено")}</em></article>`).join("") : empty("Здесь появятся выбранные продавцами предложения.")}</section>`;
   }
+  function renderMyCredit(){const rows=state.data.myCreditApplications||[],labels={new:'Заявка получена',contacted:'Специалист связался',documents:'Ожидаются документы',sent_to_partner:'Передана партнёру',approved:'Предварительно одобрена',declined:'Получен отказ',completed:'Сделка завершена'};content.innerHTML=`${pageHead('Мои кредитные заявки','Статус предварительных расчётов и обращений')}<section class="dashboard-block">${rows.map(row=>`<article class="credit-application-row"><div><b>${esc(row.vehicle_name)}</b><small>Цена ${rub(row.vehicle_price)} · взнос ${rub(row.down_payment)} · ${row.term_months} мес.</small><small>Ориентировочный платёж ${rub(row.estimated_monthly_payment)} · ${row.interest_rate}%</small><small>Отправлена ${date(row.created_at)}</small></div><em class="status ${row.status}">${esc(labels[row.status]||row.status)}</em></article>`).join('')||empty('Вы ещё не отправляли заявок. Рассчитать кредит можно в карточке автомобиля.')}</section>`}
   function renderDeals(){
     const rows=state.data.deals||[],userId=window.vklucheAuth?.getUser?.()?.id;
     const card=deal=>{const listing=deal.auction?.listings,stage=deal.workflow_stage||'confirmation',index=dealStages.indexOf(stage),isBuyer=deal.buyer_id===userId,isSeller=deal.seller_id===userId||state.role==='admin',next={inspection:'documents',documents:'settlement',settlement:'handover',handover:'completed'}[stage],responsible=stage==='inspection'||stage==='documents'?'Продавец':stage==='settlement'||stage==='handover'?'Покупатель':'—',canAdvance=next&&((['inspection','documents'].includes(stage)&&isSeller)||(['settlement','handover'].includes(stage)&&isBuyer)||state.role==='admin'),deadline=deal.stage_deadline?new Date(deal.stage_deadline).toLocaleString('ru-RU'):'не установлен',events=[...(deal.auction_deal_events||[])].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));return`<article class="deal-workflow-card" data-deal-card="${deal.id}"><header>${carImage(listing)?`<img src="${esc(carImage(listing))}" alt="">`:''}<span><small>Сделка по результатам аукциона</small><b>${esc(carName(listing))}</b><strong>${rub(deal.amount)}</strong></span><em>${esc(deal.status==='awaiting_buyer'?'Ожидает ответа':dealStageLabels[stage]||'Завершено')}</em></header>${deal.status==='confirmed'?`<ol class="deal-progress">${dealStages.map((item,i)=>`<li class="${i<index?'done':i===index?'current':''}"><i>${i<index?'✓':i+1}</i><span>${dealStageLabels[item]}</span></li>`).join('')}</ol><div class="deal-next"><span><small>Следующее действие</small><b>${next?`Перейти к этапу «${dealStageLabels[next]}»`:'Сделка завершена'}</b></span><span><small>Ответственный</small><b>${responsible}</b></span><span><small>Срок</small><b>${deadline}</b></span></div>`:''}<div class="deal-workflow-actions">${deal.status==='awaiting_buyer'&&isBuyer?`<button class="primary" data-dashboard-deal-response="true" data-deal-id="${deal.id}">Подтвердить покупку</button><button data-dashboard-deal-response="false" data-deal-id="${deal.id}">Отказаться</button>`:''}${canAdvance?`<button class="primary" data-advance-deal="${deal.id}" data-next-stage="${next}">${next==='completed'?'Подтвердить получение автомобиля':`Этап «${dealStageLabels[next]}»`}</button>`:''}${listing?`<button data-deal-open-listing="${deal.auction?.listing_id||''}">Открыть автомобиль</button>`:''}${deal.status==='confirmed'&&!['completed','cancelled'].includes(stage)?`<button class="danger" data-cancel-deal="${deal.id}">Отменить сделку</button>`:''}</div><details><summary>История сделки · ${events.length}</summary>${events.length?`<ol class="deal-event-list">${events.map(item=>`<li><span><b>${esc(item.action==='cancelled'?'Сделка отменена':item.action==='confirmed'?'Покупка подтверждена':`Этап: ${dealStageLabels[item.to_stage]||item.to_stage}`)}</b>${item.note?`<small>${esc(item.note)}</small>`:''}</span><time>${new Date(item.created_at).toLocaleString('ru-RU')}</time></li>`).join('')}</ol>`:empty('История появится после первого действия.')}</details></article>`};
@@ -259,6 +260,7 @@
         "market-analytics": renderMarketAnalytics,
         "business-analytics": renderBusinessAnalytics,
         "business-integrations": renderBusinessIntegrations,
+        "my-credit": renderMyCredit,
         settings: renderSettings,
         moderation: renderModeration,
         "credit-applications": renderCreditApplications,
@@ -277,7 +279,7 @@
     state.accountType = auth.getAccountType?.() || "private";
     content.innerHTML =
       '<div class="dashboard-loading">Загружаем данные кабинета…</div>';
-    const [bids, deals, searches, favorites, profile, preferences] = await Promise.all([
+    const [bids, deals, searches, favorites, profile, preferences, myCreditApplications] = await Promise.all([
       client
         .from("auction_bids")
         .select(
@@ -299,6 +301,7 @@
         .order("created_at", { ascending: false }),
       client.from("profiles").select("name,phone,city,account_type").eq("id",user.id).maybeSingle(),
       client.from("notification_preferences").select("email_enabled,telegram_enabled,telegram_chat_id,max_enabled,max_chat_id").eq("user_id",user.id).maybeSingle(),
+      client.from("credit_applications").select("id,vehicle_name,vehicle_price,down_payment,term_months,interest_rate,estimated_monthly_payment,status,created_at,updated_at").eq("user_id",user.id).order("created_at",{ascending:false}),
     ]);
     state.data = {
       bids: bids.data || [],
@@ -307,6 +310,7 @@
       favorites: favorites.data || [],
       profile: profile.data || {},
       notificationPreferences: preferences.data || {},
+      myCreditApplications: myCreditApplications.data || [],
     };
     {
       const questionQuery=client.from("auction_questions").select("id,auction_id,author_id,question,answer,created_at,viewed_at,answered_at,auctions!inner(id,listing_id,seller_id,listings(data))").order("created_at",{ascending:false});
