@@ -935,16 +935,23 @@
         "One:1",
         "Regera"
     ],
-    "Lada": [
+    "LADA": [
         "110",
         "111",
         "112",
+        "4x4",
+        "Aura",
         "Granta",
         "Kalina",
+        "Largus",
         "Niva",
+        "Niva Legend",
+        "Niva Travel",
+        "Priora",
         "Riva",
         "Samara",
-        "Vesta"
+        "Vesta",
+        "XRAY"
     ],
     "Lamborghini": [
         "Aventador",
@@ -1305,6 +1312,7 @@
         "Skyline",
         "Stanza",
         "Sunny",
+        "Teana",
         "Terrano",
         "Tiida",
         "Titan",
