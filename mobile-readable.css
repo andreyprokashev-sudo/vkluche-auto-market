@@ -1,0 +1,131 @@
+/* Mobile readability baseline. Keep compact two-column catalog cards, but never
+   make users zoom to read details, forms, auctions or the personal cabinet. */
+@media (max-width: 700px) {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { font-size: 16px; line-height: 1.5; }
+
+  :is(input, select, textarea) { font-size: 16px !important; }
+  :is(button, a, summary) { touch-action: manipulation; }
+
+  /* Header and navigation */
+  .nav-links a,
+  .mobile-nav-actions button,
+  .more-nav summary,
+  .more-nav button { font-size: 15px; }
+
+  /* Catalog remains two cards per row, with a readable compact type scale. */
+  .car-content { padding: 12px 11px 13px; }
+  .car-content h3 { margin-bottom: 7px; font-size: 14px; line-height: 1.3; }
+  .price { font-size: 16px; line-height: 1.25; }
+  .car-meta { gap: 5px 8px; margin: 10px 0; font-size: 12px; line-height: 1.35; }
+  .car-location { gap: 5px; padding-top: 9px; font-size: 11px; line-height: 1.35; }
+  .badge { left: 8px; top: 8px; padding: 5px 7px; font-size: 10px; }
+  .catalog-brand-bar button,
+  .filter-toggle,
+  .filter-reset,
+  .save-search-btn,
+  .load-more { min-height: 44px; font-size: 14px; }
+  .filter-panel label,
+  .multi-dropdown-menu label,
+  .filter-summary,
+  .filter-caption { font-size: 14px !important; line-height: 1.4; }
+
+  /* Vehicle details */
+  .detail-back { min-height: 44px; font-size: 15px; }
+  .detail-top > div button { min-width: 44px; min-height: 44px; }
+  .gallery-main { height: min(72vw, 330px); }
+  .mobile-price { padding: 18px 16px 8px; font-size: 25px; line-height: 1.25; }
+  .detail-headline-facts { padding-inline: 16px; }
+  .detail-headline-facts span { font-size: 13px !important; line-height: 1.35; }
+  .detail-section { padding: 22px 16px; }
+  .detail-section h2 { margin-bottom: 17px; font-size: 21px; line-height: 1.3; }
+  .spec { gap: 14px; min-height: 36px; padding-bottom: 10px; font-size: 14px; line-height: 1.4; }
+  .spec span { flex: 0 1 48%; }
+  .spec b { flex: 1; text-align: right; }
+  .description { font-size: 15px; line-height: 1.7; }
+  .detail-location-copy b { font-size: 16px; }
+  .detail-location-copy span { font-size: 14px; }
+  .seller-profile-link b,
+  .vehicle-document b { font-size: 14px; }
+  .seller-profile-link small,
+  .vehicle-document small { font-size: 12px; line-height: 1.4; }
+  .body-paint-head p,
+  .body-paint-legend,
+  .body-paint-summary span { font-size: 12px; line-height: 1.4; }
+  .body-paint-parts-list button span { font-size: 12px; }
+  .mobile-detail-actions button { font-size: 15px; }
+
+  /* Auctions and marketplace tools */
+  .auction-tabs button { min-height: 44px; font-size: 13px !important; }
+  .auction-card-body h3 { font-size: 16px !important; line-height: 1.35; }
+  .auction-card-body :is(p, span, small, li),
+  .auction-box :is(p, span, small, li),
+  .auction-stats :is(span, small) { font-size: 12px; line-height: 1.45; }
+  .auction-card-body button,
+  .auction-box button { font-size: 14px !important; }
+  .participant-score span,
+  .participant-facts small,
+  .participant-privacy,
+  .participant-card form label,
+  .participant-actions button { font-size: 13px; }
+  .participant-facts b { font-size: 14px; }
+
+  /* Forms and all modal dialogs */
+  .modal-card { width: calc(100% - 20px); padding: 27px 18px 22px; }
+  .modal-card h2 { padding-right: 26px; font-size: 25px; line-height: 1.25; }
+  .modal-card p,
+  .modal-card label,
+  .listing-card label,
+  .wizard-step > p,
+  .photo-tip,
+  .document-preview > div { font-size: 14px; line-height: 1.5; }
+  .wizard-step h3,
+  .publish-success h3 { font-size: 21px; }
+  .draft-status,
+  .price-field > span,
+  .photo-upload small,
+  .document-upload small { font-size: 12px; line-height: 1.4; }
+  .photo-upload b,
+  .document-upload span { font-size: 14px; }
+  .wizard-actions :is(button, span),
+  .modal-card button[type="submit"] { font-size: 14px; }
+  .wizard-actions button,
+  .modal-card button[type="submit"] { min-height: 46px; }
+
+  /* Help and notifications */
+  .help-search { font-size: 16px; }
+  .help-role,
+  .help-route small,
+  .help-article-link small,
+  .help-article-back,
+  .help-article-note,
+  .tour-actions button,
+  .help-new-badge { font-size: 12px; }
+  .help-section h3,
+  .help-route b,
+  .help-article-link b,
+  .tour-card b { font-size: 15px; }
+  .help-article > p,
+  .help-article ol,
+  .tour-card p,
+  .help-empty { font-size: 14px; line-height: 1.55; }
+  .help-article-action { min-height: 46px; font-size: 14px; }
+  .notification-item b { font-size: 14px !important; }
+  .notification-item :is(span, small) { font-size: 12px !important; line-height: 1.45; }
+
+  /* Auxiliary cards */
+  .company-feed-card > div > b { font-size: 15px; }
+  .company-feed-card :is(small, p, button),
+  .compare-heading label,
+  .replace-compare-card > p,
+  .replace-compare-card b,
+  .replace-compare-card small { font-size: 13px; line-height: 1.45; }
+}
+
+@media (max-width: 380px) {
+  .cars-grid { gap: 7px; }
+  .car-content { padding-inline: 9px; }
+  .car-content h3 { font-size: 13px; }
+  .price { font-size: 15px; }
+  .car-meta { font-size: 11px; }
+}
