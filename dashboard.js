@@ -360,7 +360,15 @@
       state.data.helpEvents = helpEvents.data || [];
       state.data.creditApplications = creditApplications.data || [];
     }
-    const params=new URLSearchParams(location.search),questionId=params.get('question');
+    const params=new URLSearchParams(location.search),questionId=params.get('question'),cabinet=params.get('cabinet');
+    if(cabinet==='my-credit'&&!deepLinkHandled){
+      deepLinkHandled=true;
+      state.active='my-credit';
+      render();
+      auth.open('profile');
+      history.replaceState({},'',`${location.pathname}${location.hash}`);
+      return;
+    }
     if(questionId&&!deepLinkHandled){
       deepLinkHandled=true;
       state.active='questions';
