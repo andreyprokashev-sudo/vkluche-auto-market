@@ -60,8 +60,8 @@
       dealActions=(state.data.deals||[]).filter(deal=>deal.status==='awaiting_buyer'||(deal.status==='confirmed'&&!['completed','cancelled'].includes(deal.workflow_stage))).length;
     const result = [
       ["main", "Главная", [["overview", "Обзор"],["messages", "Сообщения"],["reports", "Отчёты"]],"⌂"],
-      ["buy", "Покупки", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["my-viewings", "Мои осмотры"],["my-credit", "Кредитные заявки"],["my-trade-in", "Оценка и trade-in"],["favorites", "Избранное"],["searches", "Сохранённые поиски"]],"↓"],
-      ["sell", "Продажи", [["seller", "Мои автомобили"],["seller-auctions", "Мои аукционы"],["seller-viewings", "Записи на осмотр",(state.data.sellerViewings||[]).filter(item=>item.status==='requested').length],["questions", "Вопросы покупателей",unanswered]],"↑"],
+      ["buy", "Покупки", [["buyer", "Мои ставки"],["deals", "Сделки",dealActions],["my-reservations", "Мои бронирования"],["my-viewings", "Мои осмотры"],["my-credit", "Кредитные заявки"],["my-trade-in", "Оценка и trade-in"],["favorites", "Избранное"],["searches", "Сохранённые поиски"]],"↓"],
+      ["sell", "Продажи", [["seller", "Мои автомобили"],["seller-auctions", "Мои аукционы"],["seller-reservations", "Запросы на бронь",(state.data.sellerReservations||[]).filter(item=>item.status==='requested').length],["seller-viewings", "Записи на осмотр",(state.data.sellerViewings||[]).filter(item=>item.status==='requested').length],["questions", "Вопросы покупателей",unanswered]],"↑"],
     ];
     if (state.accountType === "professional" || state.role === "admin") {
       const companyTabs=[["business", "Обзор компании"],["business-inventory", "Склад"],["inventory-recommendations", "Рекомендации"],["business-auctions", "Массовые торги"],["business-feeds", "Фиды"],["business-team", "Филиалы и сотрудники"],["market-analytics", "Оценка цены"],["participant-funnel", "Воронка участников"]];
@@ -69,7 +69,7 @@
       result.push(["company", "Компания", companyTabs,"▣"]);
     }
     result.push(["account", "Настройки", [["settings", "Профиль и аккаунт"]],"⚙"]);
-    if (state.role === "admin") result.push(["administration", "Управление порталом", [["moderation", "Очередь модерации",moderation],["all-viewings", "Записи на осмотр",(state.data.allViewings||[]).filter(item=>item.status==='requested').length],["credit-applications", "Кредитные заявки",(state.data.creditApplications||[]).filter(item=>item.status==='new').length],["trade-in-requests", "Заявки trade-in",(state.data.tradeInRequests||[]).filter(item=>item.status==='new').length],["admin-users", "Пользователи"],["admin", "Система"]],"◆"]);
+    if (state.role === "admin") result.push(["administration", "Управление порталом", [["moderation", "Очередь модерации",moderation],["all-reservations", "Все бронирования",(state.data.allReservations||[]).filter(item=>item.status==='requested').length],["all-viewings", "Записи на осмотр",(state.data.allViewings||[]).filter(item=>item.status==='requested').length],["credit-applications", "Кредитные заявки",(state.data.creditApplications||[]).filter(item=>item.status==='new').length],["trade-in-requests", "Заявки trade-in",(state.data.tradeInRequests||[]).filter(item=>item.status==='new').length],["admin-users", "Пользователи"],["admin", "Система"]],"◆"]);
     return result;
   }
   function renderTabs() {
@@ -142,6 +142,11 @@
   function renderMyViewings(){const rows=state.data.myViewings||[];content.innerHTML=`${pageHead('Мои осмотры','Запросы на просмотр выбранных автомобилей')}<section class="dashboard-block">${viewingRows(rows)||empty('Записаться на осмотр можно в карточке опубликованного автомобиля.')}</section>`}
   function renderSellerViewings(){const rows=state.data.sellerViewings||[];content.innerHTML=`${pageHead('Записи на осмотр','Подтвердите встречу или предложите покупателю другое время')}<section class="dashboard-block">${viewingRows(rows,true)||empty('Новых запросов на осмотр пока нет.')}</section>`}
   function renderAllViewings(){const rows=state.data.allViewings||[];content.innerHTML=`${pageHead('Записи на осмотр','Общая очередь встреч покупателей с продавцами')}<section class="dashboard-block">${viewingRows(rows,true)||empty('Запросов на осмотр пока нет.')}</section>`}
+  const reservationLabels={requested:'Ожидает продавца',confirmed:'Забронирован',rejected:'Отклонён',cancelled:'Отменён',expired:'Истёк'},reservationActive=row=>row.status==='confirmed'&&row.expires_at&&new Date(row.expires_at)>new Date();
+  function reservationRows(rows,manage=false){return rows.map(row=>`<article class="reservation-row"><div><b>${esc(row.listings?.data?.name||'Автомобиль')}</b><small>Запрошено: ${row.requested_hours} ч. · ${esc(row.phone)}</small>${row.comment?`<small>${esc(row.comment)}</small>`:''}${reservationActive(row)?`<strong>Бронь до ${new Date(row.expires_at).toLocaleString('ru-RU')}</strong>`:''}</div>${manage&&row.status==='requested'?`<div class="reservation-actions"><button class="accept" data-reservation-response="true" data-reservation-id="${row.id}">Подтвердить</button><button class="reject" data-reservation-response="false" data-reservation-id="${row.id}">Отклонить</button></div>`:`<em class="status ${row.status}">${esc(reservationActive(row)?reservationLabels.confirmed:row.status==='confirmed'?'Истёк':reservationLabels[row.status]||row.status)}</em>`}</article>`).join('')}
+  function renderMyReservations(){const rows=state.data.myReservations||[];content.innerHTML=`${pageHead('Мои бронирования','Запросы на временное резервирование автомобилей без оплаты')}<section class="dashboard-block">${reservationRows(rows)||empty('Запросить бронь можно в карточке опубликованного автомобиля.')}</section>`}
+  function renderSellerReservations(){const rows=state.data.sellerReservations||[];content.innerHTML=`${pageHead('Запросы на бронь','Подтверждайте только один актуальный запрос на автомобиль')}<div class="market-note"><b>Без онлайн-оплаты</b><span>Подтверждение временно резервирует автомобиль, но не является договором или подтверждением получения денег.</span></div><section class="dashboard-block">${reservationRows(rows,true)||empty('Запросов на бронирование пока нет.')}</section>`}
+  function renderAllReservations(){const rows=state.data.allReservations||[];content.innerHTML=`${pageHead('Все бронирования','Контроль запросов и активных броней площадки')}<section class="dashboard-block">${reservationRows(rows,true)||empty('Бронирований пока нет.')}</section>`}
   function renderDeals(){
     const rows=state.data.deals||[],userId=window.vklucheAuth?.getUser?.()?.id;
     const card=deal=>{const listing=deal.auction?.listings,stage=deal.workflow_stage||'confirmation',index=dealStages.indexOf(stage),isBuyer=deal.buyer_id===userId,isSeller=deal.seller_id===userId||state.role==='admin',next={inspection:'documents',documents:'settlement',settlement:'handover',handover:'completed'}[stage],responsible=stage==='inspection'||stage==='documents'?'Продавец':stage==='settlement'||stage==='handover'?'Покупатель':'—',canAdvance=next&&((['inspection','documents'].includes(stage)&&isSeller)||(['settlement','handover'].includes(stage)&&isBuyer)||state.role==='admin'),deadline=deal.stage_deadline?new Date(deal.stage_deadline).toLocaleString('ru-RU'):'не установлен',events=[...(deal.auction_deal_events||[])].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));return`<article class="deal-workflow-card" data-deal-card="${deal.id}"><header>${carImage(listing)?`<img src="${esc(carImage(listing))}" alt="">`:''}<span><small>Сделка по результатам аукциона</small><b>${esc(carName(listing))}</b><strong>${rub(deal.amount)}</strong></span><em>${esc(deal.status==='awaiting_buyer'?'Ожидает ответа':dealStageLabels[stage]||'Завершено')}</em></header>${deal.status==='confirmed'?`<ol class="deal-progress">${dealStages.map((item,i)=>`<li class="${i<index?'done':i===index?'current':''}"><i>${i<index?'✓':i+1}</i><span>${dealStageLabels[item]}</span></li>`).join('')}</ol><div class="deal-next"><span><small>Следующее действие</small><b>${next?`Перейти к этапу «${dealStageLabels[next]}»`:'Сделка завершена'}</b></span><span><small>Ответственный</small><b>${responsible}</b></span><span><small>Срок</small><b>${deadline}</b></span></div>`:''}<div class="deal-workflow-actions">${deal.status==='awaiting_buyer'&&isBuyer?`<button class="primary" data-dashboard-deal-response="true" data-deal-id="${deal.id}">Подтвердить покупку</button><button data-dashboard-deal-response="false" data-deal-id="${deal.id}">Отказаться</button>`:''}${canAdvance?`<button class="primary" data-advance-deal="${deal.id}" data-next-stage="${next}">${next==='completed'?'Подтвердить получение автомобиля':`Этап «${dealStageLabels[next]}»`}</button>`:''}${listing?`<button data-deal-open-listing="${deal.auction?.listing_id||''}">Открыть автомобиль</button>`:''}${deal.status==='confirmed'&&!['completed','cancelled'].includes(stage)?`<button class="danger" data-cancel-deal="${deal.id}">Отменить сделку</button>`:''}</div><details><summary>История сделки · ${events.length}</summary>${events.length?`<ol class="deal-event-list">${events.map(item=>`<li><span><b>${esc(item.action==='cancelled'?'Сделка отменена':item.action==='confirmed'?'Покупка подтверждена':`Этап: ${dealStageLabels[item.to_stage]||item.to_stage}`)}</b>${item.note?`<small>${esc(item.note)}</small>`:''}</span><time>${new Date(item.created_at).toLocaleString('ru-RU')}</time></li>`).join('')}</ol>`:empty('История появится после первого действия.')}</details></article>`};
@@ -272,6 +277,9 @@
         "my-trade-in": renderMyTradeIn,
         "my-viewings": renderMyViewings,
         "seller-viewings": renderSellerViewings,
+        "my-reservations": renderMyReservations,
+        "seller-reservations": renderSellerReservations,
+        "all-reservations": renderAllReservations,
         settings: renderSettings,
         moderation: renderModeration,
         "credit-applications": renderCreditApplications,
@@ -292,7 +300,7 @@
     state.accountType = auth.getAccountType?.() || "private";
     content.innerHTML =
       '<div class="dashboard-loading">Загружаем данные кабинета…</div>';
-    const [bids, deals, searches, favorites, profile, preferences, myCreditApplications, myTradeInRequests, viewingRequests] = await Promise.all([
+    const [bids, deals, searches, favorites, profile, preferences, myCreditApplications, myTradeInRequests, viewingRequests, reservations] = await Promise.all([
       client
         .from("auction_bids")
         .select(
@@ -317,6 +325,7 @@
       client.from("credit_applications").select("id,vehicle_name,vehicle_price,down_payment,term_months,interest_rate,estimated_monthly_payment,status,created_at,updated_at").eq("user_id",user.id).order("created_at",{ascending:false}),
       client.from("trade_in_requests").select("*").eq("user_id",user.id).order("created_at",{ascending:false}),
       client.from("vehicle_viewing_requests").select("*,listings(data)").order("created_at",{ascending:false}),
+      client.from("listing_reservations").select("*,listings(data)").order("created_at",{ascending:false}),
     ]);
     state.data = {
       bids: bids.data || [],
@@ -330,6 +339,9 @@
       myViewings: (viewingRequests.data||[]).filter(item=>item.user_id===user.id),
       sellerViewings: (viewingRequests.data||[]).filter(item=>item.seller_id===user.id),
       allViewings: state.role==='admin'?(viewingRequests.data||[]):[],
+      myReservations: (reservations.data||[]).filter(item=>item.buyer_id===user.id),
+      sellerReservations: (reservations.data||[]).filter(item=>item.seller_id===user.id),
+      allReservations: state.role==='admin'?(reservations.data||[]):[],
     };
     {
       const questionQuery=client.from("auction_questions").select("id,auction_id,author_id,question,answer,created_at,viewed_at,answered_at,auctions!inner(id,listing_id,seller_id,listings(data))").order("created_at",{ascending:false});
@@ -569,6 +581,7 @@
   content.addEventListener("change",async event=>{const select=event.target.closest("[data-credit-status]");if(!select)return;select.disabled=true;const{error}=await window.vklucheAuth.getClient().from("credit_applications").update({status:select.value,updated_at:new Date().toISOString()}).eq("id",select.dataset.creditStatus);select.disabled=false;if(error)return window.toast?.(error.message);const row=(state.data.creditApplications||[]).find(item=>item.id===select.dataset.creditStatus);if(row)row.status=select.value;renderTabs();window.toast?.("Статус кредитной заявки обновлён")});
   content.addEventListener("change",async event=>{const status=event.target.closest("[data-trade-in-status]"),price=event.target.closest("[data-trade-in-price]");if(!status&&!price)return;const input=status||price,id=input.dataset.tradeInStatus||input.dataset.tradeInPrice,row=(state.data.tradeInRequests||[]).find(item=>item.id===id),payload={updated_at:new Date().toISOString()};if(status)payload.status=status.value;if(price)payload.estimated_price=price.value===''?null:+price.value;input.disabled=true;const{error}=await window.vklucheAuth.getClient().from("trade_in_requests").update(payload).eq("id",id);input.disabled=false;if(error)return window.toast?.(error.message);if(row)Object.assign(row,payload);renderTabs();window.toast?.(status?'Статус заявки обновлён':'Предварительная оценка сохранена')});
   content.addEventListener("change",async event=>{const select=event.target.closest("[data-viewing-status]");if(!select)return;select.disabled=true;const{error}=await window.vklucheAuth.getClient().from("vehicle_viewing_requests").update({status:select.value,updated_at:new Date().toISOString()}).eq("id",select.dataset.viewingStatus);select.disabled=false;if(error)return window.toast?.(error.message);window.toast?.("Статус осмотра обновлён");load()});
+  content.addEventListener("click",async event=>{const button=event.target.closest("[data-reservation-response]");if(!button)return;button.disabled=true;const{error}=await window.vklucheAuth.getClient().rpc("respond_to_reservation",{p_reservation_id:button.dataset.reservationId,p_accept:button.dataset.reservationResponse==='true'});button.disabled=false;if(error)return window.toast?.(error.message);window.toast?.(button.dataset.reservationResponse==='true'?'Бронь подтверждена':'Запрос отклонён');load()});
   content.addEventListener('change',async event=>{const role=event.target.closest('[data-admin-role]'),account=event.target.closest('[data-admin-account-type]');if(!role&&!account)return;const select=role||account,action=role?'set_role':'set_account_type',body={action,userId:select.dataset[role?'adminRole':'adminAccountType']};if(role)body.role=select.value;else body.accountType=select.value;if(!confirm(role?'Изменить системную роль пользователя?':'Изменить тип аккаунта пользователя?')){state.data.adminUsers=undefined;return renderAdminUsers()}select.disabled=true;const{data,error}=await window.vklucheAuth.getClient().functions.invoke('admin-users',{body});if(error||data?.error){select.disabled=false;window.toast?.(data?.error||error.message);state.data.adminUsers=undefined;return renderAdminUsers()}window.toast?.('Данные пользователя обновлены');state.data.adminUsers=undefined;renderAdminUsers()});
   window.addEventListener("vkluche:profile", load);
   window.addEventListener("vkluche:saved-searches-changed", load);
@@ -576,6 +589,7 @@
   window.addEventListener("vkluche:credit-applications-changed", load);
   window.addEventListener("vkluche:trade-in-changed", load);
   window.addEventListener("vkluche:viewings-changed", load);
+  window.addEventListener("vkluche:reservations-changed", load);
   window.addEventListener("vkluche:dashboard-open", load);
   window.addEventListener("vkluche:dashboard-tab", (event) => {
     state.active = event.detail?.tab || "overview";
