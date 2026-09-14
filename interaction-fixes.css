@@ -1,0 +1,8 @@
+.loan-modal{z-index:75}
+
+@keyframes historyReportAttention{0%,72%,100%{box-shadow:0 0 0 0 #2563eb00;transform:translateY(0)}80%{box-shadow:0 0 0 7px #2563eb18;transform:translateY(-1px)}88%{box-shadow:0 0 0 3px #2563eb10;transform:translateY(0)}}
+@keyframes historyReportArrow{0%,72%,100%{transform:translateX(0)}82%{transform:translateX(4px)}90%{transform:translateX(0)}}
+.history-report-btn:not(.available){animation:historyReportAttention 4.8s ease-in-out infinite}
+.history-report-btn:not(.available) i{animation:historyReportArrow 4.8s ease-in-out infinite}
+.history-report-btn:disabled{opacity:.65;cursor:wait;animation:none}
+@media(prefers-reduced-motion:reduce){.history-report-btn,.history-report-btn i{animation:none!important}}
