@@ -96,3 +96,47 @@
   .loan-result b{font-size:15px}
   .car-content{padding-inline:10px}
 }
+
+/* Compact vehicle action panel */
+@media (min-width:851px){
+  .detail-aside{min-height:0}
+  .sticky-card{
+    top:78px;
+    max-height:calc(100dvh - 96px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    scrollbar-width:thin;
+    padding:20px;
+  }
+  .sticky-card h1{margin:5px 0 9px;font-size:23px}
+  .detail-price{font-size:27px}
+  .detail-headline-facts{margin-bottom:10px}
+  .finance-note{margin:8px 0 10px;padding:8px 10px}
+}
+.compact-aside-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.compact-aside-actions button{width:100%;min-height:42px;height:auto;margin:0;padding:9px 10px;border-radius:10px;font-size:11px;line-height:1.25}
+.compact-aside-actions #sendMessage{grid-column:1/-1;background:var(--blue);color:#fff}
+.compact-aside-actions #showPhone{border:1px solid #b9caf0;background:#fff;color:var(--blue)}
+.compact-aside-actions #openViewing{border:0;background:#e9f0ff;color:var(--blue)}
+.compact-aside-more{margin-top:10px;border:1px solid var(--line);border-radius:11px;background:var(--white,#fff);overflow:hidden}
+.compact-aside-more>summary{display:flex;align-items:center;justify-content:space-between;min-height:40px;padding:9px 11px;color:#475467;font-size:11px;font-weight:800;cursor:pointer;list-style:none}
+.compact-aside-more>summary::-webkit-details-marker{display:none}
+.compact-aside-more>summary:after{content:'⌄';font-size:15px;transition:transform .2s}
+.compact-aside-more[open]>summary:after{transform:rotate(180deg)}
+.compact-aside-more[open]>summary{border-bottom:1px solid var(--line)}
+.compact-aside-more-body{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:9px}
+.compact-aside-more-body button{width:100%;min-height:38px;height:auto;margin:0;padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--white,#fff);color:var(--muted);font-size:10px;font-weight:750;line-height:1.3}
+.compact-aside-more-body .history-report-btn{grid-column:1/-1;display:grid;grid-template-columns:28px 1fr auto;text-align:left}
+.compact-aside-more-body .history-report-btn small{font-size:8px}
+.sticky-card>.seller{margin-top:12px;padding-top:12px}
+.sticky-card>.seller .seller-avatar{width:34px;height:34px}
+.sticky-card>.safe-note{display:flex;gap:6px;margin-top:10px;padding:8px 10px}
+.sticky-card>.safe-note b,.sticky-card>.safe-note span{font-size:9px;line-height:1.35}
+.sticky-card>.safe-note span{margin:0}
+.sticky-card>.loan-open-btn{margin:0 0 8px;padding:8px;min-height:38px}
+.sticky-card>.auction-box{margin:10px 0}
+
+@media(max-width:850px){
+  .compact-aside-more{display:none}
+  .compact-aside-actions{display:none}
+}
