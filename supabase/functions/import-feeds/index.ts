@@ -126,7 +126,13 @@ async function importSource(source: any) {
     if (readError) throw readError
     const previous = new Map(existing.map((item: any) => [item.external_id, item]))
     const seen = new Set(mapped.map(item => item.externalId)), now = new Date().toISOString()
-    const rows = mapped.map(item => ({ source_id: source.id, external_id: item.externalId, organization_id: source.organization_id || null, branch_id: source.branch_id || null, vin: item.car.details.vin || null, data: { ...item.car, id: `feed:${source.id}:${item.externalId}` }, active: true, missing_runs: 0, last_seen_at: now, updated_at: now }))
+    const rows = mapped.map(item => {
+      const old: any = previous.get(item.externalId), oldPrice = Number(old?.data?.price || 0), history = Array.isArray(old?.data?.details?.priceHistory) ? [...old.data.details.priceHistory] : []
+      if (oldPrice && oldPrice !== item.car.price && history.at(-1)?.price !== oldPrice) history.push({ price: oldPrice, date: old.updated_at || now })
+      item.car.details.priceHistory = history.slice(-20)
+      item.car.details.previousPrice = oldPrice && oldPrice !== item.car.price ? oldPrice : Number(old?.data?.details?.previousPrice || 0) || null
+      return { source_id: source.id, external_id: item.externalId, organization_id: source.organization_id || null, branch_id: source.branch_id || null, vin: item.car.details.vin || null, data: { ...item.car, id: `feed:${source.id}:${item.externalId}` }, active: true, missing_runs: 0, last_seen_at: now, updated_at: now }
+    })
     for (let i = 0; i < rows.length; i += 200) { const { error } = await admin.from('listings').upsert(rows.slice(i, i + 200), { onConflict: 'source_id,external_id' }); if (error) throw error }
     const catalogByKey = new Map<string, Record<string, unknown>>()
     mapped.forEach(({ car }) => {
