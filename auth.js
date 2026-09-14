@@ -10,6 +10,10 @@
   let pendingAction = null;
   const accountTypeLabels = { private: 'Частное лицо', professional: 'Профессиональный участник' };
   const triggers = () => document.querySelectorAll('.auth-trigger');
+  const authParams = () => new URLSearchParams(`${location.search.replace(/^\?/, '')}&${location.hash.replace(/^#/, '')}`);
+  const isRecoveryReturn = () => authParams().get('auth') === 'recovery' || authParams().get('type') === 'recovery';
+  function recoveryRedirectUrl() { const local = ['localhost', '127.0.0.1'].includes(location.hostname); const base = local ? 'https://andreyprokashev-sudo.github.io/vkluche-auto-market/' : `${location.origin}${location.pathname}`; const url = new URL(base); url.searchParams.set('auth', 'recovery'); return url.toString(); }
+  function clearRecoveryUrl() { const url = new URL(location.href); url.searchParams.delete('auth'); url.searchParams.delete('code'); url.hash = ''; history.replaceState({}, '', url); }
 
   function showMessage(text = '', type = '') { message.textContent = text; message.className = `auth-message${type ? ` ${type}` : ''}`; }
   function showView(name) { document.querySelectorAll('.auth-view').forEach(view => view.classList.toggle('active', view.dataset.authView === name)); modal.querySelector('.auth-card').classList.toggle('dashboard-open',name==='profile');if(name==='profile')window.dispatchEvent(new CustomEvent('vkluche:dashboard-open'));showMessage(); }
@@ -56,14 +60,15 @@
   document.querySelector('#registrationChannelsSkip').addEventListener('click',()=>{localStorage.removeItem('vkluche-channel-onboarding');if(user)close();else{showView('login');showMessage('Подтвердите почту и войдите в аккаунт. MAX можно подключить позже в настройках.','success')}});
   document.querySelector('#resetForm').addEventListener('submit', event => {
     event.preventDefault(); const email = new FormData(event.currentTarget).get('email').trim();
-    submit(event.submitter, async () => { const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}${location.pathname}` }); if (error) throw error; showMessage('Ссылка для восстановления отправлена. Проверьте почту.', 'success'); });
+    submit(event.submitter, async () => { const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: recoveryRedirectUrl() }); if (error) throw error; showMessage('Ссылка для восстановления отправлена. Она действует ограниченное время и открывает форму нового пароля.', 'success'); });
   });
   document.querySelector('#newPasswordForm').addEventListener('submit', event => {
-    event.preventDefault(); const password = new FormData(event.currentTarget).get('password');
-    submit(event.submitter, async () => { const { error } = await client.auth.updateUser({ password }); if (error) throw error; showView('profile'); showMessage('Пароль успешно изменён.', 'success'); });
+    event.preventDefault(); const form = new FormData(event.currentTarget), password = form.get('password'), confirmation = form.get('passwordConfirm');
+    if (password !== confirmation) return showMessage('Пароли не совпадают.', 'error');
+    submit(event.submitter, async () => { const { error } = await client.auth.updateUser({ password }); if (error) throw error; clearRecoveryUrl(); event.currentTarget.reset(); showView('profile'); showMessage('Пароль успешно изменён. Теперь его можно использовать для входа.', 'success'); });
   });
   document.querySelector('#logoutButton').addEventListener('click', async () => { const { error } = await client.auth.signOut(); if (error) return showMessage(friendlyError(error), 'error'); user = null; updateUi(); close(); window.dispatchEvent(new CustomEvent('vkluche:auth', { detail: { user: null } })); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('open')) close(); });
   window.vklucheAuth = { isConfigured: configured, getUser: () => user, getRole: () => role, getAccountType: () => accountType, refreshProfile: syncProfile, getClient: () => client, open, require(action) { if (user) return true; pendingAction = typeof action === 'function' ? action : null; open(configured ? 'login' : 'setup'); return false; } };
-  if (client) { client.auth.getSession().then(async ({ data }) => { user = data.session?.user || null; await syncProfile(); updateUi(); }); client.auth.onAuthStateChange((event, session) => { user = session?.user || null; if (!user) { role = 'user'; accountType = 'private'; } updateUi(); if (event === 'PASSWORD_RECOVERY') open('new-password'); }); } else updateUi();
+  if (client) { const params=authParams(),recoveryError=params.get('error_description');if(recoveryError){open('reset');showMessage('Ссылка восстановления недействительна или уже истекла. Отправьте новую ссылку.','error');clearRecoveryUrl()}client.auth.getSession().then(async ({ data }) => { user = data.session?.user || null; await syncProfile(); updateUi(); if(isRecoveryReturn()){if(user)open('new-password');else{open('reset');showMessage('Не удалось подтвердить ссылку восстановления. Запросите новую ссылку и откройте последнее письмо.','error')}} }); client.auth.onAuthStateChange((event, session) => { user = session?.user || null; if (!user) { role = 'user'; accountType = 'private'; } updateUi(); if (event === 'PASSWORD_RECOVERY'||(isRecoveryReturn()&&session)) open('new-password'); }); } else updateUi();
 })();
