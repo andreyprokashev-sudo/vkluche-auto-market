@@ -5,7 +5,9 @@
 :where(input,select,textarea){line-height:1.35}
 
 /* Dialogs and forms */
+.modal:not(#carDetail){z-index:110}
 .modal-card{overscroll-behavior:contain}
+.toast{z-index:140}
 .modal-card form{align-content:start}
 .modal-card form>label:not([class*="consent"]){display:grid;gap:6px}
 .modal-card :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){min-height:44px;font-size:13px}
