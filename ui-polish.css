@@ -1,0 +1,96 @@
+/* Final visual-quality layer: consistent rhythm, readable type and safe wrapping. */
+:where(.modal-card,.dashboard-content,.detail-main,.detail-aside,.car-content) *{min-width:0}
+:where(.modal-card,.dashboard-content,.detail-main,.detail-aside) :is(p,small,span,label,b,strong,a,button){overflow-wrap:break-word}
+:where(button,input,select,textarea){font-family:inherit}
+:where(input,select,textarea){line-height:1.35}
+
+/* Dialogs and forms */
+.modal-card{overscroll-behavior:contain}
+.modal-card form{align-content:start}
+.modal-card form>label:not([class*="consent"]){display:grid;gap:6px}
+.modal-card :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){min-height:44px;font-size:13px}
+.modal-card textarea{line-height:1.5}
+.modal-card .primary-btn{min-height:44px;line-height:1.3;white-space:normal}
+
+/* A checkbox must never inherit the full-width text-input rule. */
+:is(.loan-consent,.auth-consent,.consultation-consent,.trade-in-consent,.viewing-consent,.procurement-consent,.consent,.auction-check,.second-wheels-toggle){
+  display:grid!important;
+  grid-template-columns:20px minmax(0,1fr)!important;
+  align-items:start!important;
+  gap:10px!important;
+  width:100%;
+  line-height:1.5!important;
+}
+:is(.loan-consent,.auth-consent,.consultation-consent,.trade-in-consent,.viewing-consent,.procurement-consent,.consent,.auction-check,.second-wheels-toggle)>input[type="checkbox"]{
+  appearance:auto;
+  width:18px!important;
+  min-width:18px!important;
+  max-width:18px!important;
+  height:18px!important;
+  min-height:18px!important;
+  margin:2px 0 0!important;
+  padding:0!important;
+  accent-color:var(--blue);
+}
+:is(.loan-consent,.auth-consent,.consultation-consent,.trade-in-consent,.viewing-consent,.procurement-consent,.consent,.auction-check,.second-wheels-toggle)>span{display:block;min-width:0}
+
+/* Credit calculator */
+.loan-card{scrollbar-gutter:stable;padding-right:34px}
+.loan-fields{gap:16px 14px}
+.loan-fields label{font-size:12px;line-height:1.4}
+.loan-range-wrap{margin-top:8px}
+.loan-result{gap:10px;margin:20px 0}
+.loan-result span{min-height:76px;align-content:center;padding:14px}
+.loan-result small{font-size:10px;line-height:1.35}
+.loan-disclaimer{margin:14px 0 18px;font-size:11px;line-height:1.55}
+#loanApplication{margin-top:24px;padding-top:22px}
+#loanApplication h3{margin:0 0 18px;font-size:20px}
+.loan-consent{margin:18px 0!important;font-size:12px!important;color:#475467}
+
+/* Catalog cards: prevent equipment, price and metadata from visually merging. */
+.car-content{gap:0}
+.card-trim,.card-equipment{line-height:1.45}
+.card-equipment{margin-bottom:8px}
+.price-row{margin-top:2px}
+.car-facts span{display:block}
+.car-location{gap:10px}
+.car-location span:last-child{text-align:right}
+
+/* Details, dashboard and secondary panels */
+.detail-section>p,.description{overflow-wrap:anywhere}
+.detail-headline-facts{row-gap:7px}
+.dashboard-row,.dashboard-car,.moderation-card{line-height:1.4}
+.dashboard-row small,.dashboard-car small,.moderation-card small{line-height:1.45}
+.dashboard-block-head{gap:14px}
+.dashboard-block-head>div{min-width:0}
+.notification-item,.company-feed-card,.help-article{line-height:1.5}
+
+@media (max-width:700px){
+  .modal{align-items:flex-end}
+  .modal-card{max-height:calc(100dvh - 10px);padding:25px 18px max(22px,env(safe-area-inset-bottom));border-radius:20px 20px 0 0;scrollbar-gutter:auto}
+  .modal-card h2{margin-bottom:10px;font-size:24px}
+  .modal-card>p{margin-top:0;font-size:14px;line-height:1.5}
+  .loan-card{width:100%;height:auto;max-height:calc(100dvh - 8px);padding-right:18px}
+  .loan-fields{gap:15px}
+  .loan-fields label{font-size:14px}
+  .loan-result{grid-template-columns:1fr;gap:8px}
+  .loan-result span{min-height:58px;grid-template-columns:minmax(0,1fr) auto;align-items:center}
+  .loan-result small{font-size:12px}
+  .loan-result b{font-size:16px;text-align:right}
+  .loan-disclaimer,.loan-consent{font-size:13px!important}
+  .car-content h3{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .card-trim{font-size:11px}
+  .card-equipment{font-size:11px;margin-bottom:7px}
+  .car-facts{font-size:11px}
+  .car-facts .car-fact-main{font-size:12px}
+  .car-location{font-size:11px}
+  .dashboard-row,.dashboard-car{gap:10px;padding:14px 12px}
+  .dashboard-row b,.dashboard-car b,.moderation-card b{font-size:14px}
+  .dashboard-row small,.dashboard-car small,.moderation-card small{font-size:12px}
+}
+
+@media (max-width:380px){
+  .modal-card{padding-inline:15px}
+  .loan-result b{font-size:15px}
+  .car-content{padding-inline:10px}
+}
