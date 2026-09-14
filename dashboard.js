@@ -334,7 +334,7 @@
         .order("created_at", { ascending: false }),
       client
         .from("favorites")
-        .select("listing_id,created_at,listings(data,status)")
+        .select("listing_id,created_at,listings(data,status,active)")
         .order("created_at", { ascending: false }),
       client.from("profiles").select("name,phone,city,account_type").eq("id",user.id).maybeSingle(),
       client.from("notification_preferences").select("email_enabled,telegram_enabled,telegram_chat_id,max_enabled,max_chat_id").eq("user_id",user.id).maybeSingle(),
@@ -348,7 +348,7 @@
       bids: bids.data || [],
       deals: deals.data || [],
       searches: searches.data || [],
-      favorites: favorites.data || [],
+      favorites: (favorites.data || []).filter(item=>item.listings?.active&&item.listings.status==='published'),
       profile: profile.data || {},
       notificationPreferences: preferences.data || {},
       myCreditApplications: myCreditApplications.data || [],
@@ -414,6 +414,7 @@
       state.data.creditApplications = creditApplications.data || [];
       state.data.tradeInRequests = tradeInRequests.data || [];
     }
+    window.dispatchEvent(new CustomEvent('vkluche:favorites-synced',{detail:{listingIds:state.data.favorites.map(item=>item.listing_id)}}));
     const params=new URLSearchParams(location.search),questionId=params.get('question'),cabinet=params.get('cabinet');
     if(cabinet==='my-credit'&&!deepLinkHandled){
       deepLinkHandled=true;
@@ -523,6 +524,7 @@
         .from("favorites")
         .delete()
         .eq("listing_id", favorite.dataset.removeFavorite);
+      window.dispatchEvent(new CustomEvent('vkluche:favorites-synced',{detail:{listingIds:(state.data.favorites||[]).filter(item=>String(item.listing_id)!==String(favorite.dataset.removeFavorite)).map(item=>item.listing_id)}}));
       return load();
     }
     const withdraw = event.target.closest("[data-listing-withdraw]");
