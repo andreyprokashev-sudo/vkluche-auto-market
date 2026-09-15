@@ -360,7 +360,7 @@
       sellerReservations: (reservations.data||[]).filter(item=>item.seller_id===user.id),
       allReservations: state.role==='admin'?(reservations.data||[]):[],
       myInquiries: (inquiries.data||[]).filter(item=>item.user_id===user.id),
-      sellerInquiries: (inquiries.data||[]).filter(item=>item.seller_id===user.id),
+      sellerInquiries: state.role==='admin'?(inquiries.data||[]):(inquiries.data||[]).filter(item=>item.seller_id===user.id),
       allInquiries: state.role==='admin'?(inquiries.data||[]):[],
     };
     {

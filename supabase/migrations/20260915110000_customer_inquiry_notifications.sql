@@ -19,8 +19,22 @@ begin
       else format('Поступило новое обращение по автомобилю %s.',coalesce(new.vehicle_name,'из объявления'))
     end,
     new.listing_id,
-    'customer-inquiry:' || new.id::text
+    'customer-inquiry:' || new.id::text || ':seller'
   )
+  on conflict (dedupe_key) do nothing;
+
+  insert into public.notifications(user_id,type,title,body,listing_id,dedupe_key)
+  select p.id,
+    case when is_history_report then 'history_report_requested' else 'customer_inquiry_received' end,
+    case when is_history_report then 'Запрошен отчёт Автотеки' else 'Новое обращение по автомобилю' end,
+    case when is_history_report
+      then format('Покупатель запросил свежий отчёт по автомобилю %s.',coalesce(new.vehicle_name,'из объявления'))
+      else format('Поступило новое обращение по автомобилю %s.',coalesce(new.vehicle_name,'из объявления'))
+    end,
+    new.listing_id,
+    'customer-inquiry:' || new.id::text || ':admin:' || p.id::text
+  from public.profiles p
+  where p.role='admin' and p.id<>new.seller_id
   on conflict (dedupe_key) do nothing;
 
   return new;
