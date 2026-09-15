@@ -150,8 +150,8 @@
 .auction-nav-group>a{line-height:1.15}
 .auction-nav-group .auction-sub-link{color:#7b8798;font-size:9px;font-weight:700;white-space:nowrap}
 .auction-nav-group .auction-sub-link:hover{color:var(--blue)}
-.header-evaluate{height:40px;padding:0 15px;border:1px solid #b9cdf2;border-radius:10px;background:#fff;color:var(--blue);font-weight:800;cursor:pointer}
-.header-evaluate:hover{border-color:var(--blue);background:#f3f7ff}
+.header-evaluate,.header-sell{min-width:92px;height:40px;margin-left:4px;padding:0 17px;border:0;border-radius:10px;background:var(--blue);color:#fff;font-size:13px;font-weight:800;line-height:40px;box-shadow:none;cursor:pointer}
+.header-evaluate:hover,.header-sell:hover{background:var(--blue-dark);color:#fff;transform:translateY(-1px)}
 @media(max-width:950px){.auction-nav-group{display:contents}.auction-nav-group .auction-sub-link{min-height:44px;display:flex;align-items:center;font-size:13px}.header-evaluate{display:none}.mobile-nav-actions{grid-template-columns:1fr 1fr}.mobile-nav-actions .open-feed{grid-column:1/-1}}
 .sticky-card>.seller{margin-top:12px;padding-top:12px}
 .sticky-card>.seller .seller-avatar{width:34px;height:34px}
