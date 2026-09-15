@@ -133,6 +133,15 @@
 .compact-aside-more-body .history-report-btn small{margin-top:2px;font-size:9px;line-height:1.3;color:#61738e}
 .compact-aside-more-body .history-report-btn i{font-size:15px}
 .history-report-btn.requested{border-color:#b7dfc7;background:#f0faf4;color:#137a48}
+.history-inquiry{align-items:flex-start}
+.history-inquiry .lead-type{background:#eaf2ff;color:#174caa}
+.history-report-form{display:grid;gap:8px;min-width:250px;padding:12px;border:1px solid #d8e3f3;border-radius:12px;background:#f7faff}
+.history-report-form label{display:grid;gap:4px;font-size:12px;font-weight:750;color:var(--text)}
+.history-report-form input{min-height:38px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--white,#fff);color:var(--text)}
+.history-report-form button,.inquiry-report-download{min-height:38px;padding:8px 12px;border:0;border-radius:9px;background:#1769e0;color:#fff;font-weight:800;cursor:pointer}
+.history-report-form>small{font-size:11px;color:var(--muted)}
+.inquiry-response{padding:7px 9px;border-radius:8px;background:#eff8f2;color:#276b43!important}
+@media(max-width:700px){.history-inquiry{display:grid}.history-report-form{min-width:0;width:100%}}
 .sticky-card>.seller{margin-top:12px;padding-top:12px}
 .sticky-card>.seller .seller-avatar{width:34px;height:34px}
 .sticky-card>.safe-note{display:flex;gap:6px;margin-top:10px;padding:8px 10px}
