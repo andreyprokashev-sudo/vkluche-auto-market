@@ -1,0 +1,1 @@
+-- Historical migration already applied remotely through the Supabase dashboard.
