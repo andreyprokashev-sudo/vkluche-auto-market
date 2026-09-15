@@ -114,41 +114,6 @@
       </div>
     </section>
 
-    <section class="quick container">
-      <a href="#catalog" data-filter="new"><span class="quick-icon">✦</span><b>Новые авто</b><small>от дилеров</small></a>
-      <a href="#catalog" data-filter="used"><span class="quick-icon">↻</span><b>С пробегом</b><small>от владельцев</small></a>
-      <a href="#catalog" data-filter="suv"><span class="quick-icon">▰</span><b>Кроссоверы</b><small>и внедорожники</small></a>
-      <a href="#catalog" data-filter="electric"><span class="quick-icon">ϟ</span><b>Электромобили</b><small>и гибриды</small></a>
-      <a href="#services"><span class="quick-icon">⌁</span><b>Автокредит</b><small>решение за 5 минут</small></a>
-    </section>
-
-    <div class="auction-market-zone">
-    <section class="auctions-section" id="auctions">
-      <div class="container">
-        <div class="section-head auction-section-head">
-          <div><span class="eyebrow blue">ТОРГИ В РЕАЛЬНОМ ВРЕМЕНИ</span><h2><span class="brand-inline"><img src="assets/brand/vkluche-logo-wheel.png" alt=""><span>КЛЮЧЕ</span></span> Аукцион</h2><p>Прозрачные условия, подтверждённые ставки и открытые результаты.</p></div>
-          <a class="auction-rules-link" href="#services">Как это работает →</a>
-        </div>
-        <div class="auction-tabs" id="auctionTabs" role="tablist" aria-label="Состояние аукционов">
-          <button class="active" type="button" data-auction-tab="active" role="tab">Идут сейчас <span></span></button>
-          <button type="button" data-auction-tab="scheduled" role="tab">Предстоящие <span></span></button>
-          <button type="button" data-auction-tab="decision" role="tab">Ожидают решения <span></span></button>
-          <button type="button" data-auction-tab="completed" role="tab">Завершённые <span></span></button>
-        </div>
-        <div class="auction-grid" id="auctionGrid"></div>
-        <div class="auction-empty" id="auctionEmpty"><b>В этом разделе пока нет аукционов</b><span>Выберите другую вкладку или выставьте автомобиль на торги.</span><button class="primary-btn open-modal" type="button">Запустить аукцион</button></div>
-      </div>
-    </section>
-
-    <section class="procurement-section" id="procurements">
-      <div class="container">
-        <div class="section-head procurement-head"><div><span class="eyebrow blue">ОБРАТНЫЙ АУКЦИОН</span><h2>Заявки на покупку</h2><p>Покупатель описывает нужный автомобиль, а владельцы подходящих машин предлагают свою цену.</p></div><button class="primary-btn" id="newProcurement" type="button">Создать заявку</button></div>
-        <div class="procurement-tabs" id="procurementTabs"><button class="active" data-procurement-tab="active" type="button">Активные</button><button data-procurement-tab="mine" type="button">Мои заявки</button><button data-procurement-tab="completed" type="button">Завершённые</button></div>
-        <div class="procurement-grid" id="procurementGrid"><div class="procurement-loading">Загружаем заявки…</div></div>
-      </div>
-    </section>
-    </div>
-
     <section class="catalog container" id="catalog">
       <div class="section-head">
         <div><span class="eyebrow blue">СВЕЖИЕ ПРЕДЛОЖЕНИЯ</span><h2>Автомобили в продаже</h2><p id="resultCount">Загружаем актуальные объявления…</p></div>
@@ -187,6 +152,33 @@
       </div>
       </div>
     </section>
+
+    <div class="auction-market-zone">
+      <section class="auctions-section" id="auctions">
+        <div class="container">
+          <div class="section-head auction-section-head">
+            <div><span class="eyebrow blue">ТОРГИ В РЕАЛЬНОМ ВРЕМЕНИ</span><h2><span class="brand-inline"><img src="assets/brand/vkluche-logo-wheel.png" alt=""><span>КЛЮЧЕ</span></span> Аукцион</h2><p>Прозрачные условия, подтверждённые ставки и открытые результаты.</p></div>
+            <a class="auction-rules-link" href="#services">Как это работает →</a>
+          </div>
+          <div class="auction-tabs" id="auctionTabs" role="tablist" aria-label="Состояние аукционов">
+            <button class="active" type="button" data-auction-tab="active" role="tab">Идут сейчас <span></span></button>
+            <button type="button" data-auction-tab="scheduled" role="tab">Предстоящие <span></span></button>
+            <button type="button" data-auction-tab="decision" role="tab">Ожидают решения <span></span></button>
+            <button type="button" data-auction-tab="completed" role="tab">Завершённые <span></span></button>
+          </div>
+          <div class="auction-grid" id="auctionGrid"></div>
+          <div class="auction-empty" id="auctionEmpty"><b>В этом разделе пока нет аукционов</b><span>Выберите другую вкладку или выставьте автомобиль на торги.</span><button class="primary-btn open-modal" type="button">Запустить аукцион</button></div>
+        </div>
+      </section>
+
+      <section class="procurement-section" id="procurements">
+        <div class="container">
+          <div class="section-head procurement-head"><div><span class="eyebrow blue">ОБРАТНЫЙ АУКЦИОН</span><h2>Заявки на покупку</h2><p>Покупатель описывает нужный автомобиль, а владельцы подходящих машин предлагают свою цену.</p></div><button class="primary-btn" id="newProcurement" type="button">Создать заявку</button></div>
+          <div class="procurement-tabs" id="procurementTabs"><button class="active" data-procurement-tab="active" type="button">Активные</button><button data-procurement-tab="mine" type="button">Мои заявки</button><button data-procurement-tab="completed" type="button">Завершённые</button></div>
+          <div class="procurement-grid" id="procurementGrid"><div class="procurement-loading">Загружаем заявки…</div></div>
+        </div>
+      </section>
+    </div>
 
     <section class="sell-section" id="services">
       <div class="container sell-card">
