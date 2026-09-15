@@ -415,12 +415,13 @@
       state.data.tradeInRequests = tradeInRequests.data || [];
     }
     window.dispatchEvent(new CustomEvent('vkluche:favorites-synced',{detail:{listingIds:state.data.favorites.map(item=>item.listing_id)}}));
-    const params=new URLSearchParams(location.search),questionId=params.get('question'),cabinet=params.get('cabinet');
+    const params=new URLSearchParams(location.search),questionId=params.get('question'),inquiryId=params.get('inquiry'),cabinet=params.get('cabinet');
     if(cabinet&&['my-credit','my-inquiries','seller-inquiries'].includes(cabinet)&&!deepLinkHandled){
       deepLinkHandled=true;
       state.active=cabinet;
       render();
       auth.open('profile');
+      if(cabinet==='my-inquiries'&&inquiryId){const row=state.data.myInquiries.find(item=>item.id===inquiryId);if(row?.report_path){const{data}=await client.storage.from('history-reports').createSignedUrl(row.report_path,300);if(data?.signedUrl){history.replaceState({},'',location.pathname);location.assign(data.signedUrl);return}}window.toast?.('Отчёт ещё не прикреплён или недоступен')}
       history.replaceState({},'',`${location.pathname}${location.hash}`);
       return;
     }
@@ -626,4 +627,5 @@
     state.active = event.detail?.tab || "overview";
     render();
   });
+  const initialCabinet=new URLSearchParams(location.search).get('cabinet');if(initialCabinet&&['my-credit','my-inquiries','seller-inquiries'].includes(initialCabinet)){const followDeepLink=()=>{if(deepLinkHandled)return;if(window.vklucheAuth?.getUser())load();else window.vklucheAuth?.require(load)};if(window.vklucheAuthReady)setTimeout(followDeepLink,0);else window.addEventListener('vkluche:auth-ready',followDeepLink,{once:true})}
 })();
