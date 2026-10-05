@@ -1,0 +1,161 @@
+/* Auction setup: readable controls, compact readiness checklist, mobile scrolling. */
+#auctionStartModal {
+  --auction-surface: #f6f8fc;
+  --auction-text: #243247;
+  --auction-subtle: #65748a;
+  --auction-border: #dfe6ef;
+  padding: 24px 0;
+}
+#auctionStartModal .auction-start-card {
+  width: min(680px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 32px;
+  border: 1px solid var(--auction-border);
+  border-radius: 24px;
+  box-shadow: 0 28px 100px #10182840;
+  scrollbar-width: thin;
+}
+#auctionStartModal .modal-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  top: 20px;
+  right: 20px;
+  border-radius: 50%;
+  background: var(--auction-surface);
+  color: var(--auction-subtle);
+  font-size: 24px;
+}
+#auctionStartModal .eyebrow { font-size: 10px; letter-spacing: .13em; }
+#auctionStartModal h2 {
+  max-width: 520px;
+  margin: 12px 38px 8px 0;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+#auctionStartCar {
+  margin: 0 0 20px;
+  color: var(--auction-subtle);
+  font-size: 15px;
+}
+#auctionStartModal .auction-readiness {
+  margin: 0 0 24px;
+  padding: 16px 18px;
+  border-color: var(--auction-border);
+  border-radius: 16px;
+  background: var(--auction-surface);
+}
+#auctionStartModal .auction-readiness > b { color: var(--auction-text); font-size: 13px; }
+#auctionStartModal .auction-readiness p {
+  margin: 5px 0 12px;
+  color: var(--auction-subtle);
+  font-size: 12px;
+  line-height: 1.5;
+}
+#auctionReadinessList { grid-template-columns: 1fr 1fr; gap: 9px 14px; }
+#auctionStartModal .auction-readiness li { font-size: 12px; line-height: 1.45; color: var(--auction-subtle); }
+#auctionStartModal .auction-readiness li.missing { color: #b54738; }
+#auctionStartModal #auctionStartForm { margin-top: 0; gap: 16px; }
+#auctionStartModal .form-grid { gap: 18px 20px; align-items: start; }
+#auctionStartModal .form-grid > label {
+  display: block;
+  min-width: 0;
+  color: var(--auction-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+#auctionStartModal input:not([type="checkbox"]),
+#auctionStartModal select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  margin: 7px 0 0;
+  border: 1px solid var(--auction-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  outline: none;
+  background-color: var(--white, #fff);
+  color: var(--auction-text);
+  font: 600 14px/1.4 Manrope, sans-serif;
+  transition: border-color .15s, box-shadow .15s;
+}
+#auctionStartModal select {
+  appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23758296' stroke-width='1.7' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  cursor: pointer;
+}
+#auctionStartModal input::placeholder { color: #8a97a9; font-weight: 400; }
+#auctionStartModal input:not([type="checkbox"]):focus,
+#auctionStartModal select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px #2563eb16;
+}
+#auctionStartModal label small {
+  display: block;
+  margin-top: 7px;
+  color: var(--auction-subtle);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+#auctionStartModal .winner-mode { padding-top: 16px; border-top: 1px solid var(--auction-border); }
+#auctionStartModal form > .auction-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 0;
+  padding: 13px 15px;
+  border: 1px solid var(--auction-border);
+  border-radius: 12px;
+  background: var(--auction-surface);
+  color: var(--auction-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  cursor: pointer;
+}
+#auctionStartModal .auction-check input[type="checkbox"] {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+#auctionStartModal .primary-btn {
+  min-height: 50px;
+  margin-top: 4px;
+  border-radius: 12px;
+  font: 700 14px Manrope, sans-serif;
+}
+#auctionStartModal .primary-btn:disabled { opacity: .65; cursor: wait; }
+:root[data-theme="dark"] #auctionStartModal {
+  --auction-surface: #1c2737;
+  --auction-text: #e5edf8;
+  --auction-subtle: #aab9ce;
+  --auction-border: #344358;
+}
+@media (max-width: 650px) {
+  #auctionStartModal { padding: 12px 0; }
+  #auctionStartModal .auction-start-card {
+    width: calc(100% - 20px);
+    max-height: calc(100dvh - 24px);
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+  #auctionStartModal h2 { font-size: 23px; margin-right: 26px; }
+  #auctionStartModal .modal-close { top: 14px; right: 12px; width: 32px; height: 32px; }
+  #auctionStartModal .form-grid, #auctionReadinessList { grid-template-columns: 1fr; }
+  #auctionStartModal .winner-mode { grid-column: auto; }
+  #auctionStartModal input:not([type="checkbox"]), #auctionStartModal select { font-size: 16px; }
+}
