@@ -57,6 +57,7 @@ async function publication(isDraft, auctionFailure = false) {
 async function application(file, result, expectedTab) {
   let handler;
   const receipt = [], messages = [];
+  let inserted;
   const submit = {disabled:false,textContent:''};
   const form = {dataset:{},addEventListener(type,callback) {handler=callback;}};
   const payload = {brandChoice:'Toyota',modelChoice:'Camry',year:'2020',mileage:'100',city:'Самара',condition:'good',phone:'test',comment:'',fullName:'Тест',email:'test@example.test',region:'Самара',employment:'other'};
@@ -65,7 +66,8 @@ async function application(file, result, expectedTab) {
     FormData:class {get(key){return payload[key]??null}},
     calculate:()=>({price:1500000,down:300000,months:60,rate:20,monthly:30000}),
     window:{
-      vklucheAuth:{getClient:()=>({from:()=>({insert:()=>({select:()=>({single:async()=>{if(result instanceof Error)throw result;return result;}})})})}),getUser:()=>({id:'owner'})},
+      vklucheAuth:{getClient:()=>({from:()=>({insert:value=>{inserted=value;return {select:()=>({single:async()=>{if(result instanceof Error)throw result;return result;}})}}})}),getUser:()=>({id:'owner'})},
+      vklucheValuationPhotos:{value:()=>[{name:'test.jpg',url:'data:image/jpeg;base64,/9j/2Q=='}]},
       vklucheCurrentCar:()=>({name:'Toyota Camry',listingId:'listing'}),
       vklucheRequestReceipt:(...args)=>receipt.push(args),
       toast:message=>messages.push(message),dispatchEvent(){}
@@ -74,6 +76,7 @@ async function application(file, result, expectedTab) {
   vm.runInContext(read(file).split('\n').find(line=>line.includes("form.addEventListener('submit',async")),context);
   await handler({preventDefault(){},submitter:submit});
   assert.equal(submit.disabled,false,'The submit button must recover after every response');
+  if(file==='trade-in.js') assert.equal(inserted.photos[0].name,'test.jpg','Valuation photos must be included in the saved request');
   if(result.data?.id) {assert.equal(receipt[0][1],expectedTab);assert.equal(receipt[0][0].id,result.data.id);}
   else {assert.equal(receipt.length,0,'No success receipt without confirmed persistence');assert.ok(messages.length);}
 }
