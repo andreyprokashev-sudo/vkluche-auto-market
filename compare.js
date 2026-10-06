@@ -71,10 +71,11 @@
     replaceModal.classList.add("open");
   }
   function enhance() {
+    const visibleCars = filtered();
     [...document.querySelectorAll("#carsGrid .car-card")].forEach(
       (card, index) => {
         if (card.querySelector("[data-compare-id]")) return;
-        const car = filtered()[index];
+        const car = visibleCars[index];
         if (!car) return;
         card
           .querySelector(".car-content")
