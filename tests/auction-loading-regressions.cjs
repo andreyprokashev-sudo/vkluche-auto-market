@@ -1,0 +1,22 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const source=fs.readFileSync(require('node:path').join(__dirname,'../app.js'),'utf8');
+const rows=[{id:'active',listing_id:'live',status:'active',start_price:100,listings:{id:'live',name:'Granta'}},{id:'ended',listing_id:'archived',status:'no_sale',start_price:50,listings:null}];
+const cars=[{id:10,listingId:'live',name:'Granta'}];
+const query={select(){return this},in(){return this},order(){return this},abortSignal(){return Promise.resolve({data:rows})}};
+const context=vm.createContext({cars,window:{vklucheAuth:{getClient:()=>({from:()=>query})}},requestTimeout(){},auctionBest:a=>a.startPrice,renderAuctionSection(){},location:{search:''},URLSearchParams,deepLinkOpened:false,console});
+vm.runInContext(source.slice(source.indexOf('function auctionFromRow'),source.indexOf('async function hydrateAuctionPreview')),context);
+vm.runInContext(source.slice(source.indexOf('function mergeLoadedAuctions'),source.indexOf('let realtimeChannel')),context);
+(async()=>{
+  await context.loadAuctionPreviews();
+  assert.equal(cars.find(c=>c.listingId==='live').auction.id,'active','Attach auctions even when the listing loaded first');
+  assert.equal(cars.find(c=>c.listingId==='archived').auction.id,'ended','Keep history when listing is no longer accessible');
+  await context.loadAuctionPreviews();assert.equal(cars.length,2,'Repeated refresh must not duplicate lots');
+  const incoming=[{listingId:'live'}];context.mergeLoadedAuctions(incoming);
+  assert.equal(incoming[0].auction.id,'active','Catalog refresh must retain lightweight auction data');
+  context.remoteCars=incoming;
+  vm.runInContext(source.slice(source.indexOf('  const remoteListingIds='),source.indexOf('  const localListings=')),context);
+  assert.equal(cars.length,1);assert.equal(cars[0].auction.id,'ended','Catalog replacement must preserve archived auction cards');
+  console.log('PASS: listing-first loading, archived history, duplicate refresh, catalog replacement.');
+})().catch(error=>{console.error(error);process.exitCode=1});
