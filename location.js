@@ -6,7 +6,7 @@
     status = document.querySelector("#locationStatus"),
     results = document.querySelector("#addressResults"),
     citySelect = document.querySelector('#listingForm [name="city"]');
-  let listingMap, listingMarker, detailMap, detailLayer, requestController;
+  let listingMap, listingMarker, requestController;
 
   const tiles = (map) =>
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -144,28 +144,25 @@
     showDetail(car) {
       const location = car?.details?.location || {}, exact = location.precision === "exact";
       document.querySelector("#mapAddress").textContent = location.address ? (exact ? location.address : `Примерный район · ${car.city}`) : "Точное место уточняйте у продавца";
-      const element = document.querySelector("#detailLocationMap");
-      if (!leafletAvailable || !location.latitude || !location.longitude) {
-        element.style.display = "none";
-        return;
-      }
-      element.style.display = "block";
-      if (!detailMap) {
-        detailMap = L.map(element, { scrollWheelZoom: false, dragging: true, zoomControl: true });
-        tiles(detailMap);
-      }
-      if (detailLayer) detailLayer.remove();
+      const element = document.querySelector("#detailLocationMap"), link=document.querySelector('#detailMapLink');
+      element.replaceChildren();
       let lat = +location.latitude, lon = +location.longitude;
+      const valid=location.latitude!==null&&location.latitude!==undefined&&location.latitude!==''&&location.longitude!==null&&location.longitude!==undefined&&location.longitude!==''&&Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180;
+      link.href=`https://yandex.ru/maps/?${new URLSearchParams({text:exact?[car.city,location.address].filter(Boolean).join(', '):car.city||'Россия'})}`;
+      link.textContent=valid?'Открыть карту ↗':'Найти место на карте ↗';
+      if (!valid) {element.style.display='none';return}
       if (!exact) {
         lat = Math.round(lat * 100) / 100;
         lon = Math.round(lon * 100) / 100;
-        detailLayer = L.circle([lat, lon], { radius: 900, color: "#2563eb", fillColor: "#2563eb", fillOpacity: 0.14 }).addTo(detailMap);
-        detailMap.setView([lat, lon], 13);
-      } else {
-        detailLayer = L.marker([lat, lon]).addTo(detailMap);
-        detailMap.setView([lat, lon], 16);
       }
-      setTimeout(() => detailMap.invalidateSize(), 80);
+      const params=new URLSearchParams({ll:`${lon},${lat}`,z:exact?'16':'13',lang:'ru_RU'});
+      if(exact)params.set('pt',`${lon},${lat},pm2blm`);
+      link.href=`https://yandex.ru/maps/?${params}`;
+      const frame=document.createElement('iframe');
+      frame.title=exact?'Карта места осмотра автомобиля':'Карта примерного района осмотра';
+      frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';
+      frame.src=`https://yandex.ru/map-widget/v1/?${params}`;
+      element.style.display='block';element.append(frame);
     },
   };
 })();

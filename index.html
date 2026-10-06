@@ -40,7 +40,7 @@
   <link rel="stylesheet" href="auction-deal.css?v=1" />
   <link rel="stylesheet" href="auction-v2.css?v=3" />
   <link rel="stylesheet" href="auction-bid-fix.css?v=4" />
-  <link rel="stylesheet" href="location-map.css?v=2" />
+  <link rel="stylesheet" href="location-map.css?v=3" />
   <link rel="stylesheet" href="dashboard.css?v=14" />
   <link rel="stylesheet" href="company-feed-status.css?v=1" />
   <link rel="stylesheet" href="market-tools.css?v=1" />
@@ -247,7 +247,7 @@
           <div class="detail-section"><h2>Характеристики</h2><div class="spec-grid" id="detailSpecs"></div></div>
           <div class="detail-section"><h2>Описание</h2><p class="description" id="detailDescription"></p></div>
           <div class="detail-section vehicle-documents" id="documentsSection"><h2>Документы автомобиля</h2><div id="detailDocuments"></div></div>
-          <div class="detail-section"><h2>Место осмотра</h2><div class="detail-location-copy"><b id="mapCity"></b><span id="mapAddress">Точное место уточняйте у продавца</span></div><div class="detail-location-map" id="detailLocationMap"></div><button class="seller-profile-link" id="sellerProfileLink" type="button"><span class="seller-avatar" id="locationSellerAvatar">А</span><span><b id="locationSellerName">Авто Эксперт</b><small>Открыть профиль продавца →</small></span></button></div>
+          <div class="detail-section"><h2>Место осмотра</h2><div class="detail-location-copy"><b id="mapCity"></b><span id="mapAddress">Точное место уточняйте у продавца</span></div><div class="detail-location-map" id="detailLocationMap"></div><a class="detail-map-link" id="detailMapLink" target="_blank" rel="noopener noreferrer">Открыть карту ↗</a><button class="seller-profile-link" id="sellerProfileLink" type="button"><span class="seller-avatar" id="locationSellerAvatar">А</span><span><b id="locationSellerName">Авто Эксперт</b><small>Открыть профиль продавца →</small></span></button></div>
         </div>
         <aside class="detail-aside"><div class="sticky-card"><span class="detail-date" id="detailDate"></span><h1 id="detailTitle"></h1><div class="detail-price" id="detailPrice"></div><div class="finance-note">от <b id="monthlyPrice"></b> в месяц</div><button class="history-report-btn" id="historyReportButton" type="button"><span class="history-report-logo">A</span><span><b>Автотека · отчёт об истории</b><small id="historyReportStatus">Проверка по VIN и базам</small></span><i>→</i></button><button class="contact-btn" id="showPhone">Показать телефон</button><button class="message-btn" id="sendMessage">Написать продавцу</button><button class="aside-fav" id="detailFav">♡ Добавить в избранное</button><div class="seller"><div class="seller-avatar">А</div><div><b>Авто Эксперт</b><span>Проверенный продавец · 4.9 ★</span></div></div><div class="safe-note"><b>Безопасная сделка</b><span>Не переводите предоплату до осмотра автомобиля.</span></div></div></aside>
         <div class="mobile-detail-actions"><button id="mobilePrimaryAction" type="button">Позвонить</button><button id="mobileMessage" type="button">Написать</button><button id="mobileFavorite" type="button" aria-label="Добавить в избранное">♡</button></div>
@@ -308,7 +308,7 @@
   <script src="app.js?v=98"></script>
   <script src="body-paint.js?v=8"></script>
   <script src="theme.js?v=1"></script>
-  <script src="location.js?v=3"></script>
+  <script src="location.js?v=4"></script>
   <script src="dashboard.js?v=47"></script>
   <script src="chat.js?v=3"></script>
   <script src="compare.js?v=9"></script>
